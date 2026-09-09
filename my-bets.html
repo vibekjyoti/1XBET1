@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Bets - 1XBET</title>
+    <link rel="stylesheet" href="style/normalize.css" />
+    <link rel="icon" href="images/xbeticon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style/style.css" />
+    <style>
+      .bets-container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 40px auto; min-height: 60vh; max-width: 900px; }
+      .section-title { color: #333; font-size: 2rem; margin-top: 0; border-bottom: 2px solid #eef4f8; padding-bottom: 10px; margin-bottom: 20px; }
+      
+      /* Bet Card Styles */
+      .bet-card { border: 1px solid #d6dbdd; border-radius: 6px; margin-bottom: 15px; overflow: hidden; background: #f9fbfd; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+      .bet-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+      .bet-header { background: #103856; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: bold; }
+      .bet-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+      .bet-row { display: flex; justify-content: space-between; font-size: 1.4rem; color: #333; }
+      .bet-selection { color: #1f72ad; font-weight: bold; font-size: 1.6rem; }
+      .bet-odds { background: #eaf0f6; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+      
+      /* Status Badges */
+      .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+      .status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+      .status-won { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+      .status-lost { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+      .empty-state { text-align: center; padding: 50px 20px; color: #777; font-size: 1.6rem; }
+      .empty-state i { font-size: 5rem; color: #ccc; margin-bottom: 15px; }
+      
+      .btn-primary { display: inline-block; background: #668a28; color: white; text-decoration: none; padding: 12px 25px; border-radius: 4px; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 15px; }
+      .btn-primary:hover { background: #557321; }
+    </style>
+  </head>
+  <body style="background-color: #eaf0f6;">
+    
+    <!-- Header -->
+    <header style="background: #103856; padding: 15px 0;">
+      <div class="container flex" style="justify-content: space-between;">
+        <div class="logo" style="width: 150px;">
+          <a href="index.html">
+            <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" style="width: 100%;" />
+          </a>
+        </div>
+        <div style="color: white; font-size: 1.4rem; font-weight: bold; display: flex; gap: 20px;">
+          <a href="index.html" style="color: white; text-decoration: none;"><i class="fa fa-home"></i> Home</a>
+          <a href="my-bets.html" style="color: #66c4ff; text-decoration: none;"><i class="fa fa-ticket"></i> My Bets</a>
+          <a href="payments.html" style="color: white; text-decoration: none;"><i class="fa fa-money"></i> Payments</a>
+          <a href="account.html" style="color: white; text-decoration: none;"><i class="fa fa-user"></i> Account</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="bets-container">
+        <h2 class="section-title">Betting History</h2>
+        
+        <div id="loading-state" class="empty-state">
+          <i class="fa fa-spinner fa-spin"></i>
+          <p>Loading your bets...</p>
+        </div>
+
+        <div id="unauthenticated-state" class="empty-state" style="display: none;">
+          <i class="fa fa-lock"></i>
+          <p>You must be logged in to view your betting history.</p>
+          <a href="account.html" class="btn-primary">Log In / Register</a>
+        </div>
+
+        <div id="no-bets-state" class="empty-state" style="display: none;">
+          <i class="fa fa-ticket"></i>
+          <p>You haven't placed any bets yet.</p>
+          <a href="index.html" class="btn-primary">Go to Sportsbook</a>
+        </div>
+
+        <div id="bets-list-container" style="display: none;">
+          <!-- Dynamic bet cards will be injected here -->
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: #103856; color: white; padding: 20px 0; text-align: center; font-size: 1.2rem; margin-top: auto;">
+      <div class="container">
+        <p>1XBET BETTING COMPANY – ONLINE SPORTS BETTING</p>
+      </div>
+    </footer>
+
+    <!-- Firebase SDK & Logic (Modular v10) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      // Initialize Firebase based on provided config
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+        authDomain: "xbet-6028f.firebaseapp.com",
+        projectId: "xbet-6028f",
+        storageBucket: "xbet-6028f.firebasestorage.app",
+        messagingSenderId: "954239177283",
+        appId: "1:954239177283:web:d07708b4cf140a4ebbbaf6",
+        measurementId: "G-DVL7J34JGF"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // DOM Elements
+      const loadingState = document.getElementById('loading-state');
+      const unauthState = document.getElementById('unauthenticated-state');
+      const noBetsState = document.getElementById('no-bets-state');
+      const betsListContainer = document.getElementById('bets-list-container');
+
+      // Helper function to format timestamps
+      function formatDate(timestamp) {
+        if (!timestamp) return "Processing...";
+        const date = timestamp.toDate();
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+
+      // Helper function to get status badge styling
+      function getStatusBadge(status) {
+        switch(status.toLowerCase()) {
+          case 'won': return `<span class="status-badge status-won">Won</span>`;
+          case 'lost': return `<span class="status-badge status-lost">Lost</span>`;
+          default: return `<span class="status-badge status-pending">Pending</span>`;
+        }
+      }
+
+      // Listen for Authentication State Changes
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // User is logged in, fetch their bets
+          fetchUserBets(user.uid);
+        } else {
+          // User is logged out
+          loadingState.style.display = 'none';
+          unauthState.style.display = 'block';
+        }
+      });
+
+      async function fetchUserBets(userId) {
+        try {
+          // Query Firestore for documents in 'bets' collection where userId matches
+          const q = query(collection(db, "bets"), where("userId", "==", userId));
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.empty) {
+            loadingState.style.display = 'none';
+            noBetsState.style.display = 'block';
+            return;
+          }
+
+          // Extract data into an array so we can sort it newest-first locally 
+          // (avoids needing to set up complex Firestore composite indexes)
+          const betsArray = [];
+          querySnapshot.forEach((doc) => {
+            betsArray.push({ id: doc.id, ...doc.data() });
+          });
+
+          // Sort descending by timestamp
+          betsArray.sort((a, b) => {
+            const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+            const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+            return timeB - timeA;
+          });
+
+          // Build the UI
+          let htmlContent = '';
+          betsArray.forEach(bet => {
+            htmlContent += `
+              <div class="bet-card">
+                <div class="bet-header">
+                  <span>${bet.match}</span>
+                  <span>${formatDate(bet.timestamp)}</span>
+                </div>
+                <div class="bet-body">
+                  <div class="bet-row">
+                    <span style="color: #777;">Your Pick:</span>
+                    <span class="bet-selection">${bet.selection} <span class="bet-odds">@ ${parseFloat(bet.oddsLocked).toFixed(2)}</span></span>
+                  </div>
+                  <div class="bet-row" style="border-top: 1px dashed #ccc; padding-top: 10px;">
+                    <span style="color: #777;">Stake Amount:</span>
+                    <span style="font-weight: bold;">${parseFloat(bet.stakeAmount).toFixed(2)} INR</span>
+                  </div>
+                  <div class="bet-row">
+                    <span style="color: #777;">Potential Returns:</span>
+                    <span style="font-weight: bold; color: #668a28;">${parseFloat(bet.potentialPayout).toFixed(2)} INR</span>
+                  </div>
+                  <div class="bet-row" style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 5px; align-items: center;">
+                    <span style="color: #777;">Bet Status:</span>
+                    ${getStatusBadge(bet.status)}
+                  </div>
+                  <div style="font-size: 1rem; color: #aaa; text-align: right; margin-top: 5px;">
+                    Ticket ID: ${bet.id}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+
+          betsListContainer.innerHTML = htmlContent;
+          loadingState.style.display = 'none';
+          betsListContainer.style.display = 'block';
+
+        } catch (error) {
+          console.error("Error fetching bets:", error);
+          loadingState.innerHTML = `<p style="color: #d9534f;"><i class="fa fa-exclamation-triangle"></i> Failed to load bets. Please try again later.</p>`;
+        }
+      }
+    </script>
+  </body>
+</html>

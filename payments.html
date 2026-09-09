@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payments - 1XBET</title>
+    <link rel="stylesheet" href="style/normalize.css" />
+    <link rel="icon" href="images/xbeticon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style/style.css" />
+    <style>
+      /* Specific styles for the payments page */
+      .payments-container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 40px auto; min-height: 50vh; }
+      .payment-tabs { display: flex; border-bottom: 2px solid #eef4f8; margin-bottom: 20px; }
+      .payment-tab { padding: 15px 30px; font-size: 1.6rem; font-weight: bold; color: #103856; cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+      .payment-tab.active { border-bottom: 3px solid #668a28; color: #668a28; }
+      .payment-tab:hover:not(.active) { color: #1f72ad; }
+      .payment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+      .payment-method { border: 1px solid #d6dbdd; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f9fbfd; }
+      .payment-method:hover { border-color: #668a28; background: #fff; box-shadow: 0 4px 8px rgba(102, 138, 40, 0.2); }
+      .payment-method i { font-size: 3rem; color: #1f72ad; margin-bottom: 10px; }
+      .payment-method span { font-size: 1.4rem; font-weight: 500; color: #333; }
+      .payment-method small { font-size: 1.1rem; color: #777; margin-top: 5px; }
+
+      /* Modal Styles */
+      .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+      .modal-content { background-color: #fff; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+      .close-btn { position: absolute; right: 15px; top: 10px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; }
+      .close-btn:hover { color: #333; }
+      .qr-placeholder { width: 200px; height: 200px; background: #f4f4f4; border: 2px dashed #ccc; border-radius: 8px; margin: 20px auto; display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.4rem; }
+      .input-field { width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box; }
+      .submit-btn { margin-top: 10px; padding: 12px 20px; background: #668a28; color: white; border: none; border-radius: 4px; font-size: 1.4rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.3s; }
+      .submit-btn:hover { background: #557321; }
+      .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+    </style>
+  </head>
+  <body style="background-color: #eaf0f6;">
+    
+    <!-- Header -->
+    <header style="background: #103856; padding: 15px 0;">
+      <div class="container flex" style="justify-content: space-between;">
+        <div class="logo" style="width: 150px;">
+          <a href="index.html">
+            <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" style="width: 100%;" />
+          </a>
+        </div>
+        <div style="color: white; font-size: 1.6rem; font-weight: bold;">
+          <a href="index.html" style="color: white; text-decoration: none; margin-right: 20px;"><i class="fa fa-home"></i> Home</a>
+          <a href="account.html" style="color: white; text-decoration: none;"><i class="fa fa-user"></i> My Account</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="payments-container">
+        <!-- TABS -->
+        <div class="payment-tabs">
+          <div id="tab-deposit" class="payment-tab active" onclick="window.switchTab('deposit')">Deposit</div>
+          <div id="tab-withdrawal" class="payment-tab" onclick="window.switchTab('withdrawal')">Withdrawal</div>
+        </div>
+
+        <!-- DEPOSIT SECTION -->
+        <div id="section-deposit">
+          <h3 style="color: #333; font-size: 1.8rem; margin-bottom: 20px;">Recommended Deposit Methods</h3>
+          <div class="payment-grid">
+            <div class="payment-method" onclick="window.openModal('upiDepositModal')">
+              <i class="fa fa-qrcode" style="color: #ff7900;"></i>
+              <span>UPI / QR</span>
+              <small>Min: 500 INR</small>
+            </div>
+            <div class="payment-method" onclick="alert('Proceeding to Visa/Mastercard gateway...')">
+              <i class="fa fa-cc-visa" style="color: #142787;"></i>
+              <span>Bank Cards</span>
+              <small>Min: 10 EUR</small>
+            </div>
+            <div class="payment-method" onclick="alert('Proceeding to Skrill/Neteller gateway...')">
+              <i class="fa fa-google-wallet" style="color: #852a46;"></i>
+              <span>E-Wallets</span>
+              <small>Min: 5 EUR</small>
+            </div>
+            <div class="payment-method" onclick="alert('Proceeding to Crypto generation...')">
+              <i class="fa fa-bitcoin" style="color: #f7931a;"></i>
+              <span>Cryptocurrency</span>
+              <small>Min: 1 USDT</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- WITHDRAWAL SECTION (Initially Hidden) -->
+        <div id="section-withdrawal" style="display: none;">
+          <h3 style="color: #333; font-size: 1.8rem; margin-bottom: 20px;">Withdrawal Methods</h3>
+          <div class="payment-grid">
+            <div class="payment-method" onclick="window.openModal('upiWithdrawalModal')">
+              <i class="fa fa-mobile" style="color: #ff7900;"></i>
+              <span>UPI Transfer</span>
+              <small>Min: 1000 INR</small>
+            </div>
+            <div class="payment-method" onclick="alert('Proceeding to Bank Transfer form...')">
+              <i class="fa fa-bank" style="color: #333;"></i>
+              <span>Bank Transfer</span>
+              <small>Min: 2000 INR</small>
+            </div>
+            <div class="payment-method" onclick="alert('Proceeding to Crypto address input...')">
+              <i class="fa fa-bitcoin" style="color: #f7931a;"></i>
+              <span>Cryptocurrency</span>
+              <small>Min: 10 USDT</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Warning -->
+        <div style="margin-top: 40px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffeeba; border-radius: 4px;">
+          <p style="color: #856404; font-size: 1.3rem; margin: 0; line-height: 1.5;">
+            <strong>Security Notice:</strong> All transactions are protected via 256-bit SSL encryption. 
+            Before initiating a withdrawal, ensure your profile is fully verified via the KYC portal.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: #103856; color: white; padding: 20px 0; text-align: center; font-size: 1.2rem;">
+      <div class="container">
+        <p>1XBET BETTING COMPANY – ONLINE SPORTS BETTING</p>
+      </div>
+    </footer>
+
+    <!-- ============================================== -->
+    <!-- MODALS -->
+    <!-- ============================================== -->
+
+    <!-- UPI Deposit Modal -->
+    <div id="upiDepositModal" class="modal-overlay" onclick="window.closeOnOutsideClick(event, 'upiDepositModal')">
+      <div class="modal-content">
+        <span class="close-btn" onclick="window.closeModal('upiDepositModal')">&times;</span>
+        <h3 style="color: #103856; font-size: 1.8rem; margin-top: 0;">Scan to Pay</h3>
+        <p style="font-size: 1.3rem; color: #555; margin-bottom: 0;">Use any UPI App (GPay, PhonePe, Paytm)</p>
+        
+        <div class="qr-placeholder">
+          [ Insert QR Image Here ]
+        </div>
+        
+        <p style="font-size: 1.4rem; font-weight: bold; color: #333;">UPI ID: <span style="color: #1f72ad;">client-payment@upi</span></p>
+        
+        <div style="text-align: left; margin-top: 25px;">
+          <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Deposit Amount (INR):</label>
+          <input type="number" id="deposit-amount" class="input-field" placeholder="Min. 500" min="500" />
+
+          <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Enter 12-Digit UTR / Ref Number:</label>
+          <input type="text" id="deposit-utr" class="input-field" placeholder="e.g. 123456789012" maxlength="12" />
+          
+          <button id="btn-submit-deposit" class="submit-btn" onclick="window.submitUpiDeposit()">Confirm Deposit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPI Withdrawal Modal -->
+    <div id="upiWithdrawalModal" class="modal-overlay" onclick="window.closeOnOutsideClick(event, 'upiWithdrawalModal')">
+      <div class="modal-content">
+        <span class="close-btn" onclick="window.closeModal('upiWithdrawalModal')">&times;</span>
+        <h3 style="color: #103856; font-size: 1.8rem; margin-top: 0;">Withdraw via UPI</h3>
+        <p style="font-size: 1.3rem; color: #555;">Funds will be sent directly to your linked bank account.</p>
+        
+        <div style="text-align: left; margin-top: 20px;">
+          <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Your UPI ID:</label>
+          <input type="text" id="withdraw-upi-id" class="input-field" placeholder="e.g. yourname@oksbi" />
+          
+          <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Amount (INR):</label>
+          <input type="number" id="withdraw-amount" class="input-field" placeholder="Min. 1000" min="1000" />
+          
+          <button id="btn-submit-withdrawal" class="submit-btn" style="background-color: #1f72ad;" onclick="window.submitUpiWithdrawal()">Request Withdrawal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- FIREBASE & LOGIC SCRIPTS -->
+    <!-- ============================================== -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+        authDomain: "xbet-6028f.firebaseapp.com",
+        projectId: "xbet-6028f",
+        storageBucket: "xbet-6028f.firebasestorage.app",
+        messagingSenderId: "954239177283",
+        appId: "1:954239177283:web:d07708b4cf140a4ebbbaf6",
+        measurementId: "G-DVL7J34JGF"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // --- UI Control Functions ---
+      window.switchTab = function(tabName) {
+        document.getElementById('tab-deposit').classList.remove('active');
+        document.getElementById('tab-withdrawal').classList.remove('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+
+        if (tabName === 'deposit') {
+          document.getElementById('section-deposit').style.display = 'block';
+          document.getElementById('section-withdrawal').style.display = 'none';
+        } else {
+          document.getElementById('section-deposit').style.display = 'none';
+          document.getElementById('section-withdrawal').style.display = 'block';
+        }
+      };
+
+      window.openModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+      };
+
+      window.closeModal = function(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      };
+
+      window.closeOnOutsideClick = function(event, modalId) {
+        if (event.target.id === modalId) {
+          window.closeModal(modalId);
+        }
+      };
+
+      // --- Firebase Transaction Functions ---
+      
+      // Submit Deposit
+      window.submitUpiDeposit = async function() {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("You must be logged in to make a deposit.");
+          window.location.href = "account.html";
+          return;
+        }
+
+        const amount = parseFloat(document.getElementById('deposit-amount').value);
+        const utr = document.getElementById('deposit-utr').value.trim();
+
+        if (isNaN(amount) || amount < 500) {
+          alert("Minimum deposit amount is 500 INR.");
+          return;
+        }
+        if (utr.length < 12) {
+          alert("Please enter a valid 12-digit UTR/Reference number.");
+          return;
+        }
+
+        const btn = document.getElementById('btn-submit-deposit');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        try {
+          await addDoc(collection(db, "transactions"), {
+            userId: user.uid,
+            userEmail: user.email,
+            type: "Deposit",
+            method: "UPI",
+            amount: amount,
+            referenceNumber: utr,
+            status: "Pending Verification",
+            timestamp: serverTimestamp()
+          });
+
+          alert("Deposit request submitted successfully! Your UTR is being verified. Funds will reflect in your account shortly.");
+          
+          // Clear inputs and close
+          document.getElementById('deposit-amount').value = '';
+          document.getElementById('deposit-utr').value = '';
+          window.closeModal('upiDepositModal');
+
+        } catch (error) {
+          console.error("Error submitting deposit:", error);
+          alert("Failed to submit request. Please try again.");
+        } finally {
+          btn.innerText = "Confirm Deposit";
+          btn.disabled = false;
+        }
+      };
+
+      // Submit Withdrawal
+      window.submitUpiWithdrawal = async function() {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("You must be logged in to request a withdrawal.");
+          window.location.href = "account.html";
+          return;
+        }
+
+        const upiId = document.getElementById('withdraw-upi-id').value.trim();
+        const amount = parseFloat(document.getElementById('withdraw-amount').value);
+
+        if (!upiId || !upiId.includes('@')) {
+          alert("Please enter a valid UPI ID.");
+          return;
+        }
+        if (isNaN(amount) || amount < 1000) {
+          alert("Minimum withdrawal amount is 1000 INR.");
+          return;
+        }
+
+        const btn = document.getElementById('btn-submit-withdrawal');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        try {
+          await addDoc(collection(db, "transactions"), {
+            userId: user.uid,
+            userEmail: user.email,
+            type: "Withdrawal",
+            method: "UPI",
+            amount: amount,
+            destinationUpi: upiId,
+            status: "Pending Approval",
+            timestamp: serverTimestamp()
+          });
+
+          alert("Withdrawal requested successfully! Funds will reflect in your account within 2-4 hours pending approval.");
+          
+          // Clear inputs and close
+          document.getElementById('withdraw-upi-id').value = '';
+          document.getElementById('withdraw-amount').value = '';
+          window.closeModal('upiWithdrawalModal');
+
+        } catch (error) {
+          console.error("Error submitting withdrawal:", error);
+          alert("Failed to submit request. Please try again.");
+        } finally {
+          btn.innerText = "Request Withdrawal";
+          btn.disabled = false;
+        }
+      };
+    </script>
+  </body>
+</html>

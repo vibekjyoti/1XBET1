@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Account - 1XBET</title>
+    <link rel="stylesheet" href="style/normalize.css" />
+    <link rel="icon" href="images/xbeticon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style/style.css" />
+    <style>
+      .account-container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 40px auto; min-height: 60vh; max-width: 900px; }
+      
+      .account-layout { display: flex; gap: 30px; }
+      .account-sidebar { width: 250px; background: #f5fafc; border: 1px solid #eef4f8; border-radius: 6px; padding: 15px 0; height: fit-content; }
+      .account-nav-item { padding: 15px 20px; font-size: 1.4rem; font-weight: 500; color: #103856; cursor: pointer; border-left: 4px solid transparent; transition: all 0.3s; }
+      .account-nav-item:hover { background: #eaf0f6; }
+      .account-nav-item.active { border-left-color: #668a28; background: #eaf0f6; font-weight: bold; }
+      .account-nav-item i { width: 25px; color: #1f72ad; }
+      .hidden { display: none !important; }
+
+      .account-content { flex: 1; }
+      .content-section { display: none; }
+      .content-section.active { display: block; }
+      .section-title { color: #333; font-size: 2rem; margin-top: 0; border-bottom: 2px solid #eef4f8; padding-bottom: 10px; margin-bottom: 20px; }
+
+      .form-group { margin-bottom: 20px; }
+      .form-group label { display: block; font-size: 1.3rem; color: #555; font-weight: bold; margin-bottom: 8px; }
+      .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box; }
+      .btn-primary { background: #668a28; color: white; border: none; padding: 12px 25px; border-radius: 4px; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+      .btn-primary:hover { background: #557321; }
+
+      .ref-link-box { display: flex; align-items: center; background: #f9fbfd; border: 1px dashed #1f72ad; padding: 15px; border-radius: 6px; margin-bottom: 25px; }
+      .ref-link-text { flex: 1; font-size: 1.5rem; color: #333; font-family: monospace; word-break: break-all; }
+      .btn-copy { background: #1f72ad; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 1.3rem; margin-left: 15px; }
+      
+      .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+      .stat-card { background: #fff; border: 1px solid #eef4f8; padding: 20px; border-radius: 6px; text-align: center; }
+      .stat-value { font-size: 2.5rem; font-weight: bold; color: #668a28; margin: 10px 0; }
+      .stat-label { font-size: 1.3rem; color: #777; text-transform: uppercase; }
+      
+      .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 1.3rem; display: none; }
+      .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+      .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
+      /* Wallet Specific */
+      .wallet-balance-box { background: linear-gradient(135deg, #103856, #1f72ad); color: white; padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+      .wallet-balance-amount { font-size: 4rem; font-weight: 900; margin: 10px 0; }
+      .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; }
+      .status-pending { background: #fff3cd; color: #856404; }
+      .status-approved { background: #d4edda; color: #155724; }
+      .status-rejected { background: #f8d7da; color: #721c24; }
+    </style>
+  </head>
+  <body>
+    
+    <header style="background: #103856; padding: 15px 0;">
+      <div class="container flex" style="justify-content: space-between;">
+        <div class="logo" style="width: 150px;">
+          <a href="index.html">
+            <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" style="width: 100%;" />
+          </a>
+        </div>
+        <div style="color: white; font-size: 1.6rem; font-weight: bold;">
+          <a href="index.html" style="color: white; text-decoration: none; margin-right: 20px;"><i class="fa fa-home"></i> Home</a>
+          <a href="payments.html" style="color: white; text-decoration: none; margin-right: 20px;"><i class="fa fa-money"></i> Payments</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="account-container">
+        <div class="account-layout">
+          
+          <!-- Sidebar Navigation -->
+          <div class="account-sidebar">
+            <div class="account-nav-item active" id="nav-auth">
+              <i class="fa fa-sign-in"></i> Login / Register
+            </div>
+            <div class="account-nav-item hidden" id="nav-wallet">
+              <i class="fa fa-google-wallet"></i> Wallet & History
+            </div>
+            <div class="account-nav-item hidden" id="nav-profile">
+              <i class="fa fa-user"></i> My Profile
+            </div>
+            <div class="account-nav-item hidden" id="nav-referral">
+              <i class="fa fa-users"></i> Referral Dashboard
+            </div>
+            <div class="account-nav-item hidden" id="nav-logout" style="color: #d9534f;">
+              <i class="fa fa-sign-out"></i> Log Out
+            </div>
+          </div>
+
+          <div class="account-content">
+            <!-- Global Alert -->
+            <div id="global-alert" class="alert"></div>
+
+            <!-- Auth Section -->
+            <div id="sec-auth" class="content-section active">
+              <h2 class="section-title">Account Access</h2>
+              <div style="display: flex; gap: 30px;">
+                <div style="flex: 1;">
+                  <h3 style="color: #1f72ad; margin-top: 0;">Log In</h3>
+                  <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-pass" class="form-control" />
+                  </div>
+                  <button class="btn-primary" id="btn-login">Log In</button>
+                </div>
+                <div style="flex: 1; border-left: 1px solid #eee; padding-left: 30px;">
+                  <h3 style="color: #668a28; margin-top: 0;">Register</h3>
+                  <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-email" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-pass" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>Referral Code (Optional)</label>
+                    <input type="text" id="reg-ref-code" class="form-control" placeholder="Code of inviter" />
+                  </div>
+                  <button class="btn-primary" id="btn-register" style="background: #1f72ad;">Create Account</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wallet Section -->
+            <div id="sec-wallet" class="content-section">
+              <h2 class="section-title">My Wallet</h2>
+              
+              <div class="wallet-balance-box">
+                <div style="font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px;">Available Balance</div>
+                <div class="wallet-balance-amount"><span id="display-balance">0.00</span> <span style="font-size: 2rem;">INR</span></div>
+                <button class="btn-primary" style="margin-top: 10px; background: #fff; color: #103856;" onclick="window.location.href='payments.html'">Deposit Funds</button>
+              </div>
+
+              <h3 style="color: #103856; margin-bottom: 15px;">Transaction History</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 1.3rem; color: #333;">
+                <tr style="background: #eaf0f6; text-align: left; color: #333;">
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Date</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Type</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Amount</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Status</th>
+                </tr>
+                <tbody id="transaction-table-body">
+                  <tr><td colspan="4" style="padding: 15px; text-align: center; color: #777;">Loading transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="sec-profile" class="content-section">
+              <h2 class="section-title">Personal Profile</h2>
+              <div class="form-group">
+                <label>Account ID <i class="fa fa-lock"></i></label>
+                <input type="text" id="profile-uid" class="form-control" disabled style="background: #f4f4f4;" />
+              </div>
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="profile-name" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Email Address <i class="fa fa-lock"></i></label>
+                <input type="email" id="profile-email" class="form-control" disabled style="background: #f4f4f4;" />
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="profile-phone" class="form-control" />
+              </div>
+              <button class="btn-primary" id="btn-save-profile">Save Changes</button>
+            </div>
+
+            <!-- Referral Section -->
+            <div id="sec-referral" class="content-section">
+              <h2 class="section-title">Referral Program</h2>
+              <div class="ref-link-box">
+                <div class="ref-link-text" id="referral-link">Generating...</div>
+                <button class="btn-copy" id="btn-copy-ref"><i class="fa fa-copy"></i> Copy</button>
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-label">Total Referrals</div>
+                  <div class="stat-value" id="ref-count">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Your Referral Code</div>
+                  <div class="stat-value" id="ref-code-display" style="color: #1f72ad; font-size: 2rem;">-</div>
+                </div>
+              </div>
+
+              <h3 style="color: #103856; margin-bottom: 15px;">Your Network</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 1.3rem;">
+                <tr style="background: #eaf0f6; text-align: left;">
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">User Email</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Joined</th>
+                </tr>
+                <tbody id="ref-table-body">
+                  <!-- Dynamic rows injected here -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Firebase SDK & Logic (Modular v10) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+        authDomain: "xbet-6028f.firebaseapp.com",
+        projectId: "xbet-6028f",
+        storageBucket: "xbet-6028f.firebasestorage.app",
+        messagingSenderId: "954239177283",
+        appId: "1:954239177283:web:d07708b4cf140a4ebbbaf6",
+        measurementId: "G-DVL7J34JGF"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // UI Elements
+      const navAuth = document.getElementById('nav-auth');
+      const navWallet = document.getElementById('nav-wallet');
+      const navProfile = document.getElementById('nav-profile');
+      const navReferral = document.getElementById('nav-referral');
+      const navLogout = document.getElementById('nav-logout');
+      
+      const secAuth = document.getElementById('sec-auth');
+      const secWallet = document.getElementById('sec-wallet');
+      const secProfile = document.getElementById('sec-profile');
+      const secReferral = document.getElementById('sec-referral');
+      const alertBox = document.getElementById('global-alert');
+
+      // Utility: Show Alert
+      function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = `alert ${type}`;
+        alertBox.style.display = 'block';
+        setTimeout(() => alertBox.style.display = 'none', 5000);
+      }
+
+      // Utility: Switch Tabs
+      window.switchTab = function(tabId) {
+        [navAuth, navWallet, navProfile, navReferral].forEach(nav => nav.classList.remove('active'));
+        [secAuth, secWallet, secProfile, secReferral].forEach(sec => sec.classList.remove('active'));
+        
+        document.getElementById(`nav-${tabId}`).classList.add('active');
+        document.getElementById(`sec-${tabId}`).classList.add('active');
+      }
+
+      // --- AUTHENTICATION STATE OBSERVER ---
+      let unsubscribeProfile = null;
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          navAuth.classList.add('hidden');
+          navWallet.classList.remove('hidden');
+          navProfile.classList.remove('hidden');
+          navReferral.classList.remove('hidden');
+          navLogout.classList.remove('hidden');
+          window.switchTab('wallet');
+
+          // 1. LISTEN TO PROFILE/BALANCE IN REAL-TIME
+          unsubscribeProfile = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              
+              // Update Wallet Balance
+              const balance = data.balance !== undefined ? parseFloat(data.balance).toFixed(2) : "0.00";
+              document.getElementById('display-balance').innerText = balance;
+
+              // Update Profile Inputs
+              document.getElementById('profile-uid').value = user.uid;
+              document.getElementById('profile-email').value = user.email;
+              document.getElementById('profile-name').value = data.fullName || '';
+              document.getElementById('profile-phone').value = data.phone || '';
+              
+              // Populate Referral Dashboard
+              const myRefCode = data.myReferralCode;
+              document.getElementById('ref-code-display').innerText = myRefCode;
+              document.getElementById('referral-link').innerText = `${window.location.origin}${window.location.pathname}?ref=${myRefCode}`;
+              
+              loadReferrals(myRefCode);
+            }
+          });
+
+          // 2. LOAD TRANSACTION HISTORY
+          loadTransactions(user.uid);
+
+        } else {
+          if (unsubscribeProfile) unsubscribeProfile();
+          navAuth.classList.remove('hidden');
+          navWallet.classList.add('hidden');
+          navProfile.classList.add('hidden');
+          navReferral.classList.add('hidden');
+          navLogout.classList.add('hidden');
+          window.switchTab('auth');
+        }
+      });
+
+      // --- LOAD TRANSACTIONS ---
+      async function loadTransactions(uid) {
+        try {
+          const q = query(collection(db, "transactions"), where("userId", "==", uid));
+          const querySnapshot = await getDocs(q);
+          const tableBody = document.getElementById('transaction-table-body');
+          
+          if(querySnapshot.empty) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="padding: 15px; text-align: center; color: #777;">No transactions found.</td></tr>';
+            return;
+          }
+
+          const txs = [];
+          querySnapshot.forEach(doc => txs.push(doc.data()));
+          
+          // Sort newest first
+          txs.sort((a, b) => {
+            const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+            const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+            return timeB - timeA;
+          });
+
+          let html = '';
+          txs.forEach(tx => {
+            const dateStr = tx.timestamp ? tx.timestamp.toDate().toLocaleDateString() : "Just now";
+            
+            // Format Status Badge
+            let badgeClass = 'status-pending';
+            if(tx.status.toLowerCase().includes('approved')) badgeClass = 'status-approved';
+            if(tx.status.toLowerCase().includes('rejected')) badgeClass = 'status-rejected';
+
+            html += `
+              <tr>
+                <td style="padding: 12px; border: 1px solid #d6dbdd;">${dateStr}</td>
+                <td style="padding: 12px; border: 1px solid #d6dbdd; font-weight: bold;">${tx.type} (${tx.method})</td>
+                <td style="padding: 12px; border: 1px solid #d6dbdd;">${parseFloat(tx.amount).toFixed(2)} INR</td>
+                <td style="padding: 12px; border: 1px solid #d6dbdd;"><span class="status-badge ${badgeClass}">${tx.status}</span></td>
+              </tr>
+            `;
+          });
+          tableBody.innerHTML = html;
+
+        } catch(e) {
+          console.error("Error loading transactions:", e);
+        }
+      }
+
+      // --- REGISTRATION ---
+      document.getElementById('btn-register').addEventListener('click', async () => {
+        const email = document.getElementById('reg-email').value;
+        const pass = document.getElementById('reg-pass').value;
+        const referredBy = document.getElementById('reg-ref-code').value;
+
+        if(!email || !pass) return showAlert("Please enter email and password", "error");
+
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+          const user = userCredential.user;
+          const newRefCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+          // Initialize user with a 0 balance
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            fullName: "",
+            phone: "",
+            balance: 0.00, // WALLET INITIALIZED HERE
+            myReferralCode: newRefCode,
+            referredByCode: referredBy || null,
+            createdAt: serverTimestamp()
+          });
+
+          showAlert("Registration successful!", "success");
+        } catch (error) {
+          showAlert(error.message, "error");
+        }
+      });
+
+      // --- LOGIN ---
+      document.getElementById('btn-login').addEventListener('click', async () => {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        try {
+          await signInWithEmailAndPassword(auth, email, pass);
+          showAlert("Login successful!", "success");
+        } catch (error) {
+          showAlert("Invalid credentials", "error");
+        }
+      });
+
+      // --- LOGOUT ---
+      navLogout.addEventListener('click', async () => {
+        await signOut(auth);
+      });
+
+      // --- SAVE PROFILE ---
+      document.getElementById('btn-save-profile').addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if(!user) return;
+        const fullName = document.getElementById('profile-name').value;
+        const phone = document.getElementById('profile-phone').value;
+
+        try {
+          await setDoc(doc(db, "users", user.uid), {
+            fullName: fullName,
+            phone: phone
+          }, { merge: true });
+          showAlert("Profile updated!", "success");
+        } catch (error) {
+          showAlert("Error updating profile", "error");
+        }
+      });
+
+      // --- LOAD REFERRALS ---
+      async function loadReferrals(myRefCode) {
+        const q = query(collection(db, "users"), where("referredByCode", "==", myRefCode));
+        const querySnapshot = await getDocs(q);
+        const tableBody = document.getElementById('ref-table-body');
+        
+        tableBody.innerHTML = ''; 
+        document.getElementById('ref-count').innerText = querySnapshot.size;
+
+        if(querySnapshot.empty) {
+          tableBody.innerHTML = '<tr><td colspan="2" style="padding: 12px; text-align: center; color: #777;">No referrals yet. Share your link!</td></tr>';
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "Just now";
+          tableBody.innerHTML += `
+            <tr>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${data.email}</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${date}</td>
+            </tr>
+          `;
+        });
+      }
+
+      // Tab Event Listeners
+      navAuth.addEventListener('click', () => window.switchTab('auth'));
+      navWallet.addEventListener('click', () => window.switchTab('wallet'));
+      navProfile.addEventListener('click', () => window.switchTab('profile'));
+      navReferral.addEventListener('click', () => window.switchTab('referral'));
+    </script>
+  </body>
+</html>
