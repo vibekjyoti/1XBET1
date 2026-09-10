@@ -1,0 +1,137 @@
+<!-- Save this as coin-flip.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Coin Flip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 30px 15px; flex: 1; }
+        .game-wrapper { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; max-width: 500px; background: var(--bg-panel); padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+        .coin-container { width: 150px; height: 150px; perspective: 1000px; margin: 20px 0; }
+        .coin { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 2s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 50%; box-shadow: 0 15px 30px rgba(0,0,0,0.8); }
+        
+        .coin-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; color: #111; }
+        .face-heads { background: radial-gradient(circle at top left, #ffeaa7, #fdcb6e); border: 6px dashed #d6a233; }
+        .face-tails { background: radial-gradient(circle at top left, #dfe6e9, #b2bec3); border: 6px dashed #636e72; transform: rotateY(180deg); }
+
+        .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; text-align: center; }
+
+        .btn-row { display: flex; gap: 15px; }
+        .btn-choice { flex: 1; padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn-heads { background: #fdcb6e; color: #111; box-shadow: 0 4px 0 #d6a233; }
+        .btn-heads:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+        .btn-tails { background: #b2bec3; color: #111; box-shadow: 0 4px 0 #636e72; }
+        .btn-tails:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+        .btn-choice:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .status-msg { font-size: 18px; font-weight: bold; color: var(--accent-gold); height: 24px; text-align: center; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="status-msg" id="statusMsg">CHOOSE HEADS OR TAILS</div>
+            
+            <div class="coin-container">
+                <div class="coin" id="coin">
+                    <div class="coin-face face-heads">H</div>
+                    <div class="coin-face face-tails">T</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <div class="btn-row">
+                    <button class="btn-choice btn-heads" id="btnHeads" onclick="flipCoin('HEADS')">HEADS</button>
+                    <button class="btn-choice btn-tails" id="btnTails" onclick="flipCoin('TAILS')">TAILS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 10000.00;
+        const balanceEl = document.getElementById('balance');
+        const coinEl = document.getElementById('coin');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnHeads = document.getElementById('btnHeads');
+        const btnTails = document.getElementById('btnTails');
+
+        let flips = 0;
+
+        function flipCoin(choice) {
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            btnHeads.disabled = true;
+            btnTails.disabled = true;
+            statusMsg.innerText = 'FLIPPING...';
+            statusMsg.style.color = '#fff';
+
+            // Random Result (0 = Heads, 1 = Tails)
+            const resultNum = Math.random() < 0.5 ? 0 : 1;
+            const resultStr = resultNum === 0 ? 'HEADS' : 'TAILS';
+
+            // Animation Logic
+            flips++;
+            // Calculate total degrees to spin (multiple spins + face)
+            // If Heads (0), we want it to land on 0 mod 360.
+            // If Tails (1), we want it to land on 180 mod 360.
+            const extraSpins = 5 * 360; 
+            const finalRotation = (flips * extraSpins) + (resultNum * 180);
+            
+            coinEl.style.transform = `rotateY(${finalRotation}deg)`;
+
+            setTimeout(() => {
+                if (choice === resultStr) {
+                    const win = betAmt * 1.95; // 1.95x payout
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusMsg.innerText = `IT'S ${resultStr}! YOU WON ₹${win.toFixed(2)}`;
+                    statusMsg.style.color = '#28a745';
+                } else {
+                    statusMsg.innerText = `IT'S ${resultStr}. BET LOST.`;
+                    statusMsg.style.color = '#e6003d';
+                }
+
+                setTimeout(() => {
+                    btnHeads.disabled = false;
+                    btnTails.disabled = false;
+                }, 1000);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

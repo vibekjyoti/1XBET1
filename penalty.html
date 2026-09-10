@@ -1,0 +1,243 @@
+<!-- Save this as penalty.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Penalty Shootout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #27ae60; --accent-yellow: #ffc107; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+        
+        .game-wrapper { width: 100%; max-width: 850px; background: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border-color); padding: 25px; display: flex; gap: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+        .settings-panel { width: 280px; display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 18px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn-play { background: var(--accent-green); color: white; box-shadow: 0 5px 0 #1e824c; }
+        .btn-cashout { background: var(--accent-yellow); color: #000; box-shadow: 0 5px 0 #b9770e; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        .multiplier-ladder { display: flex; flex-direction: column; gap: 5px; background: var(--bg-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .ladder-step { padding: 8px; font-weight: bold; font-size: 14px; color: var(--text-muted); text-align: center; border-radius: 4px; }
+        .ladder-step.active { background: rgba(39, 174, 96, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .ladder-step.current { background: var(--accent-green); color: #fff; }
+
+        /* Goal Area */
+        .pitch { flex: 1; background: radial-gradient(ellipse at bottom, #2ecc71 0%, #1e824c 100%); border-radius: 12px; border: 2px solid #0e4c2a; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px; min-height: 400px; }
+        
+        .goal-net { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 80%; height: 200px; border: 6px solid #fff; border-bottom: none; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 12px), repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 12px); display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 10px; }
+        
+        .target { display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; z-index: 10; opacity: 0; transition: 0.2s; }
+        .target::after { content: '🎯'; font-size: 30px; opacity: 0.5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: 0.2s; }
+        .pitch.active .target { opacity: 1; }
+        .pitch.active .target:hover::after { opacity: 1; transform: scale(1.2); }
+
+        .keeper { position: absolute; top: 120px; left: 50%; transform: translate(-50%, -50%); font-size: 70px; z-index: 5; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .ball { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 40px; z-index: 8; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 10px 5px rgba(0,0,0,0.4)); }
+
+        .status-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; font-weight: 900; font-size: 24px; text-transform: uppercase; z-index: 20; opacity: 0; transition: 0.3s; pointer-events: none; border: 2px solid transparent; }
+
+        @media (max-width: 768px) {
+            .game-wrapper { flex-direction: column-reverse; padding: 15px; }
+            .settings-panel { width: 100%; }
+            .pitch { min-height: 320px; }
+            .goal-net { width: 95%; height: 160px; top: 20px; }
+            .keeper { font-size: 60px; top: 90px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="settings-panel">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                
+                <div class="multiplier-ladder" id="ladder">
+                    <div class="ladder-step" data-step="5">5x GOALS: 30.72x</div>
+                    <div class="ladder-step" data-step="4">4x GOALS: 15.36x</div>
+                    <div class="ladder-step" data-step="3">3x GOALS: 7.68x</div>
+                    <div class="ladder-step" data-step="2">2x GOALS: 3.84x</div>
+                    <div class="ladder-step" data-step="1">1x GOAL: 1.92x</div>
+                </div>
+
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START GAME</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashout()">CASHOUT</button>
+            </div>
+
+            <div class="pitch" id="pitch">
+                <div class="status-toast" id="toast"></div>
+                <div class="goal-net">
+                    <div class="target" onclick="shoot(0, -60, -120)"></div>
+                    <div class="target" onclick="shoot(1, 0, -120)"></div>
+                    <div class="target" onclick="shoot(2, 60, -120)"></div>
+                    <div class="target" onclick="shoot(3, -60, -40)"></div>
+                    <div class="target" style="pointer-events:none;"></div> <!-- Keeper starting spot -->
+                    <div class="target" onclick="shoot(4, 60, -40)"></div>
+                </div>
+                <div class="keeper" id="keeper">🧤</div>
+                <div class="ball" id="ball">⚽</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 10000.00;
+        let isPlaying = false;
+        let isShooting = false;
+        let currentStep = 0;
+        let currentBet = 0;
+
+        const multipliers = [0, 1.92, 3.84, 7.68, 15.36, 30.72];
+        const keeperMoves = [
+            { x: -60, y: -40 }, // Top Left
+            { x: 0, y: -40 },   // Top Center
+            { x: 60, y: -40 },  // Top Right
+            { x: -60, y: 40 },  // Bottom Left
+            { x: 60, y: 40 }    // Bottom Right
+        ];
+
+        const balanceEl = document.getElementById('balance');
+        const pitch = document.getElementById('pitch');
+        const ball = document.getElementById('ball');
+        const keeper = document.getElementById('keeper');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const toast = document.getElementById('toast');
+        const ladderSteps = document.querySelectorAll('.ladder-step');
+
+        function startGame() {
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentStep = 0;
+            updateLadder();
+            resetPositions();
+
+            document.getElementById('betAmount').disabled = true;
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = 'CASHOUT';
+            pitch.classList.add('active');
+            
+            showToast('SELECT TARGET', '#fff');
+        }
+
+        function shoot(targetId, ballX, ballY) {
+            if (!isPlaying || isShooting) return;
+            isShooting = true;
+            toast.style.opacity = '0';
+
+            // Keeper randomly dives
+            const kDiveIndex = Math.floor(Math.random() * 5);
+            const kMove = keeperMoves[kDiveIndex];
+
+            // Animate
+            ball.style.transform = `translate(calc(-50% + ${ballX}px), ${ballY}px) scale(0.6)`;
+            keeper.style.transform = `translate(calc(-50% + ${kMove.x}px), calc(-50% + ${kMove.y}px)) rotate(${kMove.x * 0.5}deg)`;
+
+            setTimeout(() => {
+                if (targetId === kDiveIndex) {
+                    // Save (Crash)
+                    showToast('SAVED! BET LOST', 'var(--accent-red)');
+                    endGame(false);
+                } else {
+                    // Goal
+                    currentStep++;
+                    updateLadder();
+                    showToast('GOAL!', 'var(--accent-green)');
+                    
+                    const winAmt = currentBet * multipliers[currentStep];
+                    btnCashout.disabled = false;
+                    btnCashout.innerText = `CASHOUT (₹${winAmt.toFixed(2)})`;
+
+                    if (currentStep >= 5) {
+                        setTimeout(cashout, 1000);
+                    } else {
+                        setTimeout(() => {
+                            resetPositions();
+                            isShooting = false;
+                        }, 1000);
+                    }
+                }
+            }, 400);
+        }
+
+        function cashout() {
+            if (!isPlaying || currentStep === 0) return;
+            const winAmt = currentBet * multipliers[currentStep];
+            balance += winAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            showToast(`WON ₹${winAmt.toFixed(2)}!`, 'var(--accent-yellow)');
+            endGame(true);
+        }
+
+        function endGame(won) {
+            isPlaying = false;
+            pitch.classList.remove('active');
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            document.getElementById('betAmount').disabled = false;
+            
+            setTimeout(() => {
+                resetPositions();
+                isShooting = false;
+            }, 2000);
+        }
+
+        function resetPositions() {
+            ball.style.transform = `translateX(-50%) scale(1)`;
+            keeper.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+        }
+
+        function updateLadder() {
+            ladderSteps.forEach(step => {
+                step.classList.remove('active', 'current');
+                const sVal = parseInt(step.dataset.step);
+                if (sVal < currentStep) step.classList.add('active');
+                if (sVal === currentStep) step.classList.add('current');
+            });
+        }
+
+        function showToast(msg, color) {
+            toast.innerText = msg;
+            toast.style.color = color;
+            toast.style.borderColor = color;
+            toast.style.opacity = '1';
+        }
+    </script>
+</body>
+</html>

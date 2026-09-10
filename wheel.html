@@ -1,0 +1,259 @@
+<!-- Save this as wheel.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Money Wheel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Wheel Area */
+        .wheel-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.8); background: #111; }
+        
+        /* The Flapper */
+        .flapper { position: absolute; top: -10px; width: 30px; height: 40px; background: #e6003d; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); transform-origin: top center; transition: transform 0.1s; }
+        .flapper.tick { transform: rotate(15deg); }
+
+        /* Inner display */
+        .wheel-center { position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, #222, #000); border: 4px solid #444; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 5; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .center-logo { font-weight: 900; font-style: italic; font-size: 18px; }
+        .center-logo span { color: #238cf5; }
+
+        .status-msg { font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #ffc107; background: var(--bg-panel); padding: 10px 20px; border-radius: 30px; border: 1px solid var(--border-color); }
+
+        /* Betting Board */
+        .betting-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 600px; }
+        .bet-btn { padding: 15px 10px; border-radius: 10px; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; border: 2px solid transparent; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .bet-btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+        .bet-btn.selected { border-color: #fff; transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.4); z-index: 2; }
+        
+        .payout-info { font-size: 11px; opacity: 0.8; margin-top: 4px; font-weight: bold; }
+
+        /* Colors mapping */
+        .c-1 { background: #7f8c8d; color: #fff; } /* Gray 1x */
+        .c-2 { background: #3498db; color: #fff; } /* Blue 2x */
+        .c-5 { background: #e67e22; color: #fff; } /* Orange 5x */
+        .c-10 { background: #2ecc71; color: #fff; } /* Green 10x */
+        .c-20 { background: #9b59b6; color: #fff; } /* Purple 20x */
+        .c-40 { background: #e74c3c; color: #fff; } /* Red 40x */
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 600px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-spin { flex: 1; background: #28a745; color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1e7e34; transition: 0.1s; }
+        .btn-spin:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #1e7e34; }
+        .btn-spin:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-spin { padding: 15px; width: 100%; }
+            .wheel-container { width: 300px; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="status-msg" id="statusMsg">PLACE YOUR BET</div>
+
+        <div class="wheel-container">
+            <div class="flapper" id="flapper"></div>
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            <div class="wheel-center">
+                <div class="center-logo">1X<span>W</span></div>
+            </div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn c-1" onclick="selectMultiplier(1, this)">1x <div class="payout-info">Pays 1:1</div></div>
+            <div class="bet-btn c-2" onclick="selectMultiplier(2, this)">2x <div class="payout-info">Pays 2:1</div></div>
+            <div class="bet-btn c-5" onclick="selectMultiplier(5, this)">5x <div class="payout-info">Pays 5:1</div></div>
+            <div class="bet-btn c-10" onclick="selectMultiplier(10, this)">10x <div class="payout-info">Pays 10:1</div></div>
+            <div class="bet-btn c-20" onclick="selectMultiplier(20, this)">20x <div class="payout-info">Pays 20:1</div></div>
+            <div class="bet-btn c-40" onclick="selectMultiplier(40, this)">40x <div class="payout-info">Pays 40:1</div></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-spin" id="btnSpin" onclick="spinWheel()">SPIN WHEEL</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const flapper = document.getElementById('flapper');
+        const balanceEl = document.getElementById('balance');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnSpin = document.getElementById('btnSpin');
+
+        let balance = 10000.00;
+        let selectedMultiplier = null;
+        let isSpinning = false;
+        
+        // 24 Segments
+        const segments = [
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 5, color: '#e67e22' },
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 10, color: '#2ecc71' },
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 5, color: '#e67e22' },
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 20, color: '#9b59b6' },
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 5, color: '#e67e22' },
+            { val: 1, color: '#7f8c8d' }, { val: 2, color: '#3498db' }, { val: 1, color: '#7f8c8d' }, { val: 40, color: '#e74c3c' }
+        ];
+
+        const sliceAngle = (2 * Math.PI) / segments.length;
+        let currentRotation = 0; // Radians
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = cx;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(currentRotation);
+
+            for (let i = 0; i < segments.length; i++) {
+                const angle = i * sliceAngle;
+                
+                // Slice background
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, angle, angle + sliceAngle);
+                ctx.fillStyle = segments[i].color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw Text
+                ctx.save();
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 24px Inter";
+                ctx.fillText(segments[i].val + "x", radius - 20, 8);
+                
+                // Add peg
+                ctx.beginPath();
+                ctx.arc(radius - 5, 0, 4, 0, 2*Math.PI);
+                ctx.fillStyle = '#f1c40f';
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+        drawWheel();
+
+        function selectMultiplier(val, el) {
+            if (isSpinning) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedMultiplier = val;
+            statusMsg.innerText = `BET: ${val}x`;
+            statusMsg.style.color = '#fff';
+        }
+
+        // Ease Out Quart
+        function easeOut(t) { return 1 - (--t) * t * t * t; }
+
+        function spinWheel() {
+            if (!selectedMultiplier) return alert("Select a multiplier on the board first!");
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert("Invalid Bet");
+            if (betAmt > balance) return alert("Insufficient Balance");
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isSpinning = true;
+            btnSpin.disabled = true;
+            statusMsg.innerText = 'GOOD LUCK...';
+
+            const spinTime = 6000; // 6 seconds
+            const startTime = performance.now();
+            
+            // Random target
+            const winningIndex = Math.floor(Math.random() * segments.length);
+            const targetRot = (Math.PI * 2 * 6) - (winningIndex * sliceAngle) - (sliceAngle / 2) - (Math.PI / 2); // 6 extra rotations
+
+            let lastPeg = 0;
+
+            function animate(now) {
+                const elapsed = now - startTime;
+                if (elapsed < spinTime) {
+                    const progress = elapsed / spinTime;
+                    currentRotation = targetRot * easeOut(progress);
+                    drawWheel();
+
+                    // Tick Flapper
+                    const currentPeg = Math.floor((currentRotation + Math.PI/2) / sliceAngle);
+                    if (currentPeg !== lastPeg) {
+                        flapper.classList.add('tick');
+                        setTimeout(() => flapper.classList.remove('tick'), 50);
+                        lastPeg = currentPeg;
+                    }
+
+                    requestAnimationFrame(animate);
+                } else {
+                    currentRotation = targetRot;
+                    drawWheel();
+                    resolveWin(winningIndex, betAmt);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function resolveWin(winIdx, betAmt) {
+            const landedVal = segments[winIdx].val;
+            
+            if (landedVal === selectedMultiplier) {
+                // Return bet + (bet * multiplier)
+                const win = betAmt + (betAmt * landedVal); 
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = `LANDED ON ${landedVal}x! WON ₹${win.toFixed(2)}`;
+                statusMsg.style.color = '#28a745';
+            } else {
+                statusMsg.innerText = `LANDED ON ${landedVal}x. BET LOST.`;
+                statusMsg.style.color = '#e6003d';
+            }
+
+            setTimeout(() => {
+                isSpinning = false;
+                btnSpin.disabled = false;
+                statusMsg.innerText = 'PLACE YOUR BET';
+                statusMsg.style.color = '#ffc107';
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedMultiplier = null;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

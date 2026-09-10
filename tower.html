@@ -1,0 +1,244 @@
+<!-- Save this as tower.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Tower</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-cyan: #00b4d8; --accent-yellow: #ffc107; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 30px 15px; flex: 1; }
+        .game-wrapper { display: flex; gap: 25px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+        .settings-panel { width: 260px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 18px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn-play { background: var(--accent-cyan); color: white; box-shadow: 0 5px 0 #007790; }
+        .btn-cashout { background: var(--accent-yellow); color: #000; box-shadow: 0 5px 0 #b9770e; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        .status-box { background: var(--bg-card); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); margin-top: auto; }
+        .status-box p { font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .status-box h2 { color: var(--accent-cyan); font-size: 24px; font-weight: 900; margin: 0; }
+
+        /* Tower Grid */
+        .tower-grid { flex: 1; display: flex; flex-direction: column-reverse; gap: 8px; }
+        .tower-row { display: flex; gap: 8px; opacity: 0.4; pointer-events: none; transition: 0.2s; position: relative; }
+        .tower-row::after { content: attr(data-multi); position: absolute; right: -45px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: bold; color: var(--text-muted); }
+        .tower-row.active { opacity: 1; pointer-events: auto; }
+        .tower-row.passed { opacity: 0.8; }
+        
+        .tile { flex: 1; height: 45px; background: var(--bg-card); border: 2px solid #203a56; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; transition: 0.15s; }
+        .tower-row.active .tile:hover { background: #2a4b6d; border-color: var(--accent-cyan); }
+        .tile.gem { background: #0c4220; border-color: #2ecc71; animation: pop 0.3s; }
+        .tile.skull { background: #4a0d17; border-color: var(--accent-red); animation: shake 0.3s; }
+
+        @keyframes pop { 50% { transform: scale(1.1); } }
+        @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+        @media (max-width: 768px) {
+            .game-wrapper { flex-direction: column-reverse; padding: 15px; }
+            .settings-panel { width: 100%; gap: 10px; }
+            .tower-row::after { right: auto; left: 10px; z-index: 10; opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="settings-panel">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="100" min="10">
+                </div>
+                
+                <div class="status-box">
+                    <p id="statusMsg">CURRENT WIN</p>
+                    <h2 id="winDisplay">0.00x</h2>
+                </div>
+
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">PLAY</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashout()">CASHOUT</button>
+            </div>
+
+            <div class="tower-grid" id="towerGrid">
+                <!-- Built by JS (bottom to top via flex-direction) -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const multipliers = [1.42, 2.02, 2.88, 4.11, 5.86, 8.35, 11.90, 17.00];
+        const rowsCount = 8;
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentRow = 0;
+        let currentBet = 0;
+        let towerMap = []; // Store skull index for each row
+
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('towerGrid');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const winDisplay = document.getElementById('winDisplay');
+        const statusMsg = document.getElementById('statusMsg');
+        const betInput = document.getElementById('betAmount');
+
+        function initGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < rowsCount; i++) {
+                const row = document.createElement('div');
+                row.className = 'tower-row';
+                row.dataset.multi = `${multipliers[i]}x`;
+                
+                for (let j = 0; j < 3; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.onclick = () => pickTile(i, j, tile);
+                    row.appendChild(tile);
+                }
+                grid.appendChild(row);
+            }
+        }
+        initGrid();
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentRow = 0;
+            winDisplay.innerText = '1.00x';
+            winDisplay.style.color = 'var(--text-main)';
+            statusMsg.innerText = 'CLIMB THE TOWER';
+
+            // Generate Map (1 skull per row of 3)
+            towerMap = [];
+            for (let i = 0; i < rowsCount; i++) {
+                towerMap.push(Math.floor(Math.random() * 3));
+            }
+
+            // Reset UI
+            initGrid();
+            updateActiveRow();
+
+            betInput.disabled = true;
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = 'CASHOUT';
+        }
+
+        function pickTile(rIndex, tIndex, tileEl) {
+            if (!isPlaying || rIndex !== currentRow) return;
+
+            const isSkull = towerMap[currentRow] === tIndex;
+            
+            if (isSkull) {
+                // Loss
+                tileEl.classList.add('skull');
+                tileEl.innerText = '☠️';
+                revealRow(currentRow, tIndex); // Show where the gems were
+                endGame(false);
+            } else {
+                // Safe
+                tileEl.classList.add('gem');
+                tileEl.innerText = '💎';
+                
+                winDisplay.innerText = `${multipliers[currentRow]}x`;
+                winDisplay.style.color = 'var(--accent-cyan)';
+                
+                btnCashout.disabled = false;
+                btnCashout.innerText = `CASHOUT (₹${(currentBet * multipliers[currentRow]).toFixed(2)})`;
+
+                currentRow++;
+                if (currentRow >= rowsCount) {
+                    // Beat the tower
+                    setTimeout(cashout, 500);
+                } else {
+                    updateActiveRow();
+                }
+            }
+        }
+
+        function updateActiveRow() {
+            const rows = grid.children; // order is 0=bottom because of flex-direction column-reverse
+            for (let i = 0; i < rowsCount; i++) {
+                rows[i].className = 'tower-row';
+                if (i < currentRow) rows[i].classList.add('passed');
+                if (i === currentRow) rows[i].classList.add('active');
+            }
+        }
+
+        function revealRow(rIndex, clickedIndex) {
+            const row = grid.children[rIndex];
+            for (let j = 0; j < 3; j++) {
+                if (j !== clickedIndex) {
+                    const tile = row.children[j];
+                    if (towerMap[rIndex] === j) {
+                        tile.classList.add('skull'); tile.innerText = '☠️';
+                    } else {
+                        tile.classList.add('gem'); tile.innerText = '💎';
+                    }
+                    tile.style.opacity = '0.5';
+                }
+            }
+        }
+
+        function cashout() {
+            if (!isPlaying || currentRow === 0) return;
+            const win = currentBet * multipliers[currentRow - 1];
+            balance += win;
+            balanceEl.innerText = balance.toFixed(2);
+            endGame(true, win);
+        }
+
+        function endGame(won, amount=0) {
+            isPlaying = false;
+            
+            // Disable all rows
+            for(let r of grid.children) r.className = 'tower-row passed';
+            
+            if (won) {
+                statusMsg.innerText = 'WINNER!';
+                winDisplay.innerText = `+₹${amount.toFixed(2)}`;
+                winDisplay.style.color = 'var(--accent-yellow)';
+            } else {
+                statusMsg.innerText = 'TOWER COLLAPSED';
+                winDisplay.style.color = 'var(--accent-red)';
+            }
+
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+        }
+    </script>
+</body>
+</html>

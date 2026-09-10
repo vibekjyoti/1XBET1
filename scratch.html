@@ -1,0 +1,284 @@
+<!-- Save this as scratch.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Lucky Scratch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-purple: #9b59b6; --accent-gold: #f1c40f; --accent-green: #2ecc71;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-purple); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+
+        /* Scratch Card Stage */
+        .scratch-card-wrapper { background: linear-gradient(135deg, #1f1533 0%, #0d0614 100%); padding: 30px; border-radius: 16px; border: 4px solid var(--accent-purple); box-shadow: 0 15px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 500px; position: relative; }
+        
+        .card-header { text-align: center; }
+        .card-header h2 { margin: 0; font-size: 26px; font-weight: 900; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .card-header p { margin: 5px 0 0; font-size: 13px; color: #fff; font-weight: bold; }
+
+        /* 3x3 Grid */
+        .scratch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #fff; padding: 8px; border-radius: 12px; border: 2px solid #ccc; width: 100%; aspect-ratio: 1; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+        
+        .grid-cell { position: relative; border-radius: 6px; overflow: hidden; background: #f8f9fa; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: 900; color: #111; user-select: none; }
+        .grid-cell.matched { background: var(--accent-gold); color: #000; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse { from { box-shadow: inset 0 0 0px #d4af37; } to { box-shadow: inset 0 0 20px #e67e22; } }
+
+        /* Foil Overlay Cover */
+        .foil-cover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #b2bec3, #dfe6e9, #636e72); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: opacity 0.3s; z-index: 2; border: 1px solid #999; }
+        .foil-cover::after { content: "1X"; font-style: italic; font-weight: 900; color: rgba(255,255,255,0.4); font-size: 20px; }
+        .foil-cover.scratched { opacity: 0; pointer-events: none; }
+
+        .status-msg { background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 20px; font-weight: 900; letter-spacing: 1px; color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Controls */
+        .controls { display: flex; gap: 10px; width: 100%; max-width: 500px; background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-buy { flex: 1; background: var(--accent-purple); color: white; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #732d91; transition: 0.1s; }
+        .btn-buy:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-buy:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        .btn-reveal { background: #34495e; color: white; font-weight: 900; padding: 0 20px; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; display: none; }
+        .btn-reveal:active { background: #2c3e50; }
+
+        @media (max-width: 768px) {
+            .scratch-card-wrapper { padding: 20px 15px; }
+            .grid-cell { font-size: 24px; }
+            .controls { flex-direction: column; }
+            .btn-buy, .btn-reveal { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="scratch-card-wrapper">
+            <div class="card-header">
+                <h2>LUCKY SCRATCH</h2>
+                <p>MATCH 3 TO WIN INSTANTLY</p>
+            </div>
+
+            <div class="status-msg" id="statusMsg">BUY A TICKET TO PLAY</div>
+
+            <div class="scratch-grid" id="scratchGrid">
+                <!-- Generated by JS -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>TICKET PRICE (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-buy" id="btnBuy" onclick="buyTicket()">BUY TICKET</button>
+            <button class="btn-reveal" id="btnReveal" onclick="revealAll()">REVEAL ALL</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('scratchGrid');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnBuy = document.getElementById('btnBuy');
+        const btnReveal = document.getElementById('btnReveal');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let scratchedCount = 0;
+        let currentGridValues = [];
+        let winningMultiplier = 0;
+        let ticketCost = 0;
+
+        // Multiplier probabilities (Roughly 85-90% RTP structure)
+        const pools = [
+            { mult: 0, weight: 65 },  // Loss
+            { mult: 1, weight: 15 },  // Return bet
+            { mult: 2, weight: 10 },
+            { mult: 5, weight: 5 },
+            { mult: 10, weight: 3 },
+            { mult: 20, weight: 1.5 },
+            { mult: 50, weight: 0.4 },
+            { mult: 100, weight: 0.1 }
+        ];
+
+        function getRandomMultiplier() {
+            const totalWeight = pools.reduce((sum, item) => sum + item.weight, 0);
+            let rand = Math.random() * totalWeight;
+            for (let item of pools) {
+                if (rand < item.weight) return item.mult;
+                rand -= item.weight;
+            }
+            return 0;
+        }
+
+        // Initialize empty dummy board
+        function initDummyBoard() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                
+                const foil = document.createElement('div');
+                foil.className = 'foil-cover';
+                
+                cell.appendChild(foil);
+                grid.appendChild(cell);
+            }
+        }
+        initDummyBoard();
+
+        function buyTicket() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            ticketCost = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            scratchedCount = 0;
+            btnBuy.disabled = true;
+            betInput.disabled = true;
+            btnReveal.style.display = 'block';
+
+            statusMsg.innerText = 'SCRATCH FOIL TO REVEAL';
+            statusMsg.style.color = '#fff';
+
+            // Pre-determine outcome
+            winningMultiplier = getRandomMultiplier();
+            currentGridValues = [];
+
+            const fillerOptions = [1, 2, 5, 10, 20, 50, 100];
+            
+            if (winningMultiplier > 0) {
+                // Winning board: exactly 3 winning multipliers, 6 random fillers (max 2 of each)
+                for(let i=0; i<3; i++) currentGridValues.push(winningMultiplier);
+                
+                let fillers = [];
+                while(fillers.length < 6) {
+                    const f = fillerOptions[Math.floor(Math.random() * fillerOptions.length)];
+                    if (f !== winningMultiplier && fillers.filter(x => x===f).length < 2) {
+                        fillers.push(f);
+                    }
+                }
+                currentGridValues = currentGridValues.concat(fillers);
+            } else {
+                // Losing board: random fillers (max 2 of any kind)
+                while(currentGridValues.length < 9) {
+                    const f = fillerOptions[Math.floor(Math.random() * fillerOptions.length)];
+                    if (currentGridValues.filter(x => x===f).length < 2) {
+                        currentGridValues.push(f);
+                    }
+                }
+            }
+
+            // Shuffle array
+            for (let i = currentGridValues.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentGridValues[i], currentGridValues[j]] = [currentGridValues[j], currentGridValues[i]];
+            }
+
+            // Render playable board
+            grid.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.id = `cell-${i}`;
+                cell.innerText = `${currentGridValues[i]}x`;
+                
+                const foil = document.createElement('div');
+                foil.className = 'foil-cover';
+                
+                // Mouse/Touch events for scratching
+                const scratchEvent = (e) => {
+                    e.preventDefault(); // Stop scrolling on mobile
+                    if (!isPlaying || foil.classList.contains('scratched')) return;
+                    foil.classList.add('scratched');
+                    scratchedCount++;
+                    checkComplete();
+                };
+
+                // Add desktop and mobile listeners
+                foil.addEventListener('mouseover', scratchEvent);
+                foil.addEventListener('touchmove', scratchEvent);
+                foil.addEventListener('touchstart', scratchEvent);
+
+                cell.appendChild(foil);
+                grid.appendChild(cell);
+            }
+        }
+
+        function revealAll() {
+            if (!isPlaying) return;
+            document.querySelectorAll('.foil-cover:not(.scratched)').forEach(f => {
+                f.classList.add('scratched');
+                scratchedCount++;
+            });
+            checkComplete();
+        }
+
+        function checkComplete() {
+            if (scratchedCount === 9) {
+                isPlaying = false;
+                btnReveal.style.display = 'none';
+                
+                if (winningMultiplier > 0) {
+                    const winAmt = ticketCost * winningMultiplier;
+                    balance += winAmt;
+                    
+                    // Highlight winning cells
+                    for (let i = 0; i < 9; i++) {
+                        if (currentGridValues[i] === winningMultiplier) {
+                            document.getElementById(`cell-${i}`).classList.add('matched');
+                        }
+                    }
+
+                    setTimeout(() => {
+                        balanceEl.innerText = balance.toFixed(2);
+                        statusMsg.innerText = `YOU WON ₹${winAmt.toFixed(2)}!`;
+                        statusMsg.style.color = 'var(--accent-green)';
+                        resetControls();
+                    }, 500);
+
+                } else {
+                    setTimeout(() => {
+                        statusMsg.innerText = 'NO MATCH. TICKET LOST.';
+                        statusMsg.style.color = '#e6003d';
+                        resetControls();
+                    }, 500);
+                }
+            }
+        }
+
+        function resetControls() {
+            btnBuy.disabled = false;
+            betInput.disabled = false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!-- Save this as jhandi-munda.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Jhandi Munda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-green: #28a745; --accent-red: #e6003d; --accent-gold: #ffc107;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+
+        /* Felt Table Stage */
+        .dice-stage { width: 100%; max-width: 800px; padding: 30px; background: radial-gradient(ellipse at center, #9e1b32 0%, #4a0d17 100%); border-radius: 16px; border: 3px solid #d4af37; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 25px; box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        
+        .stage-title { font-size: 16px; font-weight: 900; letter-spacing: 3px; color: var(--accent-gold); text-transform: uppercase; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); }
+
+        /* 6 Dice Grid */
+        .dice-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .die { width: 80px; height: 80px; background: #fff; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 45px; box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset -3px -4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; border: 2px solid #ddd; }
+        
+        .die.rolling { animation: tumble 0.2s infinite linear; }
+        @keyframes tumble { 
+            0% { transform: rotate(0deg) scale(0.9) translateY(0); } 
+            25% { transform: rotate(90deg) scale(1.1) translateY(-10px); } 
+            50% { transform: rotate(180deg) scale(0.9) translateY(0); } 
+            75% { transform: rotate(270deg) scale(1.1) translateY(10px); } 
+            100% { transform: rotate(360deg) scale(0.9) translateY(0); } 
+        }
+        
+        .die.matched { transform: scale(1.15); border-color: var(--accent-gold); box-shadow: 0 0 25px rgba(255,193,7,0.8); z-index: 2; animation: pop 0.4s ease-out; }
+        @keyframes pop { 50% { transform: scale(1.3); } }
+
+        /* Betting Board */
+        .betting-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 800px; }
+        .bet-btn { background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .bet-btn:hover { transform: translateY(-4px); background: #182c40; }
+        .bet-btn.selected { border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(255,193,7,0.4); transform: scale(1.05); background: #132435; z-index: 2; }
+        
+        .symbol-icon { font-size: 40px; margin-bottom: 5px; line-height: 1; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: white; border-radius: 50%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+        .symbol-red { color: var(--accent-red); }
+        .symbol-black { color: #111; }
+        .symbol-gold { color: #d4af37; }
+
+        .bet-title { font-size: 16px; font-weight: 900; text-transform: uppercase; color: #fff; }
+        
+        .chip-icon { position: absolute; top: -10px; right: -10px; width: 35px; height: 35px; background: radial-gradient(circle, #ffc107 0%, #e6a800 100%); border: 2px dashed #fff; border-radius: 50%; opacity: 0; transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; justify-content: center; align-items: center; color: #000; font-size: 14px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .bet-btn.selected .chip-icon { opacity: 1; transform: scale(1); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--accent-blue); }
+        
+        .btn-roll { flex: 1; background: var(--accent-green); color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #186629; transition: transform 0.1s; }
+        .btn-roll:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #186629; }
+        .btn-roll:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        @media (max-width: 768px) {
+            .dice-container { gap: 15px; }
+            .die { width: 65px; height: 65px; font-size: 35px; border-radius: 10px; }
+            .betting-board { gap: 10px; }
+            .bet-btn { padding: 15px 5px; }
+            .symbol-icon { font-size: 30px; width: 45px; height: 45px; }
+            .bet-title { font-size: 13px; }
+            .controls { flex-direction: column; padding: 15px; gap: 10px; }
+            .btn-roll { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">10000.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="dice-stage">
+            <div class="stage-title" id="stageTitle">PLACE YOUR BET</div>
+            
+            <div class="dice-container" id="diceContainer">
+                <div class="die">?</div>
+                <div class="die">?</div>
+                <div class="die">?</div>
+                <div class="die">?</div>
+                <div class="die">?</div>
+                <div class="die">?</div>
+            </div>
+        </div>
+
+        <!-- Betting Board -->
+        <div class="betting-board">
+            <div class="bet-btn" onclick="selectSymbol(0, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-red">♥</div>
+                <div class="bet-title">Heart</div>
+            </div>
+            <div class="bet-btn" onclick="selectSymbol(1, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-black">♠</div>
+                <div class="bet-title">Spade</div>
+            </div>
+            <div class="bet-btn" onclick="selectSymbol(2, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-red">♦</div>
+                <div class="bet-title">Diamond</div>
+            </div>
+            <div class="bet-btn" onclick="selectSymbol(3, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-black">♣</div>
+                <div class="bet-title">Club</div>
+            </div>
+            <div class="bet-btn" onclick="selectSymbol(4, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-gold">👑</div>
+                <div class="bet-title">Crown</div>
+            </div>
+            <div class="bet-btn" onclick="selectSymbol(5, this)">
+                <div class="chip-icon">✔</div>
+                <div class="symbol-icon symbol-red">🚩</div>
+                <div class="bet-title">Flag</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-roll" id="btnRoll" onclick="rollDice()">ROLL DICE</button>
+        </div>
+
+    </div>
+
+    <script>
+        let balance = 10000.00;
+        let selectedSymbolIdx = null;
+        let isRolling = false;
+
+        const balanceEl = document.getElementById('balance');
+        const stageTitle = document.getElementById('stageTitle');
+        const btnRoll = document.getElementById('btnRoll');
+        const diceElements = document.querySelectorAll('.die');
+
+        // The 6 Jhandi Munda symbols
+        const symbols = [
+            { icon: '♥', color: '#e6003d', name: 'HEART' },
+            { icon: '♠', color: '#111', name: 'SPADE' },
+            { icon: '♦', color: '#e6003d', name: 'DIAMOND' },
+            { icon: '♣', color: '#111', name: 'CLUB' },
+            { icon: '👑', color: '#d4af37', name: 'CROWN' },
+            { icon: '🚩', color: '#e6003d', name: 'FLAG' }
+        ];
+
+        function selectSymbol(index, el) {
+            if (isRolling) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSymbolIdx = index;
+            stageTitle.innerText = `BET LOCKED: ${symbols[index].name}`;
+            stageTitle.style.color = '#fff';
+            stageTitle.style.borderColor = 'rgba(255,255,255,0.2)';
+        }
+
+        function rollDice() {
+            if (selectedSymbolIdx === null) return alert('Select a symbol on the board first!');
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            // Deduct bet
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isRolling = true;
+            btnRoll.disabled = true;
+            
+            stageTitle.innerText = 'SHAKING DICE...';
+            stageTitle.style.color = 'var(--accent-gold)';
+            stageTitle.style.borderColor = 'rgba(255,193,7,0.3)';
+
+            // Start animation
+            diceElements.forEach(die => {
+                die.classList.remove('matched');
+                die.classList.add('rolling');
+            });
+
+            // Randomize visual faces during roll
+            const rollInterval = setInterval(() => {
+                diceElements.forEach(die => {
+                    const r = Math.floor(Math.random() * 6);
+                    die.innerText = symbols[r].icon;
+                    die.style.color = symbols[r].color;
+                });
+            }, 80);
+
+            // Resolve after 2 seconds
+            setTimeout(() => {
+                clearInterval(rollInterval);
+                
+                let matchCount = 0;
+                const results = [];
+
+                // Determine final faces
+                diceElements.forEach(die => {
+                    die.classList.remove('rolling');
+                    const r = Math.floor(Math.random() * 6);
+                    results.push(r);
+                    
+                    die.innerText = symbols[r].icon;
+                    die.style.color = symbols[r].color;
+
+                    if (r === selectedSymbolIdx) {
+                        matchCount++;
+                        die.classList.add('matched');
+                    }
+                });
+
+                // Calculate Payout
+                // Jhandi Munda Rules: 1 match = 1x (return bet + 1x = 2x total)
+                // 2 matches = 2x, 3 matches = 3x, etc.
+                if (matchCount > 0) {
+                    const payoutMulti = matchCount + 1; // Includes return of original bet
+                    const winnings = betAmt * payoutMulti;
+                    balance += winnings;
+                    balanceEl.innerText = balance.toFixed(2);
+                    
+                    stageTitle.innerText = `${matchCount} MATCHES! WON ₹${winnings.toFixed(2)}`;
+                    stageTitle.style.color = '#28a745';
+                    stageTitle.style.borderColor = '#28a745';
+                } else {
+                    stageTitle.innerText = `NO MATCHES. BET LOST.`;
+                    stageTitle.style.color = '#fff';
+                    stageTitle.style.borderColor = 'rgba(255,255,255,0.2)';
+                }
+
+                // Reset state
+                setTimeout(() => {
+                    isRolling = false;
+                    btnRoll.disabled = false;
+                    stageTitle.innerText = 'PLACE YOUR BET';
+                    stageTitle.style.color = 'var(--accent-gold)';
+                    stageTitle.style.borderColor = 'rgba(255,193,7,0.3)';
+                    
+                    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                    selectedSymbolIdx = null;
+                    diceElements.forEach(die => die.classList.remove('matched'));
+                }, 4000);
+
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

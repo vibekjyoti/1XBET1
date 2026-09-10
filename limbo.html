@@ -1,0 +1,159 @@
+<!-- Save this as limbo.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Limbo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-pink: #fd79a8; --accent-green: #00b894; --accent-red: #d63031;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 30px 15px; flex: 1; }
+        .game-wrapper { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 600px; background: var(--bg-panel); padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+        .roll-screen { background: radial-gradient(circle at center, #2d131f 0%, #0d060a 100%); height: 220px; border-radius: 12px; border: 2px solid #5a263e; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); position: relative; }
+        .roll-num { font-size: 110px; font-weight: 900; line-height: 1; transition: color 0.1s; text-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        .roll-status { font-size: 14px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 10px; }
+
+        .controls { display: flex; gap: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 6px; outline: none; }
+        .input-group input:focus { border-color: var(--accent-pink); }
+        
+        .btn-bet { background: var(--accent-pink); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; padding: 15px; width: 100%; margin-top: 10px; box-shadow: 0 5px 0 #a34869; transition: transform 0.1s; }
+        .btn-bet:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #a34869; }
+        .btn-bet:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        .win-chance { text-align: center; font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .roll-num { font-size: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="roll-screen">
+                <div class="roll-status" id="rollStatus">TARGET MULTIPLIER</div>
+                <div class="roll-num" id="rollNum">1.00x</div>
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="100" min="10">
+                </div>
+                <div class="input-group">
+                    <label>TARGET MULTIPLIER</label>
+                    <input type="number" id="targetMult" value="2.00" min="1.01" step="0.01" oninput="updateChance()">
+                </div>
+            </div>
+            
+            <div class="win-chance" id="winChance">Win Chance: 49.50%</div>
+
+            <button class="btn-bet" id="btnBet" onclick="playLimbo()">PLAY</button>
+        </div>
+    </div>
+
+    <script>
+        let balance = 10000.00;
+        const balanceEl = document.getElementById('balance');
+        const rollNum = document.getElementById('rollNum');
+        const rollStatus = document.getElementById('rollStatus');
+        const targetInput = document.getElementById('targetMult');
+        const winChanceEl = document.getElementById('winChance');
+        const btnBet = document.getElementById('btnBet');
+
+        function updateChance() {
+            let target = parseFloat(targetInput.value);
+            if (isNaN(target) || target < 1.01) target = 1.01;
+            // Standard house edge logic (1% edge) -> 99 / target
+            const chance = (99 / target);
+            winChanceEl.innerText = `Win Chance: ${Math.min(99, Math.max(0.01, chance)).toFixed(2)}%`;
+        }
+
+        // Generate Limbo Crash point math (inverse curve)
+        function generateCrashPoint() {
+            const e = 2 ** 52;
+            const h = crypto.getRandomValues(new Uint32Array(2));
+            const rand = (h[0] * (2 ** 32) + h[1]) / (e * 1024); // Random float 0-1
+            
+            // 1% Instant crash at 1.00x
+            if (rand < 0.01) return 1.00;
+            
+            const result = 0.99 / rand;
+            return Math.max(1.00, Math.min(result, 1000000));
+        }
+
+        function playLimbo() {
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            let target = parseFloat(targetInput.value);
+            
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (isNaN(target) || target < 1.01) return alert('Invalid Target (Min 1.01)');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            btnBet.disabled = true;
+
+            const finalRoll = generateCrashPoint();
+            let currentVisual = 1.00;
+            
+            rollStatus.innerText = 'ROLLING...';
+            rollNum.style.color = '#fff';
+
+            // Fast spool up animation
+            const rollAnim = setInterval(() => {
+                currentVisual += (currentVisual * 0.2) + 0.1;
+                if (currentVisual >= finalRoll || currentVisual > target * 2) {
+                    clearInterval(rollAnim);
+                    
+                    rollNum.innerText = finalRoll.toFixed(2) + 'x';
+
+                    if (finalRoll >= target) {
+                        const win = betAmt * target;
+                        balance += win;
+                        balanceEl.innerText = balance.toFixed(2);
+                        rollNum.style.color = 'var(--accent-green)';
+                        rollStatus.innerText = `YOU WON ₹${win.toFixed(2)}!`;
+                    } else {
+                        rollNum.style.color = 'var(--accent-red)';
+                        rollStatus.innerText = 'TARGET NOT REACHED';
+                    }
+
+                    setTimeout(() => {
+                        btnBet.disabled = false;
+                        rollStatus.innerText = 'TARGET MULTIPLIER';
+                        rollNum.style.color = '#fff';
+                        rollNum.innerText = '1.00x';
+                    }, 2000);
+                } else {
+                    rollNum.innerText = currentVisual.toFixed(2) + 'x';
+                }
+            }, 30);
+        }
+    </script>
+</body>
+</html>

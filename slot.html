@@ -1,0 +1,211 @@
+<!-- Save this as slot.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Classic Slot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-green: #28a745; --accent-red: #e6003d; --accent-gold: #ffc107;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+
+        /* Slot Machine Stage */
+        .slot-machine { width: 100%; max-width: 650px; background: linear-gradient(180deg, #2a0845 0%, #6441A5 100%); padding: 30px 20px; border-radius: 20px; border: 4px solid #f1c40f; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px; position: relative; }
+        
+        .slot-header { text-align: center; color: #fff; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #f1c40f, 0 0 20px #f1c40f; font-size: 28px; font-weight: 900; margin-bottom: 5px; }
+
+        .paytable-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); }
+        .pt-item span { color: var(--accent-gold); margin-left: 5px; }
+
+        /* Reels Container */
+        .reels-container { display: flex; gap: 15px; background: #111; padding: 20px; border-radius: 12px; border: 3px solid #333; box-shadow: inset 0 0 20px rgba(0,0,0,0.9); position: relative; }
+        
+        .payline { position: absolute; top: 50%; left: 0; width: 100%; height: 4px; background: rgba(230,0,61,0.6); transform: translateY(-50%); z-index: 10; box-shadow: 0 0 15px #e6003d; pointer-events: none; opacity: 0.5; }
+        .payline.win { background: rgba(40,167,69,0.9); box-shadow: 0 0 20px #28a745; opacity: 1; animation: flash 0.5s infinite alternate; }
+
+        @keyframes flash { from { opacity: 0.5; } to { opacity: 1; } }
+
+        .reel { flex: 1; height: 160px; background: #fff; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #999; box-shadow: inset 0 10px 20px rgba(0,0,0,0.3); }
+        
+        .symbols-strip { display: flex; flex-direction: column; width: 100%; transition: transform 0.1s linear; }
+        .symbol { height: 160px; display: flex; justify-content: center; align-items: center; font-size: 80px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        
+        .blur { filter: blur(5px); }
+
+        .status-msg { font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: rgba(0,0,0,0.7); padding: 12px 20px; border-radius: 30px; text-align: center; border: 1px solid rgba(255,193,7,0.3); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 650px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-spin { flex: 1; background: var(--accent-green); color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1e7e34; transition: 0.1s; }
+        .btn-spin:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #1e7e34; }
+        .btn-spin:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        @media (max-width: 768px) {
+            .paytable-bar { display: none; }
+            .slot-machine { padding: 20px 15px; }
+            .reel { height: 120px; }
+            .symbol { height: 120px; font-size: 60px; }
+            .controls { flex-direction: column; }
+            .btn-spin { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="slot-machine">
+            <div class="slot-header">777 FRUITY</div>
+            
+            <div class="paytable-bar">
+                <div class="pt-item">🍒🍒🍒 <span>5x</span></div>
+                <div class="pt-item">🍋🍋🍋 <span>10x</span></div>
+                <div class="pt-item">🔔🔔🔔 <span>20x</span></div>
+                <div class="pt-item">💎💎💎 <span>50x</span></div>
+                <div class="pt-item">7️⃣7️⃣7️⃣ <span>100x</span></div>
+            </div>
+
+            <div class="reels-container">
+                <div class="payline" id="payline"></div>
+                <div class="reel"><div class="symbols-strip" id="reel0"><div class="symbol">🍒</div></div></div>
+                <div class="reel"><div class="symbols-strip" id="reel1"><div class="symbol">7️⃣</div></div></div>
+                <div class="reel"><div class="symbols-strip" id="reel2"><div class="symbol">💎</div></div></div>
+            </div>
+
+            <div class="status-msg" id="statusMsg">PLACE YOUR BET</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-spin" id="btnSpin" onclick="spin()">SPIN</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnSpin = document.getElementById('btnSpin');
+        const payline = document.getElementById('payline');
+        const strips = [document.getElementById('reel0'), document.getElementById('reel1'), document.getElementById('reel2')];
+        
+        let balance = 10000.00;
+        let isSpinning = false;
+
+        const iconSet = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+        const payouts = { '🍒': 5, '🍋': 10, '🔔': 20, '💎': 50, '7️⃣': 100 };
+
+        function getRandomIcon() {
+            // Slightly weight lower icons
+            const rand = Math.random();
+            if (rand < 0.4) return '🍒';
+            if (rand < 0.7) return '🍋';
+            if (rand < 0.85) return '🔔';
+            if (rand < 0.95) return '💎';
+            return '7️⃣';
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isSpinning = true;
+            btnSpin.disabled = true;
+            
+            payline.className = 'payline';
+            statusMsg.innerText = 'SPINNING...';
+            statusMsg.style.color = '#fff';
+
+            let resultIcons = [];
+            let spinIntervals = [];
+
+            // Spin animation logic
+            strips.forEach((strip, index) => {
+                strip.classList.add('blur');
+                let count = 0;
+                
+                spinIntervals[index] = setInterval(() => {
+                    const icon = getRandomIcon();
+                    strip.innerHTML = `<div class="symbol">${icon}</div>`;
+                }, 80); // Rapid icon change
+
+                // Staggered stopping times (reel 1, then reel 2, then reel 3)
+                const stopTime = 1000 + (index * 800);
+                
+                setTimeout(() => {
+                    clearInterval(spinIntervals[index]);
+                    const finalIcon = getRandomIcon();
+                    resultIcons[index] = finalIcon;
+                    
+                    strip.classList.remove('blur');
+                    strip.innerHTML = `<div class="symbol">${finalIcon}</div>`;
+
+                    // If it's the last reel, evaluate win
+                    if (index === 2) {
+                        evaluateWin(resultIcons, betAmt);
+                    }
+                }, stopTime);
+            });
+        }
+
+        function evaluateWin(results, betAmt) {
+            const allMatch = results[0] === results[1] && results[1] === results[2];
+            // 2 Cherries Mini-Win feature
+            const twoCherries = (results[0] === '🍒' && results[1] === '🍒') || (results[1] === '🍒' && results[2] === '🍒') || (results[0] === '🍒' && results[2] === '🍒');
+
+            setTimeout(() => {
+                if (allMatch) {
+                    const multi = payouts[results[0]];
+                    const win = betAmt * multi;
+                    balance += win;
+                    
+                    payline.classList.add('win');
+                    statusMsg.innerText = `JACKPOT! ${multi}x WON ₹${win.toFixed(2)}`;
+                    statusMsg.style.color = 'var(--accent-green)';
+                } else if (twoCherries) {
+                    const win = betAmt * 1.5;
+                    balance += win;
+                    statusMsg.innerText = `TWO CHERRIES! WON ₹${win.toFixed(2)}`;
+                    statusMsg.style.color = 'var(--accent-gold)';
+                } else {
+                    statusMsg.innerText = 'NO MATCH. TRY AGAIN.';
+                    statusMsg.style.color = 'var(--accent-red)';
+                }
+
+                balanceEl.innerText = balance.toFixed(2);
+                isSpinning = false;
+                btnSpin.disabled = false;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
