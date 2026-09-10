@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Teen Patti Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-green: #28a745; --accent-red: #e6003d; --accent-yellow: #ffc107; --accent-gold: #e6b800;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 20px; flex: 1; gap: 20px; }
+
+        .table-container { position: relative; width: 100%; max-width: 900px; padding: 12px; background: #2a1105; border-radius: 140px; box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+        .table { background: radial-gradient(ellipse at 50% -20%, #177846 0%, #082d19 100%); width: 100%; height: 420px; border-radius: 130px; border: 3px solid rgba(255, 215, 0, 0.4); display: flex; flex-direction: column; justify-content: space-between; padding: 30px; position: relative; overflow: hidden; }
+        .dealer-tray { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 120px; height: 40px; background: rgba(0,0,0,0.6); border-radius: 0 0 60px 60px; border: 2px solid rgba(255,255,255,0.1); border-top: none; }
+        .status-toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); padding: 12px 25px; border-radius: 30px; font-weight: 900; letter-spacing: 2px; font-size: 15px; color: var(--accent-gold); z-index: 10; text-align: center; border: 1px solid rgba(230, 184, 0, 0.3); }
+
+        .cards-area { display: flex; justify-content: space-around; width: 100%; align-items: center; flex: 1; margin-top: 40px; }
+        .side { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 45%; transition: transform 0.3s; }
+        .side.winner { transform: scale(1.05); }
+        .side-title { font-size: 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .player-a-title { color: #5bc0be; }
+        .player-b-title { color: #ff6b6b; }
+        .card-container { display: flex; justify-content: center; align-items: center; height: 130px; position: relative; min-width: 220px; }
+        
+        .playing-card { width: 85px; height: 125px; perspective: 1000px; position: absolute; margin-left: -40px; opacity: 0; transform: translateY(-200px) scale(0.4) rotateZ(180deg); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease-out; z-index: var(--card-idx); }
+        .playing-card:nth-child(1) { margin-left: -65px; --target-rot: -12deg; }
+        .playing-card:nth-child(2) { margin-left: 0px; --target-rot: 0deg; }
+        .playing-card:nth-child(3) { margin-left: 65px; --target-rot: 12deg; }
+        .playing-card.dealt { opacity: 1; transform: translateY(0) scale(1) rotateZ(var(--target-rot)); }
+        
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); transform-style: preserve-3d; }
+        .playing-card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        .card-back { background: repeating-linear-gradient(45deg, #0a0a0a, #0a0a0a 10px, #1a1a1a 10px, #1a1a1a 20px); border: 3px solid #ddd; }
+        .card-front { background: white; transform: rotateY(180deg); display: flex; flex-direction: column; justify-content: space-between; padding: 10px; border: 1px solid #ccc; }
+        .card-val-top, .card-val-bottom { font-weight: 900; font-size: 20px; line-height: 1; }
+        .card-val-bottom { text-align: right; transform: rotate(180deg); }
+        .card-suit-center { font-size: 40px; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .card-red { color: #e6003d; }
+        .card-black { color: #111; }
+
+        .hand-rank { background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 15px; border: 1px solid rgba(255,215,0,0.4); color: var(--accent-gold); opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(10px); }
+        .hand-rank.show { opacity: 1; transform: translateY(0); }
+        .winner .hand-rank { background: rgba(230, 184, 0, 0.2); border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+
+        .betting-board { display: flex; gap: 15px; width: 100%; max-width: 900px; margin-top: 5px; }
+        .bet-btn { flex: 1; background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
+        .bet-btn.selected { border-color: var(--accent-gold); box-shadow: 0 0 25px rgba(230, 184, 0, 0.3); transform: scale(1.05); z-index: 2; background: #132435; }
+        .chip-icon { position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background: radial-gradient(circle, #ffc107 0%, #e6a800 100%); border: 3px dashed #fff; border-radius: 50%; opacity: 0; transform: scale(0); transition: 0.3s; display: flex; justify-content: center; align-items: center; color: #000; font-size: 14px; font-weight: 900; }
+        .bet-btn.selected .chip-icon { opacity: 1; transform: scale(1); }
+        .bet-title { font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .bet-payout { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        .btn-player-a .bet-title { color: #5bc0be; }
+        .btn-tie .bet-title { color: var(--accent-green); }
+        .btn-player-b .bet-title { color: #ff6b6b; }
+
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 900px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        .btn-deal { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #186629; }
+        .btn-deal:disabled { background: #262626; color: #555; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        @media (max-width: 768px) {
+            .layout { padding: 10px; }
+            .table-container { border-radius: 40px; padding: 6px; }
+            .table { height: auto; border-radius: 30px; padding: 50px 10px 20px 10px; display: block; min-height: 480px; }
+            .cards-area { flex-direction: column; gap: 40px; }
+            .side { width: 100%; gap: 10px; }
+            .card-container { height: 110px; min-width: 180px; }
+            .playing-card { width: 70px; height: 105px; }
+            .playing-card:nth-child(1) { margin-left: -55px; }
+            .playing-card:nth-child(3) { margin-left: 55px; }
+            .betting-board { flex-direction: column; gap: 10px; }
+            .controls { flex-direction: column; gap: 10px; }
+            .btn-deal { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">0.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <div class="table-container">
+            <div class="table">
+                <div class="dealer-tray"></div>
+                <div class="status-toast" id="statusToast">PLACE YOUR BETS</div>
+                <div class="cards-area">
+                    <div class="side" id="sideA">
+                        <div class="side-title player-a-title">PLAYER A</div>
+                        <div class="card-container" id="playerACards"></div>
+                        <div class="hand-rank" id="playerARank">Waiting...</div>
+                    </div>
+                    <div class="side" id="sideB">
+                        <div class="side-title player-b-title">PLAYER B</div>
+                        <div class="card-container" id="playerBCards"></div>
+                        <div class="hand-rank" id="playerBRank">Waiting...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn btn-player-a" onclick="selectBet('PLAYER A', 1.95, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">PLAYER A</div>
+                <div class="bet-payout">PAYS 1.95x</div>
+            </div>
+            <div class="bet-btn btn-tie" onclick="selectBet('TIE', 50, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">TIE</div>
+                <div class="bet-payout">PAYS 50x</div>
+            </div>
+            <div class="bet-btn btn-player-b" onclick="selectBet('PLAYER B', 1.95, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">PLAYER B</div>
+                <div class="bet-payout">PAYS 1.95x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="500" min="50">
+            </div>
+            <button class="btn-deal" id="dealBtn" onclick="dealCards()">DEAL CARDS</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+            authDomain: "xbet-6028f.firebaseapp.com",
+            projectId: "xbet-6028f"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const BACKEND_URL = 'http://localhost:3000';
+
+        let currentUser = null;
+        let balance = 0.00;
+
+        const balanceDisplay = document.getElementById('balance');
+        const statusToast = document.getElementById('statusToast');
+        const dealBtn = document.getElementById('dealBtn');
+        const playerACards = document.getElementById('playerACards');
+        const playerBCards = document.getElementById('playerBCards');
+        const playerARankDisplay = document.getElementById('playerARank');
+        const playerBRankDisplay = document.getElementById('playerBRank');
+        const sideA = document.getElementById('sideA');
+        const sideB = document.getElementById('sideB');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        balance = parseFloat(docSnap.data().balance) || 0;
+                        balanceDisplay.innerText = balance.toFixed(2);
+                    }
+                });
+            } else {
+                alert("Please log in.");
+                window.location.href = "account.html";
+            }
+        });
+
+        let isDealing = false, selectedBet = null, currentMultiplier = 0;
+        const suits = ['♠', '♥', '♦', '♣'], values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+        function getCardNumericValue(valStr) {
+            if (valStr === 'J') return 11; if (valStr === 'Q') return 12;
+            if (valStr === 'K') return 13; if (valStr === 'A') return 14;
+            return parseInt(valStr);
+        }
+
+        function generateCard(idx) {
+            const suit = suits[Math.floor(Math.random() * suits.length)], val = values[Math.floor(Math.random() * values.length)];
+            const colorClass = (suit === '♥' || suit === '♦') ? 'card-red' : 'card-black';
+            const cardEl = document.createElement('div');
+            cardEl.className = 'playing-card';
+            cardEl.style.setProperty('--card-idx', idx); 
+            cardEl.innerHTML = `<div class="card-inner"><div class="card-back"></div><div class="card-front ${colorClass}"><div class="card-val-top">${val}${suit}</div><div class="card-suit-center">${suit}</div><div class="card-val-bottom">${val}${suit}</div></div></div>`;
+            return { element: cardEl, rank: val, suit: suit, numVal: getCardNumericValue(val) };
+        }
+
+        function evaluateHand(cards) {
+            cards.sort((a, b) => b.numVal - a.numVal);
+            const isFlush = cards[0].suit === cards[1].suit && cards[1].suit === cards[2].suit;
+            let isStraight = (cards[0].numVal === cards[1].numVal + 1 && cards[1].numVal === cards[2].numVal + 1) || (cards[0].numVal === 14 && cards[1].numVal === 3 && cards[2].numVal === 2);
+            const isTrio = cards[0].numVal === cards[1].numVal && cards[1].numVal === cards[2].numVal;
+            const isPair = cards[0].numVal === cards[1].numVal || cards[1].numVal === cards[2].numVal || cards[0].numVal === cards[2].numVal;
+
+            let score = 0, name = "";
+            if (isTrio) { score = 600 + cards[0].numVal; name = "Trail (Trio)"; }
+            else if (isStraight && isFlush) { score = 500 + cards[0].numVal; name = "Pure Sequence"; }
+            else if (isStraight) { score = 400 + cards[0].numVal; name = "Sequence"; }
+            else if (isFlush) { score = 300 + cards[0].numVal; name = "Flush"; }
+            else if (isPair) { 
+                const pairVal = cards[0].numVal === cards[1].numVal ? cards[0].numVal : cards[1].numVal;
+                score = 200 + pairVal; name = `Pair of ${pairVal > 10 ? ['J','Q','K','A'][pairVal-11] : pairVal}s`; 
+            }
+            else { score = cards[0].numVal; name = `High Card ${cards[0].rank}`; }
+            return { score, name };
+        }
+
+        window.selectBet = function(type, multiplier, el) {
+            if (isDealing) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedBet = type; currentMultiplier = multiplier;
+            statusToast.innerText = `BET: ${type}`;
+            statusToast.style.color = 'var(--text-main)';
+        }
+
+        function resetBoard() {
+            playerACards.innerHTML = ''; playerBCards.innerHTML = '';
+            playerARankDisplay.className = 'hand-rank'; playerBRankDisplay.className = 'hand-rank';
+            sideA.classList.remove('winner'); sideB.classList.remove('winner');
+        }
+
+        window.dealCards = async function() {
+            if (!currentUser) return alert("Log in first!");
+            if (!selectedBet) return alert('Select Player A, B, or Tie.');
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt < 50) return alert('Invalid Bet (Min 50)');
+            if (betAmt > balance) return alert('Insufficient Balance!');
+
+            isDealing = true; dealBtn.disabled = true;
+            statusToast.innerText = 'PROCESSING...';
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/wallet/debit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.uid, amount: betAmt, gameId: "teenpatti", transactionId: "TX_" + Date.now() })
+                });
+                if (!res.ok) throw new Error("Transaction Failed");
+                
+                statusToast.innerText = 'NO MORE BETS';
+                statusToast.style.color = 'var(--accent-red)';
+                resetBoard();
+
+                let aHand = [], bHand = [];
+                const dealSequence = [
+                    { target: playerACards, hand: aHand, idx: 1 }, { target: playerBCards, hand: bHand, idx: 1 },
+                    { target: playerACards, hand: aHand, idx: 2 }, { target: playerBCards, hand: bHand, idx: 2 },
+                    { target: playerACards, hand: aHand, idx: 3 }, { target: playerBCards, hand: bHand, idx: 3 }
+                ];
+
+                dealSequence.forEach((step, index) => {
+                    setTimeout(() => {
+                        const card = generateCard(step.idx);
+                        step.hand.push(card);
+                        step.target.appendChild(card.element);
+                        void card.element.offsetWidth;
+                        card.element.classList.add('dealt');
+                        setTimeout(() => card.element.classList.add('flipped'), 350);
+                        if (index === 5) setTimeout(() => resolveGame(aHand, bHand, betAmt), 1200);
+                    }, index * 450); 
+                });
+            } catch(e) {
+                alert(e.message);
+                isDealing = false; dealBtn.disabled = false;
+            }
+        }
+
+        async function resolveGame(aHand, bHand, betAmt) {
+            const aResult = evaluateHand(aHand), bResult = evaluateHand(bHand);
+            playerARankDisplay.innerText = aResult.name; playerBRankDisplay.innerText = bResult.name;
+            playerARankDisplay.classList.add('show'); playerBRankDisplay.classList.add('show');
+
+            let winner = 'TIE';
+            if (aResult.score > bResult.score) winner = 'PLAYER A';
+            if (bResult.score > aResult.score) winner = 'PLAYER B';
+
+            if (winner === 'PLAYER A') sideA.classList.add('winner');
+            if (winner === 'PLAYER B') sideB.classList.add('winner');
+
+            setTimeout(async () => {
+                if (winner === selectedBet) {
+                    const winnings = betAmt * currentMultiplier;
+                    try {
+                        await fetch(`${BACKEND_URL}/api/wallet/credit`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: currentUser.uid, amount: winnings, gameId: "teenpatti", transactionId: "WIN_" + Date.now() })
+                        });
+                        statusToast.innerText = `WINNER! PAYS ₹${winnings.toFixed(2)}`;
+                        statusToast.style.color = 'var(--accent-gold)';
+                    } catch(e) { console.error(e); }
+                } else if (winner === 'TIE' && selectedBet !== 'TIE') {
+                    statusToast.innerText = `TIE! HOUSE WINS.`;
+                    statusToast.style.color = 'var(--text-muted)';
+                } else {
+                    statusToast.innerText = `${winner} WINS. BET LOST.`;
+                    statusToast.style.color = 'var(--text-muted)';
+                }
+
+                setTimeout(() => {
+                    isDealing = false; dealBtn.disabled = false;
+                    statusToast.innerText = 'PLACE YOUR BETS';
+                    statusToast.style.color = 'var(--accent-gold)';
+                    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                    selectedBet = null; resetBoard();
+                }, 4500);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

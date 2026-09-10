@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Matka Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40; --bg-hover: #1f3a56;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-yellow: #ffc107; --accent-green: #5c9e28; --accent-red: #e6003d;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
+        
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; flex: 1; }
+        
+        .draw-screen { background: radial-gradient(circle, #1e3650 0%, #112030 100%); width: 100%; max-width: 600px; height: 220px; border-radius: 12px; border: 2px solid var(--accent-yellow); margin-bottom: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); overflow: hidden; position: relative; }
+        .draw-title { font-size: 14px; color: var(--accent-yellow); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; z-index: 2; }
+        
+        .drawn-number { font-size: 90px; font-weight: 900; line-height: 1; text-shadow: 0 4px 15px rgba(0,0,0,0.8); z-index: 2; transition: all 0.3s; display: inline-block; }
+        .drawn-number.rolling { animation: drumRoll 0.12s infinite linear; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .drawn-number.win { color: var(--accent-green); transform: scale(1.3); text-shadow: 0 0 30px rgba(92, 158, 40, 0.8); }
+        .drawn-number.lose { color: var(--accent-red); transform: scale(0.9); opacity: 0.8; }
+
+        @keyframes drumRoll {
+            0% { transform: translateY(-25px) scale(0.8); opacity: 0.3; filter: blur(3px); }
+            50% { transform: translateY(0) scale(1.1); opacity: 1; filter: blur(0); }
+            100% { transform: translateY(25px) scale(0.8); opacity: 0.3; filter: blur(3px); }
+        }
+        
+        .board { background: var(--bg-panel); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 600px; width: 100%; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .board-title { text-align: center; margin-bottom: 20px; font-weight: bold; color: var(--text-muted); letter-spacing: 1px; }
+        .numbers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        
+        .num-btn { background: var(--bg-card); border: 2px solid var(--border-color); color: white; padding: 20px; font-size: 26px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .num-btn.selected { background: var(--accent-blue); border-color: white; transform: scale(1.08); box-shadow: 0 0 20px rgba(35, 140, 245, 0.5); z-index: 5; }
+        .num-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 600px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        .btn-play { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 0 #3e6b1b; }
+        .btn-play:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        @media (max-width: 768px) {
+            .layout { padding: 15px 10px; }
+            .draw-screen { height: 180px; margin-bottom: 15px; }
+            .drawn-number { font-size: 70px; }
+            .board { padding: 15px; margin-bottom: 15px; }
+            .numbers-grid { gap: 6px; }
+            .num-btn { padding: 15px; font-size: 22px; }
+            .controls { flex-direction: column; padding: 15px; gap: 10px; }
+            .btn-play { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">0.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <div class="draw-screen">
+            <div class="draw-title" id="drawStatus">SINGLE DIGIT DRAW (9x PAYOUT)</div>
+            <div class="drawn-number" id="resultDisplay">?</div>
+        </div>
+
+        <div class="board">
+            <div class="board-title">SELECT YOUR NUMBER</div>
+            <div class="numbers-grid" id="numberGrid"></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-play" id="btnPlay" onclick="playMatka()">PLACE BET</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+            authDomain: "xbet-6028f.firebaseapp.com",
+            projectId: "xbet-6028f"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const BACKEND_URL = 'http://localhost:3000';
+
+        let currentUser = null;
+        let balance = 0.00;
+
+        const grid = document.getElementById('numberGrid');
+        const balanceDisplay = document.getElementById('balance');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const drawStatus = document.getElementById('drawStatus');
+        const btnPlay = document.getElementById('btnPlay');
+        const betInput = document.getElementById('betAmount');
+        
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        balance = parseFloat(docSnap.data().balance) || 0;
+                        balanceDisplay.innerText = balance.toFixed(2);
+                    }
+                });
+            } else {
+                alert("Please log in.");
+                window.location.href = "account.html";
+            }
+        });
+
+        let selectedNumber = null;
+        let isDrawing = false;
+
+        for (let i = 0; i <= 9; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'num-btn';
+            btn.innerText = i;
+            btn.onclick = () => {
+                if (isDrawing) return;
+                document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedNumber = i;
+            };
+            grid.appendChild(btn);
+        }
+
+        function toggleBoard(disabled) {
+            document.querySelectorAll('.num-btn').forEach(b => b.disabled = disabled);
+            betInput.disabled = disabled;
+        }
+
+        window.playMatka = async function() {
+            if (!currentUser) return alert("Log in first!");
+            if (selectedNumber === null) return alert('Select a number on the board first!');
+            
+            const betAmount = parseFloat(betInput.value);
+            if (isNaN(betAmount) || betAmount < 10) return alert('Enter a valid bet amount (Min 10)');
+            if (betAmount > balance) return alert('Insufficient Balance!');
+
+            isDrawing = true; btnPlay.disabled = true; toggleBoard(true);
+            btnPlay.innerText = 'PROCESSING...';
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/wallet/debit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.uid, amount: betAmount, gameId: "matka", transactionId: "TX_" + Date.now() })
+                });
+                if (!res.ok) throw new Error("Transaction Failed");
+
+                btnPlay.innerText = 'DRAWING...';
+                drawStatus.innerText = 'SHUFFLING NUMBERS...';
+                drawStatus.style.color = 'white';
+                resultDisplay.className = 'drawn-number rolling';
+                
+                let rollInterval = setInterval(() => { resultDisplay.innerText = Math.floor(Math.random() * 10); }, 60);
+
+                setTimeout(async () => {
+                    clearInterval(rollInterval);
+                    resultDisplay.classList.remove('rolling');
+                    
+                    const winningNumber = Math.floor(Math.random() * 10);
+                    resultDisplay.innerText = winningNumber;
+
+                    if (winningNumber === selectedNumber) {
+                        const winnings = betAmount * 9; 
+                        try {
+                            await fetch(`${BACKEND_URL}/api/wallet/credit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: currentUser.uid, amount: winnings, gameId: "matka", transactionId: "WIN_" + Date.now() })
+                            });
+                            resultDisplay.classList.add('win');
+                            drawStatus.innerText = `YOU WON ₹${winnings.toFixed(2)}!`;
+                            drawStatus.style.color = 'var(--accent-green)';
+                        } catch(e) { console.error(e); }
+                    } else {
+                        resultDisplay.classList.add('lose');
+                        drawStatus.innerText = 'BET LOST';
+                        drawStatus.style.color = 'var(--accent-red)';
+                    }
+
+                    setTimeout(() => {
+                        isDrawing = false; btnPlay.disabled = false; toggleBoard(false);
+                        btnPlay.innerText = 'PLACE BET';
+                        drawStatus.innerText = 'SINGLE DIGIT DRAW (9x PAYOUT)';
+                        drawStatus.style.color = 'var(--accent-yellow)';
+                        resultDisplay.className = 'drawn-number'; resultDisplay.innerText = '?';
+                        document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+                        selectedNumber = null;
+                    }, 3500);
+
+                }, 2500);
+            } catch(e) {
+                alert(e.message);
+                isDrawing = false; btnPlay.disabled = false; toggleBoard(false);
+                btnPlay.innerText = 'PLACE BET';
+            }
+        }
+    </script>
+</body>
+</html>

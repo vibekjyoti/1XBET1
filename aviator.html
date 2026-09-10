@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Aviator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #000000; --bg-panel: #111111; --bg-card: #1a1a1a;
+            --text-main: #ffffff; --text-muted: #888888;
+            --accent-red: #e6003d; --accent-green: #28a745; --accent-yellow: #ffc107; --accent-blue: #238cf5;
+            --border-color: #222222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { background: #0b1520; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a3148; z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: #172b40; padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 10; }
+        .main-game { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; position: relative; }
+
+        .game-screen { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid var(--border-color); margin: 20px; border-radius: 12px; background: radial-gradient(circle at 40% 60%, #170308 0%, #030303 100%); overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+        #aviatorCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+        .multiplier-wrapper { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; pointer-events: none; margin-top: -40px; }
+        .multiplier { font-size: 100px; font-weight: 900; font-variant-numeric: tabular-nums; transition: color 0.2s, transform 0.1s; text-shadow: 0 8px 30px rgba(0,0,0,0.9); }
+        .multiplier.waiting { color: var(--text-muted); font-size: 64px; }
+        .multiplier.flying { color: #ffffff; text-shadow: 0 0 40px rgba(230, 0, 61, 0.5), 0 5px 15px rgba(0,0,0,0.8); }
+        .multiplier.crashed { color: var(--accent-red); transform: scale(0.95); }
+        
+        .status { font-size: 18px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; color: var(--text-muted); transition: 0.2s; }
+        .status.flew-away { color: var(--accent-red); font-size: 26px; text-shadow: 0 0 20px rgba(230,0,61,0.4); }
+
+        .controls { background: var(--bg-card); padding: 18px 20px; display: flex; justify-content: center; gap: 20px; border-top: 1px solid var(--border-color); z-index: 20; }
+        .bet-panel { display: flex; gap: 15px; background: #0c0c0c; padding: 12px 18px; border-radius: 8px; border: 1px solid var(--border-color); align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        .bet-input-group { display: flex; flex-direction: column; gap: 5px; }
+        .bet-input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .bet-input-group input { background: #181818; border: 1px solid #333; color: white; padding: 12px; width: 140px; text-align: center; font-size: 20px; font-weight: bold; border-radius: 4px; outline: none; transition: 0.2s; }
+        .bet-input-group input:focus { border-color: var(--accent-red); }
+        
+        .btn-action { padding: 15px 40px; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: transform 0.08s, background 0.15s, box-shadow 0.08s; min-width: 240px; }
+        .btn-bet { background: var(--accent-green); color: white; box-shadow: 0 5px 0 #186629; }
+        .btn-bet:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #186629; }
+        .btn-cashout { background: var(--accent-yellow); color: #000; box-shadow: 0 5px 0 #c69500; }
+        .btn-cashout:active { transform: translateY(4px); box-shadow: 0 1px 0 #c69500; }
+        .btn-disabled { background: #262626; color: #666; cursor: not-allowed; box-shadow: none; transform: none !important; }
+
+        .history-header { padding: 15px; background: #161616; font-weight: bold; border-bottom: 1px solid var(--border-color); text-align: center; font-size: 13px; letter-spacing: 1px; }
+        .history-list { flex: 1; overflow-y: auto; list-style: none; padding: 8px; }
+        .history-list li { display: flex; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #1a1a1a; font-size: 14px; }
+        .history-list li .mult { font-weight: 900; }
+        .mult-high { color: var(--accent-red); }
+        .mult-low { color: var(--accent-blue); }
+
+        @media (max-width: 768px) {
+            body { overflow-y: auto; }
+            .layout { flex-direction: column; overflow: visible; }
+            .sidebar { width: 100%; height: 180px; order: 2; border-right: none; border-top: 1px solid var(--border-color); }
+            .main-game { order: 1; min-height: 450px; }
+            .game-screen { margin: 10px; }
+            .multiplier { font-size: 70px; }
+            .multiplier.waiting { font-size: 45px; }
+            .status { font-size: 14px; }
+            .controls { padding: 15px; }
+            .bet-panel { flex-direction: column; width: 100%; padding: 15px; }
+            .bet-input-group { width: 100%; }
+            .bet-input-group input { width: 100%; font-size: 18px; }
+            .btn-action { width: 100%; min-width: 0; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">0.00</span></div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="history-header">ALL BETS (SIMULATED)</div>
+            <ul class="history-list" id="historyList"></ul>
+        </aside>
+
+        <main class="main-game">
+            <div class="game-screen" id="screenContainer">
+                <canvas id="aviatorCanvas"></canvas>
+                <div class="multiplier-wrapper">
+                    <div class="status" id="gameStatus">WAITING FOR NEXT ROUND</div>
+                    <div class="multiplier waiting" id="multiplierDisplay">1.00x</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="bet-panel">
+                    <div class="bet-input-group">
+                        <label>BET AMOUNT (₹)</label>
+                        <input type="number" id="betAmount" value="100" min="10">
+                    </div>
+                    <button class="btn-action btn-bet" id="actionBtn" onclick="handleAction()">BET</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ADDED type="module" for Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
+            authDomain: "xbet-6028f.firebaseapp.com",
+            projectId: "xbet-6028f",
+            storageBucket: "xbet-6028f.firebasestorage.app",
+            messagingSenderId: "954239177283",
+            appId: "1:954239177283:web:d07708b4cf140a4ebbbaf6",
+            measurementId: "G-DVL7J34JGF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Define URL for local node server (change to your Render URL if hosted)
+        const BACKEND_URL = 'http://localhost:3000';
+
+        let currentUser = null;
+        let balance = 0.00;
+
+        const balanceDisplay = document.getElementById('balance');
+        const actionBtn = document.getElementById('actionBtn');
+        const betInput = document.getElementById('betAmount');
+
+        // REAL-TIME FIREBASE BALANCE LISTENER
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        balance = parseFloat(docSnap.data().balance) || 0;
+                        balanceDisplay.innerText = balance.toFixed(2);
+                    }
+                });
+            } else {
+                alert("Please log in to play Aviator.");
+                window.location.href = "account.html";
+            }
+        });
+
+        const canvas = document.getElementById('aviatorCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('screenContainer');
+        const multDisplay = document.getElementById('multiplierDisplay');
+        const statusDisplay = document.getElementById('gameStatus');
+        const historyList = document.getElementById('historyList');
+
+        let currentMultiplier = 1.00;
+        let gameState = 'WAITING'; 
+        let betState = 'NONE';     
+        let currentBet = 0;
+        let flightProgress = 0;    
+        let flyAwayOffset = { x: 0, y: 0 };
+        let particles = [];
+        let animFrameId;
+
+        function resize() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawBackgroundGrid(time) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            const gridSize = 80;
+            const speed = (time * 0.05) % gridSize; 
+            
+            ctx.beginPath();
+            for (let x = canvas.width - speed; x > 0; x -= gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+            }
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+            }
+            ctx.stroke();
+        }
+
+        function drawAirplane(x, y, angle, time) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 12;
+            ctx.shadowOffsetX = -2;
+
+            const bodyGrad = ctx.createLinearGradient(-35, -10, 35, 10);
+            bodyGrad.addColorStop(0, '#a30026'); 
+            bodyGrad.addColorStop(0.5, '#ff1a53'); 
+            bodyGrad.addColorStop(1, '#e6003d'); 
+
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.moveTo(38, 0);                 
+            ctx.quadraticCurveTo(25, -10, -25, -9); 
+            ctx.lineTo(-34, -20);              
+            ctx.lineTo(-28, 0);                
+            ctx.lineTo(-25, 9);                
+            ctx.quadraticCurveTo(15, 10, 38, 0); 
+            ctx.closePath();
+            ctx.fill();
+
+            const glassGrad = ctx.createLinearGradient(0, -8, 15, 0);
+            glassGrad.addColorStop(0, '#ffffff');
+            glassGrad.addColorStop(1, '#4dc3ff');
+            
+            ctx.fillStyle = glassGrad;
+            ctx.shadowBlur = 0; 
+            ctx.beginPath();
+            ctx.ellipse(10, -4, 12, 4.5, -0.15, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#cc0033';
+            ctx.beginPath();
+            ctx.moveTo(4, -2);
+            ctx.lineTo(-15, -35);
+            ctx.lineTo(-3, -35);
+            ctx.lineTo(16, -2);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.fillStyle = '#800021';
+            ctx.beginPath();
+            ctx.moveTo(2, 2);
+            ctx.lineTo(-12, 22);
+            ctx.lineTo(-2, 22);
+            ctx.lineTo(14, 2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#999999';
+            ctx.beginPath();
+            ctx.ellipse(39, 0, 3, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.ellipse(40, 0, 2, 18, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function emitSmoke(x, y) {
+            if (Math.random() < 0.7) {
+                particles.push({
+                    x: x - 32,
+                    y: y + (Math.random() * 6 - 3),
+                    radius: Math.random() * 4 + 2,
+                    alpha: 1.0,
+                    vx: -(Math.random() * 3 + 2), 
+                    vy: (Math.random() * 1.5 - 0.75)
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.02; 
+                p.radius += 0.3; 
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                const r = 255;
+                const g = Math.floor(p.alpha * 200); 
+                const b = Math.floor(p.alpha * 50);
+
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function renderScene(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (gameState === 'RUNNING' || gameState === 'CRASHED') {
+                drawBackgroundGrid(time);
+            }
+
+            const startX = canvas.width < 500 ? 30 : 60;
+            const startY = canvas.height - (canvas.width < 500 ? 30 : 60);
+
+            if (gameState === 'RUNNING' || gameState === 'CRASHED') {
+                const targetX = canvas.width * 0.75;
+                const targetY = canvas.height * 0.25;
+
+                const hoverOffset = Math.sin(time * 0.0025) * 14;
+
+                const px = startX + (targetX - startX) * flightProgress + flyAwayOffset.x;
+                const py = startY + (targetY - startY) * flightProgress + hoverOffset + flyAwayOffset.y;
+
+                const ctrlX = startX + (targetX - startX) * 0.5;
+                const ctrlY = startY;
+
+                if (gameState === 'RUNNING') {
+                    const fillGrad = ctx.createLinearGradient(0, py, 0, startY);
+                    fillGrad.addColorStop(0, 'rgba(230, 0, 61, 0.35)');
+                    fillGrad.addColorStop(1, 'rgba(230, 0, 61, 0.0)');
+
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.quadraticCurveTo(ctrlX, ctrlY, px, py);
+                    ctx.lineTo(px, startY);
+                    ctx.closePath();
+                    ctx.fillStyle = fillGrad;
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.quadraticCurveTo(ctrlX, ctrlY, px, py);
+                    
+                    ctx.strokeStyle = '#ff1a53';
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.shadowColor = '#e6003d';
+                    ctx.shadowBlur = 20;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; 
+
+                    emitSmoke(px, py);
+                }
+
+                updateParticles();
+
+                let angle = -0.35;
+                if (gameState === 'CRASHED') {
+                    angle = -0.10; 
+                }
+
+                drawAirplane(px, py, angle, time);
+            }
+
+            animFrameId = requestAnimationFrame(renderScene);
+        }
+        animFrameId = requestAnimationFrame(renderScene);
+
+        function populateHistory() {
+            for(let i = 0; i < 14; i++) {
+                let fakeCrash = (Math.random() * 3.5 + 1.05).toFixed(2);
+                addHistoryItem(`User${Math.floor(Math.random() * 9000) + 1000}`, fakeCrash);
+            }
+        }
+        function addHistoryItem(user, mult) {
+            const li = document.createElement('li');
+            const multClass = parseFloat(mult) >= 2.00 ? 'mult-high' : 'mult-low';
+            li.innerHTML = `<span>${user}</span> <span class="mult ${multClass}">${mult}x</span>`;
+            historyList.prepend(li);
+            if (historyList.children.length > 20) historyList.lastChild.remove();
+        }
+
+        // ==========================================
+        // DYNAMIC WALLET API CALLS 
+        // ==========================================
+        window.handleAction = async function() {
+            if (!currentUser) return alert("You must be logged in.");
+
+            if (gameState === 'WAITING' && betState === 'NONE') {
+                const amount = parseFloat(betInput.value);
+                if (isNaN(amount) || amount <= 0) return alert('Enter a valid bet amount');
+                if (amount > balance) return alert('Insufficient Balance');
+                
+                actionBtn.className = 'btn-action btn-disabled';
+                actionBtn.innerText = 'PROCESSING...';
+
+                try {
+                    // SECURE DEBIT WEBHOOK
+                    const res = await fetch(`${BACKEND_URL}/api/wallet/debit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.uid,
+                            amount: amount,
+                            gameId: "aviator",
+                            transactionId: "TX_" + Date.now()
+                        })
+                    });
+
+                    if (!res.ok) throw new Error("Transaction Failed. Check balance.");
+                    
+                    currentBet = amount;
+                    betState = 'QUEUED';
+                    actionBtn.innerText = 'WAITING FOR ROUND...';
+                } catch (err) {
+                    alert(err.message);
+                    actionBtn.className = 'btn-action btn-bet';
+                    actionBtn.innerText = 'BET';
+                }
+
+            } else if (gameState === 'RUNNING' && betState === 'ACTIVE') {
+                let winnings = currentBet * currentMultiplier;
+                
+                actionBtn.className = 'btn-action btn-disabled';
+                actionBtn.innerText = 'CASHING OUT...';
+
+                try {
+                    // SECURE CREDIT WEBHOOK
+                    const res = await fetch(`${BACKEND_URL}/api/wallet/credit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.uid,
+                            amount: winnings,
+                            gameId: "aviator",
+                            transactionId: "WIN_" + Date.now()
+                        })
+                    });
+
+                    if (!res.ok) throw new Error("Credit Failed");
+
+                    betState = 'NONE';
+                    actionBtn.className = 'btn-action btn-bet';
+                    actionBtn.innerText = 'BET';
+                    actionBtn.disabled = true;
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        function startRound() {
+            gameState = 'WAITING';
+            flightProgress = 0;
+            flyAwayOffset = { x: 0, y: 0 };
+            particles = [];
+
+            multDisplay.className = 'multiplier waiting';
+            multDisplay.innerText = '1.00x';
+            statusDisplay.className = 'status';
+            statusDisplay.innerText = 'WAITING FOR NEXT ROUND';
+            actionBtn.disabled = false;
+            
+            if (betState !== 'QUEUED') {
+                actionBtn.className = 'btn-action btn-bet';
+                actionBtn.innerText = 'BET';
+            }
+
+            setTimeout(() => {
+                gameState = 'RUNNING';
+                statusDisplay.innerText = '';
+                multDisplay.className = 'multiplier flying';
+                
+                if (betState === 'QUEUED') {
+                    betState = 'ACTIVE';
+                    actionBtn.className = 'btn-action btn-cashout';
+                    actionBtn.innerText = 'CASHOUT';
+                }
+
+                currentMultiplier = 1.00;
+                
+                const rand = Math.random();
+                let crashPoint;
+                if (rand < 0.5) crashPoint = (Math.random() * 0.6) + 1.02;
+                else if (rand < 0.8) crashPoint = (Math.random() * 1.6) + 1.60;
+                else crashPoint = (Math.random() * 6.5) + 3.20;
+
+                const roundTimer = setInterval(() => {
+                    currentMultiplier += (currentMultiplier * 0.007) + 0.01;
+                    multDisplay.innerText = currentMultiplier.toFixed(2) + 'x';
+
+                    if (flightProgress < 1.0) {
+                        flightProgress = Math.min(1.0, flightProgress + 0.008);
+                    }
+
+                    if (betState === 'ACTIVE') {
+                        actionBtn.innerText = `CASHOUT (₹${(currentBet * currentMultiplier).toFixed(2)})`;
+                    }
+
+                    if (currentMultiplier >= crashPoint) {
+                        clearInterval(roundTimer);
+                        crashGame();
+                    }
+                }, 50);
+
+            }, 3500);
+        }
+
+        function crashGame() {
+            gameState = 'CRASHED';
+            multDisplay.className = 'multiplier crashed';
+            statusDisplay.className = 'status flew-away';
+            statusDisplay.innerText = 'FLEW AWAY!';
+            
+            addHistoryItem('Crash', currentMultiplier.toFixed(2));
+            
+            if (betState === 'ACTIVE') {
+                betState = 'NONE';
+            }
+            
+            actionBtn.className = 'btn-action btn-disabled';
+            actionBtn.innerText = 'CRASHED';
+
+            const exitStartTime = performance.now();
+            function flyAway(now) {
+                const elapsed = now - exitStartTime;
+                const speedMulti = 1 + (elapsed * 0.05); 
+                flyAwayOffset.x += speedMulti;
+                flyAwayOffset.y -= (speedMulti * 0.35);
+                
+                if (elapsed < 1200) {
+                    requestAnimationFrame(flyAway);
+                }
+            }
+            requestAnimationFrame(flyAway);
+            
+            setTimeout(startRound, 3500);
+        }
+
+        populateHistory();
+        startRound();
+    </script>
+</body>
+</html>
