@@ -46,7 +46,31 @@
       .game-card { flex: 0 0 240px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; display: block; scroll-snap-align: start; }
       .game-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
       
-      .game-thumb { height: 150px; position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; border-bottom: 2px solid #103856; }
+      .game-thumb { height: 150px; display: flex; justify-content: center; align-items: center; font-size: 6rem; color: white; position: relative; }
+      .game-thumb.aviator { background: radial-gradient(circle at center, #ff1a53, #a30026); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+      .game-thumb.crash { background: radial-gradient(circle at center, #6bc42d, #2d5212); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+      .game-thumb.roulette { background: radial-gradient(circle at center, #222222, #000000); border-bottom: 5px solid #e6003d; }
+      .game-thumb.teenpatti { background: radial-gradient(circle at center, #0e7340, #06311b); }
+      .game-thumb.matka { background: radial-gradient(circle at center, #ffca28, #b38705); color: #222; text-shadow: 0 2px 5px rgba(255,255,255,0.5); }
+      
+      /* New Games CSS added to match the previous UI style */
+      .game-thumb.dragontiger { background: linear-gradient(135deg, #e6003d 50%, #ffc107 50%); }
+      .game-thumb.andarbahar { background: linear-gradient(135deg, #1f72ad 50%, #e67e22 50%); }
+      .game-thumb.plinko { background: radial-gradient(circle at center, #e84393, #6c1943); }
+      .game-thumb.hilo { background: radial-gradient(circle at center, #f39c12, #784703); }
+      .game-thumb.coinflip { background: radial-gradient(circle at center, #f1c40f, #826a05); color: #111; }
+      .game-thumb.limbo { background: radial-gradient(circle at center, #fd79a8, #741d40); }
+      .game-thumb.wheel { background: radial-gradient(circle at center, #00cec9, #05504e); }
+      .game-thumb.keno { background: radial-gradient(circle at center, #6c5ce7, #2d236f); }
+      .game-thumb.blackjack { background: radial-gradient(circle at center, #27ae60, #0d3e21); }
+      .game-thumb.chickenrush { background: radial-gradient(circle at center, #e1b12c, #8c6a14); }
+      .game-thumb.jhandimunda { background: radial-gradient(circle at center, #d63031, #801818); }
+      .game-thumb.penalty { background: radial-gradient(circle at center, #27ae60, #135931); }
+      .game-thumb.scratch { background: radial-gradient(circle at center, #9b59b6, #4d2c5b); }
+      .game-thumb.sicbo { background: radial-gradient(circle at center, #e67e22, #8e4a11); }
+      .game-thumb.slot { background: radial-gradient(circle at center, #f1c40f, #826a05); color: #111; }
+      .game-thumb.tower { background: radial-gradient(circle at center, #34495e, #1a252f); }
+      .game-thumb.videopoker { background: radial-gradient(circle at center, #2980b9, #154360); }
       
       .game-info { padding: 15px; text-align: center; border-top: 1px solid #eee; }
       .game-info h3 { margin: 0; font-size: 1.8rem; color: #103856; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
@@ -90,7 +114,7 @@
         .casino-games .title h2 { font-size: 1.8rem; }
         .games-grid { gap: 15px; }
         .game-card { flex: 0 0 170px; }
-        .game-thumb { height: 110px; }
+        .game-thumb { height: 110px; font-size: 4rem; }
         .game-info h3 { font-size: 1.4rem; }
         .game-info p { font-size: 1.1rem; }
         .play-overlay span { padding: 8px 16px; font-size: 1.3rem; }
@@ -330,7 +354,7 @@
                   </div>
                   <div class="icon"><i>ROULETTE</i></div>
                   <div class="mark">
-                    <img src="images/roulette.png" alt="mark" />
+                    <img src="images/casino-mark-2.jpg" alt="mark" />
                   </div>
                 </li>
               </ul>
@@ -607,7 +631,8 @@
           <div class="games-grid">
             
             <a href="aviator.html" class="game-card">
-              <div class="game-thumb" style="background-image: url('images/aviator.png');">
+              <div class="game-thumb aviator">
+                <i class="fa fa-plane"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
@@ -617,7 +642,8 @@
             </a>
 
             <a href="crash.html" class="game-card">
-              <div class="game-thumb" style="background-image: url('images/crash.png');">
+              <div class="game-thumb crash">
+                <i class="fa fa-rocket"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
@@ -627,7 +653,8 @@
             </a>
 
             <a href="roulette.html" class="game-card">
-              <div class="game-thumb" style="background-image: url('images/roulette.png');">
+              <div class="game-thumb roulette">
+                <i class="fa fa-life-ring" style="color: #e6003d;"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
@@ -637,7 +664,11 @@
             </a>
 
             <a href="teen-patti.html" class="game-card">
-              <div class="game-thumb" style="background-image: url('images/teen-patti.png');">
+              <div class="game-thumb teenpatti">
+                <div style="display:flex; gap:8px; font-weight:900;">
+                   <span style="background:#fff; color:#e6003d; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(-10deg);">A♥</span>
+                   <span style="background:#fff; color:#111; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(10deg); margin-top:10px;">K♠</span>
+                </div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
@@ -647,12 +678,200 @@
             </a>
 
             <a href="matka.html" class="game-card">
-              <div class="game-thumb" style="background-image: url('images/matka.png');">
+              <div class="game-thumb matka">
+                <i class="fa fa-sort-numeric-desc"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
                 <h3>Matka</h3>
                 <p>9x Payout Draw</p>
+              </div>
+            </a>
+
+            <a href="andar-bahar.html" class="game-card">
+              <div class="game-thumb andarbahar">
+                <div style="font-size:2.8rem; font-weight:900;">🅰️ / 🅱️</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Andar Bahar</h3>
+                <p>Indian Live Classic</p>
+              </div>
+            </a>
+
+            <a href="dragon-tiger.html" class="game-card">
+              <div class="game-thumb dragontiger">
+                <div style="font-size:3.2rem; font-weight:900;">🐉|🐅</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Dragon Tiger</h3>
+                <p>Live 2-Card Duel</p>
+              </div>
+            </a>
+
+            <a href="jhandi-munda.html" class="game-card">
+              <div class="game-thumb jhandimunda">
+                <i class="fa fa-cubes"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Jhandi Munda</h3>
+                <p>Indian Dice Game</p>
+              </div>
+            </a>
+
+            <a href="cpin-flip.html" class="game-card">
+              <div class="game-thumb coinflip">
+                <i class="fa fa-money"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Coin Flip</h3>
+                <p>Heads or Tails</p>
+              </div>
+            </a>
+
+            <a href="plinko.html" class="game-card">
+              <div class="game-thumb plinko">
+                <i class="fa fa-circle-o-notch fa-spin"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Plinko</h3>
+                <p>Pyramid Peg Drop</p>
+              </div>
+            </a>
+
+            <a href="limbo.html" class="game-card">
+              <div class="game-thumb limbo">
+                <i class="fa fa-rocket"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Limbo</h3>
+                <p>Target Multiplier</p>
+              </div>
+            </a>
+
+            <a href="slot.html" class="game-card">
+              <div class="game-thumb slot">
+                <div style="font-size:3.2rem;">🍒🍋🔔</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Classic Slot</h3>
+                <p>Spin & Win</p>
+              </div>
+            </a>
+
+            <a href="blackjack.html" class="game-card">
+              <div class="game-thumb blackjack">
+                <div style="font-size:3rem; font-weight:900;">21</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Blackjack</h3>
+                <p>Dealer Stands on 17</p>
+              </div>
+            </a>
+
+            <a href="video-poker.html" class="game-card">
+              <div class="game-thumb videopoker">
+                <div style="font-size:3rem; font-weight:900;">🃏</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Video Poker</h3>
+                <p>Jacks or Better</p>
+              </div>
+            </a>
+
+            <a href="hilo.html" class="game-card">
+              <div class="game-thumb hilo">
+                <div style="font-size:3rem; font-weight:900;">⬆️ / ⬇️</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Hi-Lo</h3>
+                <p>Card Step Ladder</p>
+              </div>
+            </a>
+
+            <a href="wheel.html" class="game-card">
+              <div class="game-thumb wheel">
+                <i class="fa fa-bullseye"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Money Wheel</h3>
+                <p>Crazy Multipliers</p>
+              </div>
+            </a>
+
+            <a href="sic-bo.html" class="game-card">
+              <div class="game-thumb sicbo">
+                <div style="font-size:3rem; font-weight:900;">🎲🎲🎲</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Sic Bo</h3>
+                <p>Classic 3 Dice</p>
+              </div>
+            </a>
+
+            <a href="keno.html" class="game-card">
+              <div class="game-thumb keno">
+                <div style="font-size:3rem; font-weight:900;">🎱</div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Keno 40</h3>
+                <p>Lottery Draw</p>
+              </div>
+            </a>
+
+            <a href="penalty.html" class="game-card">
+              <div class="game-thumb penalty">
+                <i class="fa fa-futbol-o"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Penalty</h3>
+                <p>Score the Goal</p>
+              </div>
+            </a>
+
+            <a href="scratch.html" class="game-card">
+              <div class="game-thumb scratch">
+                <i class="fa fa-ticket"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Scratch Card</h3>
+                <p>Reveal to Win</p>
+              </div>
+            </a>
+
+            <a href="chicken-rush.html" class="game-card">
+              <div class="game-thumb chickenrush">
+                <i class="fa fa-asterisk"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Chicken Rush</h3>
+                <p>Avoid the Bones</p>
+              </div>
+            </a>
+
+            <a href="tower.html" class="game-card">
+              <div class="game-thumb tower">
+                <i class="fa fa-building"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Tower</h3>
+                <p>Climb for Multipliers</p>
               </div>
             </a>
 
