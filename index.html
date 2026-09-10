@@ -30,6 +30,108 @@
       .status-won { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
       .status-lost { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
       .empty-state { text-align: center; padding: 40px 20px; color: #777; font-size: 1.5rem; }
+
+      /* ============================================== */
+      /* MOBILE OPTIMIZATION OVERRIDES                  */
+      /* ============================================== */
+      @media (max-width: 992px) {
+        /* Generic Container Stacking */
+        .landing .container, .live-bets .container, .live-bets-static .container, .sports-book .container, footer .container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        /* Top Nav Adjustments */
+        .top-nav .container { flex-wrap: wrap; justify-content: space-between; }
+        .top-nav .left-nav .desk-top, .top-nav .left-nav .telg { display: none; }
+        .top-nav .right-nav { flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; width: 100%; }
+        
+        /* Main Head / Sub Menu (Horizontal Scroll) */
+        .main-head .container { flex-wrap: wrap; }
+        .main-head ul.flex { 
+          flex-direction: row; 
+          overflow-x: auto; 
+          white-space: nowrap; 
+          width: 100%; 
+          padding-bottom: 10px; 
+          justify-content: flex-start;
+          -webkit-overflow-scrolling: touch;
+        }
+        .main-head ul.flex::-webkit-scrollbar { display: none; }
+        .main-head ul.flex > li { flex-shrink: 0; padding: 10px 15px; }
+
+        /* Landing Area Form & Slider */
+        .landing .registration { width: 100%; margin-bottom: 20px; }
+        .landing .gallery { width: 100%; height: 350px; }
+
+        /* Sports Navigation Filters (Horizontal Scroll) */
+        nav ul.features { 
+          flex-direction: row; 
+          overflow-x: auto; 
+          white-space: nowrap; 
+          width: 100%; 
+          padding-bottom: 10px; 
+          justify-content: flex-start; 
+        }
+        nav ul.features::-webkit-scrollbar { display: none; }
+        nav ul.features li { flex-shrink: 0; margin-right: 15px; }
+
+        /* Match Rows & Odds Grids */
+        /* Stack titles and grids vertically */
+        .konti-head, .static-row, .arg-head, .arg-static, .usa-head, .usa-static { 
+          flex-direction: column; 
+          align-items: flex-start; 
+          padding: 12px; 
+          height: auto;
+        }
+        .konti-head > div, .arg-head > div, .usa-head > div {
+          width: 100%; justify-content: space-between; margin-bottom: 8px;
+        }
+        .title-unit, .title-unit .row { width: 100%; }
+        
+        /* To prevent clutter on mobile, hide secondary odds (Total, Handicap, IT1) */
+        .second-numbers, .third-numbers, .fourth-numbers, .fifth-numbers { 
+          display: none !important; 
+        }
+        
+        /* Expand Primary 1X2 Odds */
+        .first-numbers { width: 100%; justify-content: space-between; margin-top: 10px; }
+        .first-numbers span { 
+          flex: 1; 
+          text-align: center; 
+          padding: 12px 0; 
+          background: #eaf0f6; 
+          border-radius: 4px; 
+          margin: 0 4px; 
+          font-weight: bold;
+        }
+
+        /* Dynamic Cricket Feed Adjustments */
+        #cricket-matches-list .static-row { flex-direction: column !important; }
+        #cricket-matches-list .title-unit, #cricket-matches-list .first-numbers { 
+          width: 100% !important; 
+          margin-bottom: 10px; 
+        }
+        #cricket-matches-list .first-numbers span { 
+          padding: 12px !important; 
+          text-align: center; 
+          flex: 1;
+        }
+
+        /* Footer Alignment */
+        footer .wrapper-one, footer .wrapper-two, footer .wrapper-three, footer .wrapper-four, footer .wrapper-five, footer .wrapper-six { 
+          width: 100%; margin-bottom: 15px; text-align: center; 
+        }
+        .text-foot .text-box { flex-direction: column; }
+        .text-foot .col { width: 100%; margin-bottom: 15px; }
+        .sponsers { flex-direction: column; gap: 20px; align-items: center; }
+        .sponsers .sport-icons, .sponsers .esport-icons { flex-wrap: wrap; justify-content: center; }
+        .contact.container { flex-direction: column; gap: 25px; text-align: center; }
+        .contact .pay { justify-content: center; }
+
+        /* Bet Slip Drawer Mobile Fix */
+        #bet-slip { width: 100%; right: 0; border-radius: 15px 15px 0 0; }
+      }
     </style>
   </head>
   <body>
