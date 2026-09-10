@@ -32,21 +32,49 @@
       .empty-state { text-align: center; padding: 40px 20px; color: #777; font-size: 1.5rem; }
 
       /* ============================================== */
+      /* NEW: MINI-GAMES THUMBNAIL SECTION              */
+      /* ============================================== */
+      .casino-games { padding: 30px 0; background: #eaf0f6; border-bottom: 1px solid #d6dbdd; }
+      .casino-games .title { display: flex; align-items: center; margin-bottom: 20px; }
+      .casino-games .title h2 { font-size: 2.4rem; color: #103856; text-transform: uppercase; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 10px; }
+      
+      .games-grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+      .games-grid::-webkit-scrollbar { height: 8px; }
+      .games-grid::-webkit-scrollbar-thumb { background: #1f72ad; border-radius: 4px; }
+      .games-grid::-webkit-scrollbar-track { background: #d6dbdd; border-radius: 4px; }
+      
+      .game-card { flex: 0 0 240px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; display: block; scroll-snap-align: start; }
+      .game-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+      
+      .game-thumb { height: 150px; display: flex; justify-content: center; align-items: center; font-size: 6rem; color: white; position: relative; }
+      .game-thumb.aviator { background: radial-gradient(circle at center, #ff1a53, #a30026); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+      .game-thumb.crash { background: radial-gradient(circle at center, #6bc42d, #2d5212); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+      .game-thumb.roulette { background: radial-gradient(circle at center, #222222, #000000); border-bottom: 5px solid #e6003d; }
+      .game-thumb.teenpatti { background: radial-gradient(circle at center, #0e7340, #06311b); }
+      .game-thumb.matka { background: radial-gradient(circle at center, #ffca28, #b38705); color: #222; text-shadow: 0 2px 5px rgba(255,255,255,0.5); }
+      
+      .game-info { padding: 15px; text-align: center; border-top: 1px solid #eee; }
+      .game-info h3 { margin: 0; font-size: 1.8rem; color: #103856; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+      .game-info p { margin: 5px 0 0; font-size: 1.3rem; color: #777; font-weight: bold; }
+      
+      .play-overlay { position: absolute; inset: 0; background: rgba(16, 56, 86, 0.7); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; backdrop-filter: blur(2px); }
+      .game-card:hover .play-overlay { opacity: 1; }
+      .play-overlay span { background: #aab734; color: #fff; padding: 12px 25px; border-radius: 30px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      .game-card:hover .play-overlay span { transform: scale(1); }
+
+      /* ============================================== */
       /* MOBILE OPTIMIZATION OVERRIDES                  */
       /* ============================================== */
       @media (max-width: 992px) {
-        /* Generic Container Stacking */
         .landing .container, .live-bets .container, .live-bets-static .container, .sports-book .container, footer .container {
           flex-direction: column;
           align-items: stretch;
         }
 
-        /* Top Nav Adjustments */
         .top-nav .container { flex-wrap: wrap; justify-content: space-between; }
         .top-nav .left-nav .desk-top, .top-nav .left-nav .telg { display: none; }
         .top-nav .right-nav { flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; width: 100%; }
         
-        /* Main Head / Sub Menu (Horizontal Scroll) */
         .main-head .container { flex-wrap: wrap; }
         .main-head ul.flex { 
           flex-direction: row; 
@@ -60,11 +88,18 @@
         .main-head ul.flex::-webkit-scrollbar { display: none; }
         .main-head ul.flex > li { flex-shrink: 0; padding: 10px 15px; }
 
-        /* Landing Area Form & Slider */
         .landing .registration { width: 100%; margin-bottom: 20px; }
         .landing .gallery { width: 100%; height: 350px; }
 
-        /* Sports Navigation Filters (Horizontal Scroll) */
+        /* Mobile Mini-Games Adjustments */
+        .casino-games .title h2 { font-size: 1.8rem; }
+        .games-grid { gap: 15px; }
+        .game-card { flex: 0 0 170px; }
+        .game-thumb { height: 110px; font-size: 4rem; }
+        .game-info h3 { font-size: 1.4rem; }
+        .game-info p { font-size: 1.1rem; }
+        .play-overlay span { padding: 8px 16px; font-size: 1.3rem; }
+
         nav ul.features { 
           flex-direction: row; 
           overflow-x: auto; 
@@ -76,8 +111,6 @@
         nav ul.features::-webkit-scrollbar { display: none; }
         nav ul.features li { flex-shrink: 0; margin-right: 15px; }
 
-        /* Match Rows & Odds Grids */
-        /* Stack titles and grids vertically */
         .konti-head, .static-row, .arg-head, .arg-static, .usa-head, .usa-static { 
           flex-direction: column; 
           align-items: flex-start; 
@@ -89,12 +122,10 @@
         }
         .title-unit, .title-unit .row { width: 100%; }
         
-        /* To prevent clutter on mobile, hide secondary odds (Total, Handicap, IT1) */
         .second-numbers, .third-numbers, .fourth-numbers, .fifth-numbers { 
           display: none !important; 
         }
         
-        /* Expand Primary 1X2 Odds */
         .first-numbers { width: 100%; justify-content: space-between; margin-top: 10px; }
         .first-numbers span { 
           flex: 1; 
@@ -106,7 +137,6 @@
           font-weight: bold;
         }
 
-        /* Dynamic Cricket Feed Adjustments */
         #cricket-matches-list .static-row { flex-direction: column !important; }
         #cricket-matches-list .title-unit, #cricket-matches-list .first-numbers { 
           width: 100% !important; 
@@ -118,7 +148,6 @@
           flex: 1;
         }
 
-        /* Footer Alignment */
         footer .wrapper-one, footer .wrapper-two, footer .wrapper-three, footer .wrapper-four, footer .wrapper-five, footer .wrapper-six { 
           width: 100%; margin-bottom: 15px; text-align: center; 
         }
@@ -129,7 +158,6 @@
         .contact.container { flex-direction: column; gap: 25px; text-align: center; }
         .contact .pay { justify-content: center; }
 
-        /* Bet Slip Drawer Mobile Fix */
         #bet-slip { width: 100%; right: 0; border-radius: 15px 15px 0 0; }
       }
     </style>
@@ -572,6 +600,79 @@
           </div>
         </div>
       </section>
+
+      <!-- ============================================== -->
+      <!-- CASINO MINI GAMES CAROUSEL SECTION             -->
+      <!-- ============================================== -->
+      <section class="casino-games">
+        <div class="container">
+          <div class="title">
+            <h2><i class="fa fa-gamepad" style="color: #238cf5;"></i> POPULAR MINI-GAMES</h2>
+          </div>
+          <div class="games-grid">
+            
+            <a href="aviator.html" class="game-card">
+              <div class="game-thumb aviator">
+                <i class="fa fa-plane"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Aviator</h3>
+                <p>Win up to 100x</p>
+              </div>
+            </a>
+
+            <a href="crash.html" class="game-card">
+              <div class="game-thumb crash">
+                <i class="fa fa-rocket"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Crash</h3>
+                <p>Classic Graph</p>
+              </div>
+            </a>
+
+            <a href="roulette.html" class="game-card">
+              <div class="game-thumb roulette">
+                <i class="fa fa-life-ring" style="color: #e6003d;"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Roulette</h3>
+                <p>Live European</p>
+              </div>
+            </a>
+
+            <a href="teen-patti.html" class="game-card">
+              <div class="game-thumb teenpatti">
+                <div style="display:flex; gap:8px; font-weight:900;">
+                   <span style="background:#fff; color:#e6003d; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(-10deg);">A♥</span>
+                   <span style="background:#fff; color:#111; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(10deg); margin-top:10px;">K♠</span>
+                </div>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Teen Patti</h3>
+                <p>Indian Poker</p>
+              </div>
+            </a>
+
+            <a href="matka.html" class="game-card">
+              <div class="game-thumb matka">
+                <i class="fa fa-sort-numeric-desc"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Matka</h3>
+                <p>9x Payout Draw</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
       <!-- live bets structure -->
       <section class="live-bets">
         <div class="container flex">
