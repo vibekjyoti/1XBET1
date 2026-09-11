@@ -1338,11 +1338,11 @@
     <!-- ============================================== -->
     <!-- WEBSOCKET AND FIREBASE INTEGRATION SCRIPT      -->
     <!-- ============================================== -->
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
       import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
       import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import { io } from "https://cdn.socket.io/4.7.2/socket.io.esm.min.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
@@ -1558,15 +1558,13 @@
       // LIVE FEED WEBSOCKET CONNECTION
       // ---------------------------------------------------------
       document.addEventListener('DOMContentLoaded', () => {
-        if (typeof io === 'undefined') {
-           const cricketList = document.getElementById('cricket-matches-list');
-           if (cricketList) cricketList.innerHTML = '<p style="padding: 15px; color: #d9534f; margin: 0; font-size: 1.3rem; font-weight: bold;">❌ Cannot reach Socket.io. Make sure your local node server is running.</p>';
-           return;
-        }
-
-        const socket = io('https://onexbet-server-3.onrender.com');
         const cricketList = document.getElementById('cricket-matches-list');
         const soccerList = document.getElementById('soccer-matches-list');
+
+        const socket = io('https://onexbet-server-3.onrender.com', {
+          transports: ['websocket', 'polling'],
+          secure: true
+        });
 
         socket.on('connect', () => {
           const loadingText = '<p style="padding: 15px; color: #333; margin: 0; font-size: 1.3rem; font-weight: bold;">📡 Connected! Fetching live odds from StatPal API...</p>';
@@ -1575,7 +1573,14 @@
         });
 
         socket.on('disconnect', () => {
-          const errorText = '<p style="padding: 15px; color: #d9534f; margin: 0; font-size: 1.3rem; font-weight: bold;">❌ Disconnected. Ensure your terminal is running the Node server.</p>';
+          const errorText = '<p style="padding: 15px; color: #d9534f; margin: 0; font-size: 1.3rem; font-weight: bold;">❌ Disconnected from backend server.</p>';
+          if (cricketList) cricketList.innerHTML = errorText;
+          if (soccerList) soccerList.innerHTML = errorText;
+        });
+
+        socket.on('connect_error', (error) => {
+          console.error("Socket Connection Error:", error);
+          const errorText = '<p style="padding: 15px; color: #d9534f; margin: 0; font-size: 1.3rem; font-weight: bold;">⏳ Waking up backend server on Render... (This may take 30s)</p>';
           if (cricketList) cricketList.innerHTML = errorText;
           if (soccerList) soccerList.innerHTML = errorText;
         });
