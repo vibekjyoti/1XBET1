@@ -35,8 +35,9 @@
       /* NEW: MINI-GAMES THUMBNAIL SECTION              */
       /* ============================================== */
       .casino-games { padding: 30px 0; background: #eaf0f6; border-bottom: 1px solid #d6dbdd; }
-      .casino-games .title { display: flex; align-items: center; margin-bottom: 20px; }
+      .casino-games .title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 0 10px; }
       .casino-games .title h2 { font-size: 2.4rem; color: #103856; text-transform: uppercase; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 10px; }
+      .casino-games .title span { font-size: 1.3rem; color: #1f72ad; font-weight: bold; }
       
       .games-grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
       .games-grid::-webkit-scrollbar { height: 8px; }
@@ -46,15 +47,15 @@
       .game-card { flex: 0 0 240px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; display: block; scroll-snap-align: start; }
       .game-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
       
-      .game-thumb { height: 150px; display: flex; justify-content: center; align-items: center; font-size: 6rem; color: white; position: relative; }
+      .game-thumb { height: 150px; display: flex; justify-content: center; align-items: center; font-size: 6rem; color: white; position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; border-bottom: 1px solid #1a3148; }
       .game-thumbnail { width: 100%; height: 100%; object-fit: cover; display: block; }
+      
+      /* Legacy Games */
       .game-thumb.aviator { background: radial-gradient(circle at center, #ff1a53, #a30026); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
       .game-thumb.crash { background: radial-gradient(circle at center, #6bc42d, #2d5212); text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
       .game-thumb.roulette { background: radial-gradient(circle at center, #222222, #000000); border-bottom: 5px solid #e6003d; }
       .game-thumb.teenpatti { background: radial-gradient(circle at center, #0e7340, #06311b); }
       .game-thumb.matka { background: radial-gradient(circle at center, #ffca28, #b38705); color: #222; text-shadow: 0 2px 5px rgba(255,255,255,0.5); }
-      
-      /* New Games CSS added to match the previous UI style */
       .game-thumb.dragontiger { background: linear-gradient(135deg, #e6003d 50%, #ffc107 50%); }
       .game-thumb.andarbahar { background: linear-gradient(135deg, #1f72ad 50%, #e67e22 50%); }
       .game-thumb.plinko { background: radial-gradient(circle at center, #e84393, #6c1943); }
@@ -73,6 +74,26 @@
       .game-thumb.tower { background: radial-gradient(circle at center, #34495e, #1a252f); }
       .game-thumb.videopoker { background: radial-gradient(circle at center, #2980b9, #154360); }
       
+      /* New Added Games */
+      .game-thumb.marblerace { background: radial-gradient(circle at center, #8e44ad, #2c3e50); }
+      .game-thumb.highstriker { background: radial-gradient(circle at center, #e67e22, #d35400); }
+      .game-thumb.fantan { background: radial-gradient(circle at center, #c0392b, #7f8c8d); }
+      .game-thumb.casinowar { background: radial-gradient(circle at center, #2980b9, #2c3e50); }
+      .game-thumb.rps { background: radial-gradient(circle at center, #27ae60, #2ecc71); }
+      .game-thumb.apple { background: radial-gradient(circle at center, #e74c3c, #c0392b); }
+      .game-thumb.craps { background: radial-gradient(circle at center, #16a085, #1abc9c); }
+      .game-thumb.cashorcrash { background: radial-gradient(circle at center, #f39c12, #f1c40f); color: #111; }
+      .game-thumb.diamonds { background: radial-gradient(circle at center, #3498db, #2980b9); }
+      .game-thumb.bingo { background: radial-gradient(circle at center, #9b59b6, #8e44ad); }
+      .game-thumb.horseracing { background: radial-gradient(circle at center, #d35400, #e67e22); }
+      .game-thumb.thimbles { background: radial-gradient(circle at center, #7f8c8d, #95a5a6); }
+      .game-thumb.chamber { background: radial-gradient(circle at center, #34495e, #2c3e50); }
+      .game-thumb.baucua { background: radial-gradient(circle at center, #e67e22, #d35400); }
+      .game-thumb.cryptocandle { background: radial-gradient(circle at center, #2ecc71, #27ae60); }
+      .game-thumb.reddog { background: radial-gradient(circle at center, #c0392b, #e74c3c); }
+      .game-thumb.baccarat1 { background: radial-gradient(circle at center, #8e44ad, #9b59b6); }
+      .game-thumb.colorprediction { background: linear-gradient(135deg, #ff0000, #00ff00, #0000ff); }
+
       .game-info { padding: 15px; text-align: center; border-top: 1px solid #eee; }
       .game-info h3 { margin: 0; font-size: 1.8rem; color: #103856; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
       .game-info p { margin: 5px 0 0; font-size: 1.3rem; color: #777; font-weight: bold; }
@@ -228,23 +249,13 @@
                 <p>The 1xBet app makes betting simpler and easier.</p>
               </div>
             </div>
-            <div class="flex telg">
-              <i class="fa fa-telegram fa-2x"></i>
-              <div class="telg-box">
-                <h3>Bets</h3>
-                <h3>via Telegram</h3>
-              </div>
-            </div>
             <div class="flex" title="Payments" onclick="window.location.href='payments.html'" style="cursor: pointer;">
               <i class="fa fa-dollar fa-2x"></i>
             </div>
             <div class="flex" title="Bonus">
-              <span>4000 EGP</span>
+              <span>₹ 10,000</span>
               <i>BONUS</i>
             </div>
-          </div>
-          <div class="burger">
-            <i class="fa fa-bars fa-3x"></i>
           </div>
 
           <div class="right-nav flex">
@@ -259,7 +270,7 @@
               <i class="fa fa-caret-square-o-right fa-2x"></i> LOG IN
             </div>
             <div class="flex" onclick="window.location.href='account.html'" style="cursor: pointer;">
-              <i class="fa fa-edit fa-2x"></i> Registration
+              <i class="fa fa-edit fa-2x"></i> REGISTRATION
             </div>
             <div class="flex" title="Settings">
               <i class="fa fa-gear"></i><i class="fa fa-chevron-down"></i>
@@ -267,123 +278,45 @@
             <div class="flex" title="Select time zone">
               01:10 <i class="fa fa-chevron-down"></i>
             </div>
+            
+            <!-- INDIAN FLAG -->
             <div class="flex" title="Select language">
               <div class="flag">
-                <img src="images/India.svg.webp" alt="india icon" />
+                <img src="https://flagcdn.com/w40/in.png" alt="India flag" />
               </div>
               <div class="text menu">
                 EN <i class="fa fa-chevron-down"></i>
                 <input type="checkbox" />
                 <div class="flag-list">
                   <ul>
-                    <li title="English">
-                      <img src="images/India.svg.webp" alt="india icon" /><span>EN</span>
+                    <li title="English (India)">
+                      <img src="https://flagcdn.com/w40/in.png" alt="India flag" /><span>EN</span>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
-      <!-- main head structure -->
+
+      <!-- main head structure (Menu updated as requested) -->
       <div class="main-head">
         <div class="container flex">
           <div class="logo">
-            <img
-              src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg"
-              alt="logo"
-              title="1xBet Betting Company"
-            />
+            <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" title="1xBet Betting Company" />
           </div>
           <ul class="flex">
-            <li class="sports">
-              SPORTS <i class="fa fa-chevron-down"></i>
-              <ul class="sports-list">
-                <li>Bet on Your National Team</li>
-                <li>Bet on Big Tournaments</li>
-                <li>Bet Constructor</li>
-                <li>Bets on UFC</li>
-                <li>Bets on Politics</li>
-              </ul>
-            </li>
-            <li class="live">
-              LIVE <i class="fa fa-chevron-down"></i>
-              <ul class="live-list">
-                <li>Bet on Your National Team</li>
-                <li>Multi-LIVE</li>
-                <li>Live previews</li>
-                <li>Numbers</li>
-              </ul>
-            </li>
-            <li class="promo">
-              PROMO <i class="fa fa-chevron-down"></i>
-              <ul class="promo-list">
-                <li>Promotions</li>
-                <li>Bonuses</li>
-                <li>Bonus Games</li>
-                <li>Promo Code Store</li>
-                <li>Esports Bonus Calendar</li>
-              </ul>
-            </li>
-            <li class="casino">
-              CASINO <i class="fa fa-chevron-down"></i>
-              <ul class="casino-list">
-                <li>
-                  <div class="poster">
-                    <img src="images/product.png" alt="product icon" />
-                  </div>
-                  <div class="text">Smartsoft</div>
-                </li>
-                <li>
-                  <div class="poster">
-                    <img src="images/product.png" alt="product icon" />
-                  </div>
-                  <div class="text">Manna Play</div>
-                </li>
-              </ul>
-            </li>
-            <li class="live-casino">
-              LIVE CASINO <i class="fa fa-chevron-down"></i>
-              <ul class="live-casino-list">
-                <li>
-                  <div class="title">
-                    <div class="flag">
-                      <img src="images/casino-flag-eng.jpg" alt="flag" />
-                    </div>
-                    <p>0.5 - 10,000 EUR</p>
-                  </div>
-                  <div class="icon"><i>ROULETTE</i></div>
-                  <div class="mark">
-                    <img src="images/casino-mark-2.jpg" alt="mark" />
-                  </div>
-                </li>
-              </ul>
-            </li>
-            <li class="xgames">
-              1XGAMES <i class="fa fa-chevron-down"></i>
-              <ul class="xgames-list">
-                <li>
-                  <div class="poster">
-                    <img src="images/product.png" alt="product icon" />
-                  </div>
-                  <div class="text">Crash</div>
-                </li>
-              </ul>
-            </li>
-            <li class="more">
-              MORE <i class="fa fa-chevron-down"></i>
-              <div class="more-list">
-                <ul class="first">
-                  <li class="head">Scratch Cards</li>
-                  <li>Scratch Cards</li>
-                </ul>
-              </div>
-            </li>
+            <li class="sports" onclick="window.location.href='index.html'">CRICKET <i class="fa fa-chevron-down"></i></li>
+            <li class="live" onclick="window.location.href='index.html'">SOCCER <i class="fa fa-chevron-down"></i></li>
+            <li class="promo" onclick="window.location.href='index.html'">TENNIS <i class="fa fa-chevron-down"></i></li>
+            <li class="xgames" onclick="document.getElementById('casinoSection').scrollIntoView({behavior:'smooth'})">1XGAMES <i class="fa fa-chevron-down"></i></li>
           </ul>
         </div>
       </div>
     </header>
+
     <main>
       <!-- landing structure -->
       <section class="landing">
@@ -393,25 +326,29 @@
               <p><span>200%</span> bonus on the 1st deposit</p>
             </div>
             <div class="form">
-              <h3>Registration</h3>
+              <h3>Fast Registration</h3>
               <form action="account.html">
+                
+                <!-- COUNTRY SELECTION (India Default) -->
                 <select name="country">
-                  <option value="india">India</option>
+                  <option value="india" selected>India</option>
+                  <option value="russia">Russia</option>
                   <option value="ukraine">Ukraine</option>
                   <option value="belarus">Belarus</option>
                   <option value="kazakhstan">Kazakhstan</option>
                 </select>
+
+                <!-- CURRENCY SELECTION (INR Default) -->
                 <select name="coin">
-                  <option value="india">INR (Indian Rupee)</option>
-                  <option value="ukraine">USD (US dollar)</option>
-                  <option value="belarus">RUB (Russian rouble)</option>
-                  <option value="kazakhstan">ADA (Cardano)</option>
+                  <option value="inr" selected>INR (Indian Rupee)</option>
+                  <option value="eur">EUR (Euro)</option>
+                  <option value="usd">USD (US dollar)</option>
+                  <option value="rub">RUB (Russian rouble)</option>
+                  <option value="ada">ADA (Cardano)</option>
                 </select>
-                <input
-                  type="text"
-                  placeholder="Enter promo code (if you have one)"
-                />
-                <button type="submit">REGISTER</button>
+
+                <input type="text" placeholder="Promo code (optional)" />
+                <button type="submit">JOIN NOW</button>
               </form>
             </div>
             <div class="policy">
@@ -431,11 +368,8 @@
           <div class="gallery">
             <div class="slider">
               <div class="view1">
-                <h3>100% bonus on your 1st deposit</h3>
-                <p>
-                  Register with 1xBet and get a guaranteed 100% bonus on your
-                  1st deposit!
-                </p>
+                <h3>100% WELCOME BONUS</h3>
+                <p>Register with 1xBet and claim up to ₹10,000 on your first deposit!</p>
                 <button onclick="window.location.href='account.html'">Register</button>
               </div>
               <div class="view2">
@@ -457,74 +391,6 @@
                 <h3>1xBet - the official global partner of MIBR</h3>
                 <p>Made in Brazil!</p>
                 <button>Play</button>
-              </div>
-              <div class="view6">
-                <h3>Hyper Bonus</h3>
-                <p>Boost your accumulators with Hyper Bonus!</p>
-                <button>Get Bonus!</button>
-              </div>
-              <div class="view7">
-                <h3>No risk bet</h3>
-                <p>Did your bet lose? Then get a refund!</p>
-                <button>Place a bet</button>
-              </div>
-              <div class="view8">
-                <h3>ESL Pro League Season 16</h3>
-                <p>
-                  Tune in for the official stream, place your bets & support
-                  your favorites!
-                </p>
-                <button>Place your bet</button>
-              </div>
-              <div class="view9">
-                <h3>Goalless draws</h3>
-                <p>Get 100% winnings for goalless draws!</p>
-                <button>Place a bet</button>
-              </div>
-              <div class="view10">
-                <h3>Case GO</h3>
-                <p>
-                  Place bets on ESL Pro League 16 and win top prizes from 1xBet!
-                </p>
-                <button>Win a prize</button>
-              </div>
-              <div class="view11">
-                <h3>M EFFECT</h3>
-                <p>Get 1xBet’s golden ring of champions!</p>
-                <button>Take part</button>
-              </div>
-              <div class="view12">
-                <h3>ACCUMULATOR BATTLE</h3>
-                <p>Place an accumulator bet and win cool prizes!</p>
-                <button>Place a bet</button>
-              </div>
-              <div class="view13">
-                <h3>THE ESPORTS ERA</h3>
-                <p>Bet on esports and get a refund on your losing bets!</p>
-                <button>Place a bet</button>
-              </div>
-              <div class="view14">
-                <h3>New version of the 1xBet website</h3>
-                <p>
-                  Betting and winning just got even easier with the arrival of
-                  the new simplified version of our website!
-                </p>
-                <button>Bet now</button>
-              </div>
-              <div class="view15">
-                <h3>30% cashback</h3>
-                <p>MoneyGo.Get your bonus right now</p>
-                <button>Get Bonus</button>
-              </div>
-              <div class="view16">
-                <h3>GOAAALden Paris</h3>
-                <p>Place bets on PSG matches and win top prizes from 1xBet!</p>
-                <button>Take part</button>
-              </div>
-              <div class="view17">
-                <h3>Losc Lille with 1xBet</h3>
-                <p>Stronger together</p>
-                <button>Place a bet</button>
               </div>
             </div>
             <!-- to prevent other anchors -->
@@ -549,54 +415,6 @@
                 <a href="#slide4"><i class="fa fa-angle-left fa-3x"></i></a
                 ><a href="#slide6"><i class="fa fa-angle-right fa-3x"></i></a>
               </div>
-              <div>
-                <a href="#slide5"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide7"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide6"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide8"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide7"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide9"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide8"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide10"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide9"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide11"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide10"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide12"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide11"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide13"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide12"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide14"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide13"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide15"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide14"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide16"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide15"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide17"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
-              <div>
-                <a href="#slide16"><i class="fa fa-angle-left fa-3x"></i></a
-                ><a href="#slide1"><i class="fa fa-angle-right fa-3x"></i></a>
-              </div>
             </div>
             <div class="shuffle">
               <a href="#slide1"></a>
@@ -604,36 +422,26 @@
               <a href="#slide3"></a>
               <a href="#slide4"></a>
               <a href="#slide5"></a>
-              <a href="#slide6"></a>
-              <a href="#slide7"></a>
-              <a href="#slide8"></a>
-              <a href="#slide9"></a>
-              <a href="#slide10"></a>
-              <a href="#slide11"></a>
-              <a href="#slide12"></a>
-              <a href="#slide13"></a>
-              <a href="#slide14"></a>
-              <a href="#slide15"></a>
-              <a href="#slide16"></a>
-              <a href="#slide17"></a>
             </div>
           </div>
         </div>
       </section>
 
       <!-- ============================================== -->
-      <!-- CASINO MINI GAMES CAROUSEL SECTION             -->
+      <!-- CASINO MINI GAMES CAROUSEL SECTION (39 GAMES)  -->
       <!-- ============================================== -->
-      <section class="casino-games">
+      <section class="casino-games" id="casinoSection">
         <div class="container">
           <div class="title">
             <h2><i class="fa fa-gamepad" style="color: #238cf5;"></i> POPULAR MINI-GAMES</h2>
+            <span>39 GAMES ACTIVE ⚡</span>
           </div>
           <div class="games-grid">
             
+            <!-- ORIGINAL 5 (WITH IMAGES) -->
             <a href="aviator.html" class="game-card">
               <div class="game-thumb aviator">
-                <img class="game-thumbnail" src="images/aviator.png" />
+                <img class="game-thumbnail" src="images/image_09a0a9.png" />
               </div>
               <div class="game-info">
                 <h3>Aviator</h3>
@@ -643,8 +451,7 @@
 
             <a href="crash.html" class="game-card">
               <div class="game-thumb crash">
-                <img class="game-thumbnail" src="images/crash.png" alt="Crash game thumbnail" />
-                <i class="fa fa-rocket"></i>
+                <img class="game-thumbnail" src="images/Screenshot%202026-09-10%20130113.png" alt="Crash game thumbnail" />
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
@@ -655,46 +462,40 @@
 
             <a href="roulette.html" class="game-card">
               <div class="game-thumb roulette">
-                <img class="game-thumbnail" src="images/roulette.png" alt="Roulette game thumbnail" />
-                <i class="fa fa-life-ring" style="color: #e6003d;"></i>
+                <img class="game-thumbnail" src="images/image_099ff2.png" alt="Roulette game thumbnail" />
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
-                <h3>Roulette</h3>
-                <p>Live European</p>
+                <h3>Roulette Live</h3>
+                <p>European 36:1 Payout</p>
               </div>
             </a>
 
             <a href="teen-patti.html" class="game-card">
               <div class="game-thumb teenpatti">
-                <img class="game-thumbnail" src="images/teen-patti.png" alt="Teen Patti game thumbnail" />
-                <div style="display:flex; gap:8px; font-weight:900;">
-                   <span style="background:#fff; color:#e6003d; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(-10deg);">A♥</span>
-                   <span style="background:#fff; color:#111; padding:4px 10px; border-radius:6px; font-size:2.8rem; box-shadow:0 4px 10px rgba(0,0,0,0.5); transform: rotate(10deg); margin-top:10px;">K♠</span>
-                </div>
+                <img class="game-thumbnail" src="images/image_09a3cc.png" alt="Teen Patti game thumbnail" />
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
                 <h3>Teen Patti</h3>
-                <p>Indian Poker</p>
+                <p>Indian 3-Card Live</p>
               </div>
             </a>
 
             <a href="matka.html" class="game-card">
               <div class="game-thumb matka">
-                <img class="game-thumbnail" src="images/matka.png" alt="Matka game thumbnail" />
-                <i class="fa fa-sort-numeric-desc"></i>
+                <img class="game-thumbnail" src="images/image_09a484.png" alt="Matka game thumbnail" />
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
-                <h3>Matka</h3>
-                <p>9x Payout Draw</p>
+                <h3>Matka Live</h3>
+                <p>Single Digit 9x</p>
               </div>
             </a>
 
+            <!-- PREVIOUS 16 LEGACY GAMES -->
             <a href="andar-bahar.html" class="game-card">
               <div class="game-thumb andarbahar">
-                <img class="game-thumbnail" src="images/andar-bahar.png" alt="Andar Bahar game thumbnail" />
                 <div style="font-size:2.8rem; font-weight:900;">🅰️ / 🅱️</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -706,7 +507,6 @@
 
             <a href="dragon-tiger.html" class="game-card">
               <div class="game-thumb dragontiger">
-                <img class="game-thumbnail" src="images/dragon-tiger.png" alt="Dragon Tiger game thumbnail" />
                 <div style="font-size:3.2rem; font-weight:900;">🐉|🐅</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -718,7 +518,6 @@
 
             <a href="jhandi-munda.html" class="game-card">
               <div class="game-thumb jhandimunda">
-                <img class="game-thumbnail" src="images/jhandi-munda.png" alt="Jhandi Munda game thumbnail" />
                 <i class="fa fa-cubes"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -730,19 +529,17 @@
 
             <a href="cpin-flip.html" class="game-card">
               <div class="game-thumb coinflip">
-                <img class="game-thumbnail" src="images/coin-flip.png" alt="Coin Flip game thumbnail" />
                 <i class="fa fa-money"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
                 <h3>Coin Flip</h3>
-                <p>Heads or Tails</p>
+                <p>Heads or Tails Streak</p>
               </div>
             </a>
 
             <a href="plinko.html" class="game-card">
               <div class="game-thumb plinko">
-                <img class="game-thumbnail" src="images/plinko.png" alt="Plinko game thumbnail" />
                 <i class="fa fa-circle-o-notch fa-spin"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -754,7 +551,6 @@
 
             <a href="limbo.html" class="game-card">
               <div class="game-thumb limbo">
-                <img class="game-thumbnail" src="images/limbo.png" alt="Limbo game thumbnail" />
                 <i class="fa fa-rocket"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -766,7 +562,6 @@
 
             <a href="slot.html" class="game-card">
               <div class="game-thumb slot">
-                <img class="game-thumbnail" src="images/slot.png" alt="Classic Slot game thumbnail" />
                 <div style="font-size:3.2rem;">🍒🍋🔔</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -778,7 +573,6 @@
 
             <a href="blackjack.html" class="game-card">
               <div class="game-thumb blackjack">
-                <img class="game-thumbnail" src="images/blackjack.png" alt="Blackjack game thumbnail" />
                 <div style="font-size:3rem; font-weight:900;">21</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -790,7 +584,6 @@
 
             <a href="video-poker.html" class="game-card">
               <div class="game-thumb videopoker">
-                <img class="game-thumbnail" src="images/video-poker.png" alt="Video Poker game thumbnail" />
                 <div style="font-size:3rem; font-weight:900;">🃏</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -802,7 +595,6 @@
 
             <a href="hilo.html" class="game-card">
               <div class="game-thumb hilo">
-                <img class="game-thumbnail" src="images/hi-lo.png" alt="Hi-Lo game thumbnail" />
                 <div style="font-size:3rem; font-weight:900;">⬆️ / ⬇️</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -814,7 +606,6 @@
 
             <a href="wheel.html" class="game-card">
               <div class="game-thumb wheel">
-                <img class="game-thumbnail" src="images/wheel.png" alt="Money Wheel game thumbnail" />
                 <i class="fa fa-bullseye"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -826,7 +617,6 @@
 
             <a href="sic-bo.html" class="game-card">
               <div class="game-thumb sicbo">
-                <img class="game-thumbnail" src="images/sic-bo.png" alt="Sic Bo game thumbnail" />
                 <div style="font-size:3rem; font-weight:900;">🎲🎲🎲</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -838,7 +628,6 @@
 
             <a href="keno.html" class="game-card">
               <div class="game-thumb keno">
-                <img class="game-thumbnail" src="images/keno.png" alt="Keno 40 game thumbnail" />
                 <div style="font-size:3rem; font-weight:900;">🎱</div>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -850,7 +639,6 @@
 
             <a href="penalty.html" class="game-card">
               <div class="game-thumb penalty">
-                <img class="game-thumbnail" src="images/penalty.png" alt="Penalty game thumbnail" />
                 <i class="fa fa-futbol-o"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -862,7 +650,6 @@
 
             <a href="scratch.html" class="game-card">
               <div class="game-thumb scratch">
-                <img class="game-thumbnail" src="images/scratch.png" alt="Scratch Card game thumbnail" />
                 <i class="fa fa-ticket"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -874,7 +661,6 @@
 
             <a href="chicken-rush.html" class="game-card">
               <div class="game-thumb chickenrush">
-                <img class="game-thumbnail" src="images/chicken-rush.png" alt="Chicken Rush game thumbnail" />
                 <i class="fa fa-asterisk"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
@@ -886,13 +672,211 @@
 
             <a href="tower.html" class="game-card">
               <div class="game-thumb tower">
-                <img class="game-thumbnail" src="images/tower.png" alt="Tower game thumbnail" />
                 <i class="fa fa-building"></i>
                 <div class="play-overlay"><span>Play</span></div>
               </div>
               <div class="game-info">
                 <h3>Tower</h3>
                 <p>Climb for Multipliers</p>
+              </div>
+            </a>
+
+            <!-- NEW 18 GAMES ADDED -->
+            <a href="marble-race.html" class="game-card">
+              <div class="game-thumb marblerace">
+                <i class="fa fa-circle"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Marble Race</h3>
+                <p>Bet on the Winner</p>
+              </div>
+            </a>
+
+            <a href="high-striker.html" class="game-card">
+              <div class="game-thumb highstriker">
+                <i class="fa fa-gavel"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>High Striker</h3>
+                <p>Carnival Strength</p>
+              </div>
+            </a>
+
+            <a href="fan-tan.html" class="game-card">
+              <div class="game-thumb fantan">
+                <i class="fa fa-dot-circle-o"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Fan Tan</h3>
+                <p>Classic Asian Game</p>
+              </div>
+            </a>
+
+            <a href="casino-war.html" class="game-card">
+              <div class="game-thumb casinowar">
+                <i class="fa fa-shield"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Casino War</h3>
+                <p>High Card Wins</p>
+              </div>
+            </a>
+
+            <a href="rps.html" class="game-card">
+              <div class="game-thumb rps">
+                <i class="fa fa-hand-rock-o"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>RPS</h3>
+                <p>Rock Paper Scissors</p>
+              </div>
+            </a>
+
+            <a href="apple.html" class="game-card">
+              <div class="game-thumb apple">
+                <i class="fa fa-apple"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Apple</h3>
+                <p>Apple of Fortune</p>
+              </div>
+            </a>
+
+            <a href="craps.html" class="game-card">
+              <div class="game-thumb craps">
+                <i class="fa fa-cube"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Craps</h3>
+                <p>Dice Betting</p>
+              </div>
+            </a>
+
+            <a href="cash-or-crash.html" class="game-card">
+              <div class="game-thumb cashorcrash">
+                <i class="fa fa-line-chart"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Cash or Crash</h3>
+                <p>Climb to Win</p>
+              </div>
+            </a>
+
+            <a href="diamonds.html" class="game-card">
+              <div class="game-thumb diamonds">
+                <i class="fa fa-diamond"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Diamonds</h3>
+                <p>Find the Gems</p>
+              </div>
+            </a>
+
+            <a href="bingo.html" class="game-card">
+              <div class="game-thumb bingo">
+                <span style="font-weight:900;font-size:3rem;">BINGO</span>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Bingo</h3>
+                <p>Match the Numbers</p>
+              </div>
+            </a>
+
+            <a href="horse-racing.html" class="game-card">
+              <div class="game-thumb horseracing">
+                <i class="fa fa-flag-checkered"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Horse Racing</h3>
+                <p>Virtual Racing</p>
+              </div>
+            </a>
+
+            <a href="thimbles.html" class="game-card">
+              <div class="game-thumb thimbles">
+                <i class="fa fa-bell"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Thimbles</h3>
+                <p>Find the Ball</p>
+              </div>
+            </a>
+
+            <a href="chamber.html" class="game-card">
+              <div class="game-thumb chamber">
+                <i class="fa fa-crosshairs"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Chamber</h3>
+                <p>Russian Roulette</p>
+              </div>
+            </a>
+
+            <a href="bau-cua.html" class="game-card">
+              <div class="game-thumb baucua">
+                <i class="fa fa-paw"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Bau Cua</h3>
+                <p>Vietnamese Dice</p>
+              </div>
+            </a>
+
+            <a href="crypto-candle.html" class="game-card">
+              <div class="game-thumb cryptocandle">
+                <i class="fa fa-bar-chart"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Crypto Candle</h3>
+                <p>Trade Prediction</p>
+              </div>
+            </a>
+
+            <a href="red-dog.html" class="game-card">
+              <div class="game-thumb reddog">
+                <i class="fa fa-paw"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Red Dog</h3>
+                <p>Between the Cards</p>
+              </div>
+            </a>
+
+            <a href="baccarat1.html" class="game-card">
+              <div class="game-thumb baccarat1">
+                <span style="font-weight:900;font-size:3rem;">B/P</span>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Baccarat</h3>
+                <p>Player vs Banker</p>
+              </div>
+            </a>
+
+            <a href="color-prediction.html" class="game-card">
+              <div class="game-thumb colorprediction">
+                <i class="fa fa-paint-brush"></i>
+                <div class="play-overlay"><span>Play</span></div>
+              </div>
+              <div class="game-info">
+                <h3>Color Prediction</h3>
+                <p>Guess the Color</p>
               </div>
             </a>
 
@@ -1195,309 +1179,6 @@
               <span>1.62</span>
               <span>0.5</span>
               <span>2.29</span>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- sports book structure -->
-      <section class="sports-book">
-        <div class="container flex">
-          <div class="title">
-            <h2>SPORTSBOOK</h2>
-            <input type="search" placeholder="Search..." />
-            <i class="fa fa-search"></i>
-          </div>
-          <nav>
-            <ul class="features">
-              <li>
-                <img src="images/all.png" alt="all icon" /><span>All</span>
-              </li>
-              <li><i class="fa fa-futbol-o fa-2x"></i><span>Football</span></li>
-              <li>
-                <img src="images/tennis-ball.png" alt="tennis icon" /><span
-                  >Tennis</span
-                >
-              </li>
-              <li>
-                <img src="images/basketball.png" alt="basketball icon" /><span
-                  >Basketball</span
-                >
-              </li>
-              <li>
-                <img src="images/hockey.png" alt="hockey" /><span
-                  >Ice Hockey</span
-                >
-              </li>
-              <li>
-                <img src="images/volleyball-ball.png" alt="volleyball" /><span
-                  >Volleyball</span
-                >
-              </li>
-              <li>
-                <img src="images/cricket.png" alt="cricket" /><span
-                  >Cricket</span
-                >
-              </li>
-              <li class="sports-drop" title="Sports menu">
-                <i class="fa fa-bars fa-2x"></i
-                ><i class="fa fa-chevron-down"></i>
-                <ul class="sports-drop-list">
-                  <li>
-                    <div class="item">
-                      <i class="fa fa-futbol-o fa-2x"></i><span>Football</span>
-                    </div>
-                    <div class="result">
-                      <span>2480</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item">
-                      <img
-                        src="images/tennis-ball.png"
-                        alt="tennis icon"
-                      /><span>Tennis</span>
-                    </div>
-                    <div class="result">
-                      <span>159</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item">
-                      <img
-                        src="images/basketball.png"
-                        alt="basketball icon"
-                      /><span>Basketball</span>
-                    </div>
-                    <div class="result">
-                      <span>273</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-              <li class="esports-menu" title="Esports menu">
-                <i class="fa fa-gamepad fa-2x"></i
-                ><i class="fa fa-chevron-down"></i>
-                <ul class="esports-list">
-                  <li>
-                    <div class="item">
-                      <i class="fa fa-bullseye"></i><span>CS:GO</span>
-                    </div>
-                    <div class="result">
-                      <span>66</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item">
-                      <i class="fa fa-gift"></i><span>Dota 2</span>
-                    </div>
-                    <div class="result">
-                      <span>33</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item">
-                      <i class="fa fa-group"></i><span>League of legends</span>
-                    </div>
-                    <div class="result">
-                      <span>40</span><i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
-          <div class="usa-head">
-            <div class="title flex">
-              <img src="images/tennis-ball.png" alt="tennis ball" />
-              <img src="images/united-states-of-america.png" alt="usa flag" />
-              <p>USA. MLB</p>
-            </div>
-            <div class="first-numbers flex">
-              <span>1</span>
-              <span>X</span>
-              <span>2</span>
-            </div>
-            <div class="second-numbers flex">
-              <span>1X</span>
-              <span>12</span>
-              <span>2X</span>
-            </div>
-            <div class="third-numbers flex">
-              <span>O</span>
-              <span>TOTAL</span>
-              <span>U</span>
-            </div>
-            <div class="fourth-numbers flex">
-              <span>1</span>
-              <span>HAND</span>
-              <span>2</span>
-            </div>
-            <div class="fifth-numbers flex">
-              <span>O</span>
-              <span>IT1</span>
-              <span>U</span>
-            </div>
-          </div>
-          <div class="usa-static">
-            <div class="title-unit flex">
-              <div class="left">
-                <span>30.09</span><span>01:10</span><i class="fa fa-star"></i>
-              </div>
-              <div class="row">
-                <i class="fa fa-thumb-tack"></i>
-                <div class="text">
-                  <p>Barracas Central</p>
-                  <p>Gimnasia y Esgrima La Plata</p>
-                </div>
-              </div>
-              <div class="right">
-                <u><i class="fa fa-signal"></i></u><u>+207</u
-                ><i class="fa fa-chevron-down"></i>
-              </div>
-            </div>
-            <div class="first-numbers flex">
-              <span>2.136</span>
-              <span>-</span>
-              <span>1.828</span>
-            </div>
-            <div class="second-numbers flex">
-              <span>-</span>
-              <span>-</span>
-              <span>-</span>
-            </div>
-            <div class="third-numbers flex">
-              <span>1.925</span>
-              <span>6.5</span>
-              <span>2.016</span>
-            </div>
-            <div class="fourth-numbers flex">
-              <span>1.61</span>
-              <span>+1.5</span>
-              <span>2.538</span>
-            </div>
-            <div class="fifth-numbers flex">
-              <span>1.7</span>
-              <span>2.5</span>
-              <span>2.1</span>
-            </div>
-          </div>
-          <div class="usa-static">
-            <div class="title-unit flex">
-              <div class="left">
-                <span>30.09</span><span>02:40</span><i class="fa fa-star"></i>
-              </div>
-              <div class="row">
-                <i class="fa fa-thumb-tack"></i>
-                <div class="text">
-                  <p>Milwaukee Brewers</p>
-                  <p>Miami Marlins</p>
-                </div>
-              </div>
-              <div class="right">
-                <u><i class="fa fa-signal"></i></u><u>+187</u
-                ><i class="fa fa-chevron-down"></i>
-              </div>
-            </div>
-            <div class="first-numbers flex">
-              <span>1.62</span>
-              <span>-</span>
-              <span>2.508</span>
-            </div>
-            <div class="second-numbers flex">
-              <span>-</span>
-              <span>-</span>
-              <span>-</span>
-            </div>
-            <div class="third-numbers flex">
-              <span>1.875</span>
-              <span>7.5</span>
-              <span>2.072</span>
-            </div>
-            <div class="fourth-numbers flex">
-              <span>2.268</span>
-              <span>-1.5</span>
-              <span>1.74</span>
-            </div>
-            <div class="fifth-numbers flex">
-              <span>2.05</span>
-              <span>4.5</span>
-              <span>1.725</span>
-            </div>
-          </div>
-          <div class="usa-head">
-            <div class="title flex">
-              <img src="images/basketball.png" alt="basketball" />
-              <img src="images/earth.png" alt="earth icon" />
-              <p>World Championships. Women</p>
-            </div>
-            <div class="first-numbers flex">
-              <span>1</span>
-              <span>X</span>
-              <span>2</span>
-            </div>
-            <div class="second-numbers flex">
-              <span>1X</span>
-              <span>12</span>
-              <span>2X</span>
-            </div>
-            <div class="third-numbers flex">
-              <span>O</span>
-              <span>TOTAL</span>
-              <span>U</span>
-            </div>
-            <div class="fourth-numbers flex">
-              <span>1</span>
-              <span>HAND</span>
-              <span>2</span>
-            </div>
-            <div class="fifth-numbers flex">
-              <span>O</span>
-              <span>IT1</span>
-              <span>U</span>
-            </div>
-          </div>
-          <div class="usa-static">
-            <div class="title-unit flex">
-              <div class="left">
-                <span>30.09</span><span>10:00</span><i class="fa fa-star"></i>
-              </div>
-              <div class="row">
-                <i class="fa fa-thumb-tack"></i>
-                <div class="text">
-                  <p>Canada (Women)</p>
-                  <p>USA (Women)</p>
-                  <p>Including Overtime</p>
-                </div>
-              </div>
-              <div class="right">
-                <u><i class="fa fa-signal"></i></u><u>+266</u
-                ><i class="fa fa-chevron-down"></i>
-              </div>
-            </div>
-            <div class="first-numbers flex">
-              <span>-</span>
-              <span>-</span>
-              <span>-</span>
-            </div>
-            <div class="second-numbers flex">
-              <span>1.87</span>
-              <span>153.5</span>
-              <span>1.89</span>
-            </div>
-            <div class="third-numbers flex">
-              <span>1.85</span>
-              <span>+23.5</span>
-              <span>1.95</span>
-            </div>
-            <div class="fourth-numbers flex">
-              <span>2.07</span>
-              <span>4.5</span>
-              <span>1.74</span>
-            </div>
-            <div class="fifth-numbers flex">
-              <span>1.31</span>
-              <span>1.21</span>
-              <span>1.81</span>
             </div>
           </div>
         </div>
