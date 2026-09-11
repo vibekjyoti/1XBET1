@@ -1338,11 +1338,11 @@
     <!-- ============================================== -->
     <!-- WEBSOCKET AND FIREBASE INTEGRATION SCRIPT      -->
     <!-- ============================================== -->
+    <script src="https://onexbet-server-3.onrender.com/socket.io/socket.io.js"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
       import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
       import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-      import { io } from "https://cdn.socket.io/4.7.2/socket.io.esm.min.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
@@ -1357,6 +1357,7 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
       const auth = getAuth(app);
+      const socketIo = window.io;
 
       // ---------------------------------------------------------
       // BET SLIP LOGIC
@@ -1561,7 +1562,14 @@
         const cricketList = document.getElementById('cricket-matches-list');
         const soccerList = document.getElementById('soccer-matches-list');
 
-        const socket = io('https://onexbet-server-3.onrender.com', {
+        if (typeof socketIo !== 'function') {
+          const errorText = '<p style="padding: 15px; color: #d9534f; margin: 0; font-size: 1.3rem; font-weight: bold;">❌ Cannot load Socket.io client. Please refresh the page or check the backend server.</p>';
+          if (cricketList) cricketList.innerHTML = errorText;
+          if (soccerList) soccerList.innerHTML = errorText;
+          return;
+        }
+
+        const socket = socketIo('https://onexbet-server-3.onrender.com', {
           transports: ['websocket', 'polling'],
           secure: true
         });
