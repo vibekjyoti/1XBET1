@@ -1,0 +1,315 @@
+<!-- Save this as cash-or-crash.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Cash or Crash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-green: #2ecc71; --c-red: #e74c3c; --c-gold: #f1c40f; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; justify-content: center; align-items: flex-start; padding: 30px 15px; flex: 1; gap: 20px; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Left Side: Game Area */
+        .game-main { flex: 2; display: flex; flex-direction: column; gap: 20px; }
+        
+        .sky-stage { height: 260px; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); border-radius: 16px; border: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        
+        .status-badge { position: absolute; top: 15px; background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 14px; letter-spacing: 1px; color: #fff; z-index: 10; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Airship */
+        .airship-container { position: absolute; bottom: 30px; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; }
+        .airship { font-size: 80px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); animation: float 3s infinite ease-in-out; }
+        .shield-ring { position: absolute; width: 120px; height: 120px; border: 4px solid var(--c-gold); border-radius: 50%; top: 10px; box-shadow: 0 0 20px var(--c-gold), inset 0 0 20px var(--c-gold); opacity: 0; transition: 0.3s; pointer-events: none; }
+        .shield-ring.active { opacity: 1; animation: spinRing 4s infinite linear; }
+        
+        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+        @keyframes spinRing { 100% { transform: rotate(360deg); } }
+
+        /* Dome / Ball Drawer */
+        .drawer-box { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .ball-history { display: flex; gap: 8px; flex: 1; overflow-x: auto; padding-bottom: 5px; }
+        .ball { width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.5); flex-shrink: 0; opacity: 0.2; }
+        .ball.active { opacity: 1; animation: popIn 0.3s ease-out forwards; }
+        .ball.g { background: radial-gradient(circle at 30% 30%, #55efc4, var(--c-green)); }
+        .ball.r { background: radial-gradient(circle at 30% 30%, #ff7675, var(--c-red)); }
+        .ball.y { background: radial-gradient(circle at 30% 30%, #ffeaa7, var(--c-gold)); }
+
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* Right Side: Ladder & Controls */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+        .ladder { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; display: flex; flex-direction: column-reverse; gap: 5px; flex: 1; justify-content: space-between; }
+        .ladder-step { display: flex; justify-content: space-between; padding: 6px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; color: var(--text-muted); background: var(--bg-card); transition: 0.3s; }
+        .ladder-step.active { background: rgba(46,204,113,0.2); color: var(--c-green); border: 1px solid var(--c-green); box-shadow: inset 0 0 10px rgba(46,204,113,0.3); }
+        .ladder-step.passed { background: rgba(255,255,255,0.05); color: #fff; }
+
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; display: flex; justify-content: center; gap: 10px; }
+        .btn-play { background: var(--accent-blue); color: white; }
+        .btn-draw { background: var(--c-green); color: white; display: none; }
+        .btn-cashout { background: var(--c-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .sky-stage { height: 220px; }
+            .ladder { flex-direction: row; flex-wrap: wrap; height: auto; }
+            .ladder-step { flex: 1 0 18%; justify-content: center; font-size: 11px; padding: 6px 4px; }
+            .ladder-step span:first-child { display: none; } /* hide step number on mobile */
+            .drawer-box { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="game-main">
+            <div class="sky-stage">
+                <div class="status-badge" id="statusBadge">READY FOR TAKEOFF</div>
+                <div class="airship-container" id="airship">
+                    <div class="shield-ring" id="shield"></div>
+                    <div class="airship">🛩️</div>
+                </div>
+            </div>
+
+            <div class="drawer-box">
+                <div class="ball-history" id="ballHistory">
+                    <!-- History balls injected here -->
+                </div>
+                <button class="btn-action btn-draw" id="btnDraw" onclick="drawBall()">DRAW BALL</button>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="ladder" id="ladder">
+                <!-- Multipliers injected here -->
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="100" min="10">
+                </div>
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">PLACE BET</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const ladderEl = document.getElementById('ladder');
+        const historyEl = document.getElementById('ballHistory');
+        const airship = document.getElementById('airship');
+        const shield = document.getElementById('shield');
+        const statusBadge = document.getElementById('statusBadge');
+        
+        const btnPlay = document.getElementById('btnPlay');
+        const btnDraw = document.getElementById('btnDraw');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentStep = 0;
+        let currentBet = 0;
+        let hasShield = false;
+        
+        // 10 Steps
+        const multipliers = [1.2, 1.5, 2.0, 3.5, 7.0, 15.0, 30.0, 75.0, 150.0, 500.0];
+        
+        // Ball Pool: 10 Green, 4 Red, 1 Gold (Total 15)
+        let ballPool = [];
+
+        function initUI() {
+            ladderEl.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const step = document.createElement('div');
+                step.className = 'ladder-step';
+                step.id = `step-${i}`;
+                step.innerHTML = `<span>Step ${i+1}</span> <span>${multipliers[i]}x</span>`;
+                ladderEl.appendChild(step);
+            }
+            resetBalls();
+        }
+        initUI();
+
+        function resetBalls() {
+            historyEl.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                const b = document.createElement('div');
+                b.className = 'ball';
+                historyEl.appendChild(b);
+            }
+        }
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentStep = 0;
+            hasShield = false;
+            
+            btnPlay.style.display = 'none';
+            btnDraw.style.display = 'block';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = `CASHOUT`;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'DRAW TO CLIMB';
+            statusBadge.style.color = '#fff';
+
+            // Setup Pool
+            ballPool = ['G','G','G','G','G','G','G','G','G','G', 'R','R','R','R', 'Y'];
+            // Shuffle
+            for (let i = ballPool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [ballPool[i], ballPool[j]] = [ballPool[j], ballPool[i]];
+            }
+
+            // Reset UI
+            document.querySelectorAll('.ladder-step').forEach(s => s.className = 'ladder-step');
+            airship.style.bottom = '30px';
+            shield.classList.remove('active');
+            resetBalls();
+        }
+
+        function drawBall() {
+            if (!isPlaying) return;
+            btnDraw.disabled = true;
+            btnCashout.disabled = true;
+
+            statusBadge.innerText = 'DRAWING...';
+            
+            setTimeout(() => {
+                const ballType = ballPool.pop();
+                
+                // Add to history visually (scroll right)
+                const newBall = document.createElement('div');
+                newBall.className = `ball active ${ballType.toLowerCase()}`;
+                historyEl.appendChild(newBall);
+                historyEl.scrollLeft = historyEl.scrollWidth;
+
+                processBall(ballType);
+            }, 600);
+        }
+
+        function processBall(type) {
+            if (type === 'G') {
+                // Climb
+                advanceStep('SAFE CLIMB!', 'var(--c-green)');
+            } 
+            else if (type === 'Y') {
+                // Gold - Climb + Shield
+                hasShield = true;
+                shield.classList.add('active');
+                advanceStep('SHIELD ACQUIRED!', 'var(--c-gold)');
+            } 
+            else if (type === 'R') {
+                // Crash or Consume Shield
+                if (hasShield) {
+                    hasShield = false;
+                    shield.classList.remove('active');
+                    statusBadge.innerText = 'SHIELD BROKEN! SAFE.';
+                    statusBadge.style.color = 'var(--c-gold)';
+                    setTimeout(() => {
+                        btnDraw.disabled = false;
+                        if (currentStep > 0) btnCashout.disabled = false;
+                    }, 1000);
+                } else {
+                    endGame(false, 'CRASHED! BET LOST.');
+                }
+            }
+        }
+
+        function advanceStep(msg, color) {
+            document.querySelectorAll('.ladder-step').forEach(s => s.classList.remove('active'));
+            if (currentStep > 0) document.getElementById(`step-${currentStep-1}`).classList.add('passed');
+            
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            
+            // Visual climb
+            const newBottom = 30 + (currentStep * 15);
+            airship.style.bottom = `${newBottom}px`;
+
+            statusBadge.innerText = msg;
+            statusBadge.style.color = color;
+
+            const win = currentBet * multipliers[currentStep];
+            btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+            currentStep++;
+
+            setTimeout(() => {
+                if (currentStep >= multipliers.length) {
+                    endGame(true, 'MAX LEVEL REACHED!');
+                } else {
+                    btnDraw.disabled = false;
+                    btnCashout.disabled = false;
+                    statusBadge.innerText = 'DRAW TO CLIMB';
+                    statusBadge.style.color = '#fff';
+                }
+            }, 1000);
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentStep === 0) return;
+            endGame(true, 'CASHED OUT!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnDraw.style.display = 'none';
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+            btnDraw.disabled = false;
+            btnCashout.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentStep - 1];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--c-green)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--c-red)';
+            }
+        }
+    </script>
+</body>
+</html>

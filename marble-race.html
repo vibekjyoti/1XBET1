@@ -1,0 +1,278 @@
+<!-- Save this as marble-race.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Marble Sprint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; justify-content: center; align-items: flex-start; padding: 25px 15px; flex: 1; gap: 20px; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Canvas Area */
+        .canvas-container { flex: 2; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #1e2a38 0%, #081018 100%); border-radius: 16px; border: 2px solid var(--border-color); position: relative; overflow: hidden; padding: 5px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        canvas { width: 100%; max-width: 500px; height: auto; }
+        
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #ffc107; background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); z-index: 10; transition: 0.3s; }
+
+        /* Right Panel */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+        /* Betting Board */
+        .betting-board { display: flex; flex-direction: column; gap: 10px; background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .bet-btn { padding: 15px; border-radius: 8px; border: 2px solid transparent; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; font-weight: 900; font-size: 16px; text-transform: uppercase; color: #fff; }
+        .bet-btn:hover { filter: brightness(1.1); transform: translateX(5px); }
+        .bet-btn.selected { border-color: #fff; transform: scale(1.03); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+        .btn-red { background: #e74c3c; }
+        .btn-blue { background: #3498db; }
+        .btn-green { background: #2ecc71; }
+        .btn-yellow { background: #f1c40f; color: #111; }
+
+        /* Controls */
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-play { padding: 15px; background: #238cf5; color: white; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #1868b8; transition: 0.1s; }
+        .btn-play:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-play:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .canvas-container { height: 400px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="canvas-container" id="container">
+            <div class="status-badge" id="statusBadge">PLACE YOUR BET</div>
+            <canvas id="raceCanvas" width="400" height="600"></canvas>
+        </div>
+
+        <div class="side-panel">
+            <div class="betting-board">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:bold; margin-bottom:5px;">PICK A MARBLE (PAYS 3.8x)</div>
+                <div class="bet-btn btn-red" onclick="selectMarble('Red', this)"><span>🔴 Red</span> <span>3.8x</span></div>
+                <div class="bet-btn btn-blue" onclick="selectMarble('Blue', this)"><span>🔵 Blue</span> <span>3.8x</span></div>
+                <div class="bet-btn btn-green" onclick="selectMarble('Green', this)"><span>🟢 Green</span> <span>3.8x</span></div>
+                <div class="bet-btn btn-yellow" onclick="selectMarble('Yellow', this)"><span>🟡 Yellow</span> <span>3.8x</span></div>
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <button class="btn-play" id="btnPlay" onclick="startRace()">DROP MARBLES</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('raceCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnPlay = document.getElementById('btnPlay');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isRacing = false;
+        let selectedMarble = null;
+
+        // Physics Constants
+        const pegRadius = 5;
+        const marbleRadius = 10;
+        const gravity = 0.2;
+        const bounce = 0.6; // Energy retention
+        
+        let marbles = [];
+        let pegs = [];
+        let finishLineY = canvas.height - 30;
+
+        function initBoard() {
+            pegs = [];
+            const rows = 12;
+            const cols = 9;
+            const startY = 80;
+            const spacingX = canvas.width / cols;
+            const spacingY = 40;
+
+            for (let r = 0; r < rows; r++) {
+                // Stagger rows
+                const offset = (r % 2 === 0) ? spacingX / 2 : 0;
+                const maxCols = (r % 2 === 0) ? cols - 1 : cols;
+                
+                for (let c = 0; c < maxCols; c++) {
+                    // Add some randomness to peg positions for chaos
+                    const rx = (Math.random() - 0.5) * 5;
+                    const ry = (Math.random() - 0.5) * 5;
+                    pegs.push({
+                        x: offset + (c * spacingX) + (spacingX / 2) + rx,
+                        y: startY + (r * spacingY) + ry
+                    });
+                }
+            }
+        }
+        initBoard();
+
+        function drawFrame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Finish Line
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, finishLineY, canvas.width, 30);
+            ctx.fillStyle = '#fff';
+            for(let i=0; i<canvas.width; i+=20) {
+                ctx.fillRect(i, finishLineY, 10, 10);
+                ctx.fillRect(i+10, finishLineY+10, 10, 10);
+            }
+
+            // Draw Pegs
+            ctx.fillStyle = '#ecf0f1';
+            pegs.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, pegRadius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw Marbles
+            let winner = null;
+
+            marbles.forEach(m => {
+                if (isRacing) {
+                    m.vy += gravity;
+                    m.x += m.vx;
+                    m.y += m.vy;
+
+                    // Wall Collision
+                    if (m.x < marbleRadius) { m.x = marbleRadius; m.vx *= -bounce; }
+                    if (m.x > canvas.width - marbleRadius) { m.x = canvas.width - marbleRadius; m.vx *= -bounce; }
+
+                    // Peg Collision
+                    pegs.forEach(p => {
+                        const dx = m.x - p.x;
+                        const dy = m.y - p.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const minDist = marbleRadius + pegRadius;
+
+                        if (dist < minDist) {
+                            const angle = Math.atan2(dy, dx);
+                            const speed = Math.sqrt(m.vx*m.vx + m.vy*m.vy);
+                            
+                            m.x = p.x + Math.cos(angle) * (minDist + 1);
+                            m.y = p.y + Math.sin(angle) * (minDist + 1);
+                            
+                            // Add chaotic deflection
+                            m.vx = Math.cos(angle) * speed * bounce + (Math.random() - 0.5)*2;
+                            m.vy = Math.sin(angle) * speed * bounce;
+                        }
+                    });
+
+                    // Check Finish Line
+                    if (m.y >= finishLineY - marbleRadius && !winner) {
+                        winner = m.name;
+                    }
+                }
+
+                ctx.fillStyle = m.color;
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, marbleRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            if (winner) {
+                isRacing = false;
+                resolveRace(winner);
+            } else if (isRacing) {
+                requestAnimationFrame(drawFrame);
+            } else {
+                requestAnimationFrame(drawFrame); // Idle render
+            }
+        }
+        requestAnimationFrame(drawFrame);
+
+        function selectMarble(name, el) {
+            if (isRacing) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedMarble = name;
+            statusBadge.innerText = `BET LOCKED: ${name}`;
+            statusBadge.style.color = '#fff';
+        }
+
+        function startRace() {
+            if (!selectedMarble) return alert('Select a marble to bet on!');
+            const betAmt = parseFloat(betInput.value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isRacing = true;
+            btnPlay.disabled = true;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'RACE IN PROGRESS...';
+            statusBadge.style.color = '#f1c40f';
+
+            // Init Marbles at top
+            marbles = [
+                { name: 'Red', color: '#e74c3c', x: canvas.width * 0.2, y: 20, vx: (Math.random()-0.5)*2, vy: 0 },
+                { name: 'Blue', color: '#3498db', x: canvas.width * 0.4, y: 20, vx: (Math.random()-0.5)*2, vy: 0 },
+                { name: 'Green', color: '#2ecc71', x: canvas.width * 0.6, y: 20, vx: (Math.random()-0.5)*2, vy: 0 },
+                { name: 'Yellow', color: '#f1c40f', x: canvas.width * 0.8, y: 20, vx: (Math.random()-0.5)*2, vy: 0 }
+            ];
+        }
+
+        function resolveRace(winner) {
+            const betAmt = parseFloat(betInput.value);
+            
+            if (winner === selectedMarble) {
+                const winAmt = betAmt * 3.8;
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${winner} WINS! YOU WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = '#2ecc71';
+            } else {
+                statusBadge.innerText = `${winner} WINS. BET LOST.`;
+                statusBadge.style.color = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                btnPlay.disabled = false;
+                betInput.disabled = false;
+                statusBadge.innerText = 'PLACE YOUR BET';
+                statusBadge.style.color = '#ffc107';
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedMarble = null;
+                marbles = []; // clear board
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!-- Save this as fan-tan.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Fan Tan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-red: #e74c3c; --accent-green: #2ecc71; --accent-blue: #238cf5;
+            --table-color: #721c24;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Felt Table Stage */
+        .stage { width: 100%; max-width: 800px; height: 300px; background: radial-gradient(ellipse at center, #a32230 0%, #3a0d11 100%); border-radius: 16px; border: 3px solid #d4af37; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        
+        .status-badge { position: absolute; top: 15px; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); z-index: 10; }
+
+        .beads-container { position: relative; width: 200px; height: 150px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; align-content: center; }
+        
+        .bead { width: 16px; height: 16px; background: radial-gradient(circle at 30% 30%, #fff, #ecf0f1, #bdc3c7); border-radius: 50%; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.6); transition: 0.5s ease-in-out; opacity: 0; transform: scale(0); }
+        .bead.show { opacity: 1; transform: scale(1); }
+
+        /* The cover cup animation */
+        .cup { position: absolute; width: 140px; height: 140px; background: radial-gradient(circle at top, #d4af37, #997a00); border-radius: 50%; box-shadow: 0 15px 25px rgba(0,0,0,0.8), inset 0 5px 15px rgba(255,255,255,0.5); z-index: 5; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: translateY(-200px); opacity: 0; }
+        .cup.covering { transform: translateY(0); opacity: 1; }
+
+        /* Betting Board */
+        .betting-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 800px; }
+        .bet-btn { background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .bet-btn:hover { background: #182c40; transform: translateY(-4px); }
+        .bet-btn.selected { border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(255,193,7,0.4); transform: scale(1.05); background: #132435; z-index: 2; }
+        
+        .bet-title { font-size: 32px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+        .bet-payout { font-size: 13px; font-weight: bold; color: var(--accent-gold); }
+        
+        .chip-icon { position: absolute; top: -10px; right: -10px; width: 35px; height: 35px; background: radial-gradient(circle, #ffc107 0%, #e6a800 100%); border: 2px dashed #fff; border-radius: 50%; opacity: 0; transform: scale(0); transition: 0.3s; display: flex; justify-content: center; align-items: center; color: #000; font-size: 14px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .bet-btn.selected .chip-icon { opacity: 1; transform: scale(1); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1e7e34; transition: 0.1s; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        @media (max-width: 768px) {
+            .betting-board { grid-template-columns: 1fr 1fr; }
+            .stage { height: 260px; }
+            .controls { flex-direction: column; }
+            .btn-action { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">10000.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="stage">
+            <div class="status-badge" id="statusBadge">SELECT YOUR NUMBER</div>
+            
+            <div class="beads-container" id="beadsContainer">
+                <div class="cup" id="cup"></div>
+            </div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn" onclick="selectBet(1, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">1</div>
+                <div class="bet-payout">PAYS 3.85x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet(2, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">2</div>
+                <div class="bet-payout">PAYS 3.85x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet(3, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">3</div>
+                <div class="bet-payout">PAYS 3.85x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet(4, this)">
+                <div class="chip-icon">✔</div>
+                <div class="bet-title">4</div>
+                <div class="bet-payout">PAYS 3.85x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-action" id="btnPlay" onclick="startRound()">SORT BEADS</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnPlay = document.getElementById('btnPlay');
+        const beadsContainer = document.getElementById('beadsContainer');
+        const cup = document.getElementById('cup');
+
+        let balance = 10000.00;
+        let selectedNumber = null;
+        let isPlaying = false;
+
+        function selectBet(num, el) {
+            if (isPlaying) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedNumber = num;
+            statusBadge.innerText = `BET LOCKED: ${num}`;
+            statusBadge.style.color = '#fff';
+        }
+
+        function startRound() {
+            if (!selectedNumber) return alert('Select 1, 2, 3, or 4 first!');
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isPlaying = true;
+            btnPlay.disabled = true;
+
+            // Clear previous beads (keep cup)
+            Array.from(beadsContainer.children).forEach(child => {
+                if(child.id !== 'cup') child.remove();
+            });
+
+            // Generate Random Beads (between 25 and 50)
+            const totalBeads = Math.floor(Math.random() * 26) + 25;
+            let remainder = totalBeads % 4;
+            if (remainder === 0) remainder = 4; // Fan Tan rules
+
+            // Create initial bead pile
+            for(let i = 0; i < totalBeads; i++) {
+                const b = document.createElement('div');
+                b.className = 'bead';
+                beadsContainer.appendChild(b);
+            }
+
+            statusBadge.innerText = 'COVERING BEADS...';
+            statusBadge.style.color = 'var(--accent-gold)';
+
+            // Animation Timeline
+            setTimeout(() => {
+                // Show beads
+                document.querySelectorAll('.bead').forEach(b => b.classList.add('show'));
+                
+                setTimeout(() => {
+                    // Cover with cup
+                    cup.classList.add('covering');
+                    statusBadge.innerText = 'SORTING GROUPS OF 4...';
+
+                    setTimeout(() => {
+                        // Secretly remove beads except the remainder
+                        Array.from(beadsContainer.children).forEach((child, index) => {
+                            if(child.id !== 'cup' && index > remainder) {
+                                child.remove();
+                            }
+                        });
+
+                        // Lift cup
+                        cup.classList.remove('covering');
+                        
+                        setTimeout(() => resolveGame(remainder, betAmt), 800);
+                        
+                    }, 2000);
+                }, 1000);
+            }, 100);
+        }
+
+        function resolveGame(remainder, betAmt) {
+            if (remainder === selectedNumber) {
+                const win = betAmt * 3.85;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${remainder} REMAINING! WON ₹${win.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-green)';
+            } else {
+                statusBadge.innerText = `${remainder} REMAINING. BET LOST.`;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+
+            setTimeout(() => {
+                isPlaying = false;
+                btnPlay.disabled = false;
+                statusBadge.innerText = 'SELECT YOUR NUMBER';
+                statusBadge.style.color = 'var(--accent-gold)';
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedNumber = null;
+                
+                Array.from(beadsContainer.children).forEach(child => {
+                    if(child.id !== 'cup') child.remove();
+                });
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

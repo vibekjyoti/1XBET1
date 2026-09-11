@@ -1,0 +1,222 @@
+<!-- Save this as horse-racing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Virtual Derby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #28a745; --accent-blue: #238cf5; --accent-red: #e6003d; --accent-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Racetrack */
+        .track-container { width: 100%; max-width: 900px; background: #2d5a27; border: 4px solid #fff; border-radius: 12px; position: relative; overflow: hidden; padding: 10px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .finish-line { position: absolute; top: 0; right: 40px; width: 10px; height: 100%; background: repeating-linear-gradient(0deg, #fff, #fff 10px, #000 10px, #000 20px); z-index: 5; }
+
+        .lane { display: flex; align-items: center; height: 50px; border-bottom: 1px dashed rgba(255,255,255,0.3); position: relative; }
+        .lane:last-child { border-bottom: none; }
+        
+        .horse { position: absolute; left: 10px; font-size: 32px; z-index: 10; transition: left 0.1s linear; display: flex; align-items: center; }
+        .horse-num { font-size: 12px; font-weight: 900; background: #111; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; position: absolute; left: -15px; border: 2px solid; }
+
+        .h-1 .horse-num { border-color: #e6003d; }
+        .h-2 .horse-num { border-color: #238cf5; }
+        .h-3 .horse-num { border-color: #f1c40f; }
+        .h-4 .horse-num { border-color: #8e44ad; }
+
+        .status-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); padding: 15px 30px; border-radius: 30px; font-weight: 900; letter-spacing: 2px; font-size: 18px; color: var(--accent-gold); z-index: 20; text-align: center; border: 1px solid rgba(255,193,7,0.3); opacity: 0; transition: 0.3s; pointer-events: none; }
+        .status-toast.show { opacity: 1; }
+
+        /* Betting Board */
+        .betting-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 900px; }
+        .bet-btn { background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .bet-btn:hover { background: #182c40; transform: translateY(-3px); }
+        .bet-btn.selected { border-color: var(--accent-gold); transform: scale(1.05); background: #132435; z-index: 2; box-shadow: 0 0 20px rgba(255,193,7,0.4); }
+
+        .bet-title { font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .bet-payout { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 900px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-race { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1e7e34; transition: 0.1s; }
+        .btn-race:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-race:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .betting-board { grid-template-columns: 1fr 1fr; }
+            .controls { flex-direction: column; }
+            .btn-race { padding: 15px; width: 100%; }
+            .horse { font-size: 26px; }
+            .lane { height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">10000.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <div class="track-container" id="track">
+            <div class="finish-line"></div>
+            <div class="status-toast" id="statusToast">PLACE YOUR BET</div>
+
+            <div class="lane"><div class="horse h-1" id="horse-1"><div class="horse-num">1</div>🐎</div></div>
+            <div class="lane"><div class="horse h-2" id="horse-2"><div class="horse-num">2</div>🐎</div></div>
+            <div class="lane"><div class="horse h-3" id="horse-3"><div class="horse-num">3</div>🐎</div></div>
+            <div class="lane"><div class="horse h-4" id="horse-4"><div class="horse-num">4</div>🐎</div></div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn" onclick="selectHorse(1, 3.5, this)">
+                <div class="bet-title" style="color: #e6003d;">HORSE 1</div>
+                <div class="bet-payout">PAYS 3.5x</div>
+            </div>
+            <div class="bet-btn" onclick="selectHorse(2, 3.5, this)">
+                <div class="bet-title" style="color: #238cf5;">HORSE 2</div>
+                <div class="bet-payout">PAYS 3.5x</div>
+            </div>
+            <div class="bet-btn" onclick="selectHorse(3, 3.5, this)">
+                <div class="bet-title" style="color: #f1c40f;">HORSE 3</div>
+                <div class="bet-payout">PAYS 3.5x</div>
+            </div>
+            <div class="bet-btn" onclick="selectHorse(4, 3.5, this)">
+                <div class="bet-title" style="color: #8e44ad;">HORSE 4</div>
+                <div class="bet-payout">PAYS 3.5x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="500" min="50">
+            </div>
+            <button class="btn-race" id="btnRace" onclick="startRace()">START RACE</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const btnRace = document.getElementById('btnRace');
+        const statusToast = document.getElementById('statusToast');
+        const track = document.getElementById('track');
+        const horses = [
+            { el: document.getElementById('horse-1'), id: 1, pos: 10 },
+            { el: document.getElementById('horse-2'), id: 2, pos: 10 },
+            { el: document.getElementById('horse-3'), id: 3, pos: 10 },
+            { el: document.getElementById('horse-4'), id: 4, pos: 10 }
+        ];
+
+        let balance = 10000.00;
+        let selectedHorse = null;
+        let isRacing = false;
+        let currentMultiplier = 3.5;
+
+        function selectHorse(id, multi, el) {
+            if (isRacing) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedHorse = id;
+            currentMultiplier = multi;
+        }
+
+        function startRace() {
+            if (!selectedHorse) return alert('Select a horse to bet on!');
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isRacing = true;
+            btnRace.disabled = true;
+
+            // Reset horses
+            horses.forEach(h => {
+                h.pos = 10;
+                h.el.style.left = h.pos + 'px';
+            });
+            statusToast.classList.remove('show');
+
+            const trackWidth = track.clientWidth - 70; // Account for horse width and finish line
+            let winner = null;
+
+            function raceLoop() {
+                let raceOver = false;
+                
+                horses.forEach(h => {
+                    // Random speed burst logic
+                    const speed = (Math.random() * 4) + 1; 
+                    h.pos += speed;
+                    h.el.style.left = h.pos + 'px';
+
+                    if (h.pos >= trackWidth && !raceOver) {
+                        raceOver = true;
+                        winner = h.id;
+                    }
+                });
+
+                if (raceOver) {
+                    resolveRace(winner, betAmt);
+                } else {
+                    requestAnimationFrame(raceLoop);
+                }
+            }
+            requestAnimationFrame(raceLoop);
+        }
+
+        function resolveRace(winnerId, betAmt) {
+            let msg = '';
+            if (winnerId === selectedHorse) {
+                const win = betAmt * currentMultiplier;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                msg = `HORSE ${winnerId} WINS! PAYS ₹${win.toFixed(2)}`;
+                statusToast.style.color = 'var(--accent-green)';
+                statusToast.style.borderColor = 'var(--accent-green)';
+            } else {
+                msg = `HORSE ${winnerId} WINS. BET LOST.`;
+                statusToast.style.color = 'var(--accent-red)';
+                statusToast.style.borderColor = 'var(--accent-red)';
+            }
+
+            statusToast.innerText = msg;
+            statusToast.classList.add('show');
+
+            setTimeout(() => {
+                isRacing = false;
+                btnRace.disabled = false;
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedHorse = null;
+                statusToast.classList.remove('show');
+                horses.forEach(h => { h.pos = 10; h.el.style.left = '10px'; });
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

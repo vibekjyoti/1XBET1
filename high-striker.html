@@ -1,0 +1,198 @@
+<!-- Save this as high-striker.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - High Striker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-red: #e6003d; --accent-gold: #f1c40f; --accent-green: #2ecc71;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 30px 15px; flex: 1; gap: 30px; }
+
+        /* Tower Stage */
+        .stage { height: 450px; display: flex; align-items: flex-end; gap: 20px; position: relative; }
+        
+        .tower { width: 80px; height: 100%; background: linear-gradient(0deg, #111 0%, #333 100%); border-radius: 40px; border: 4px solid var(--border-color); position: relative; display: flex; justify-content: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); padding-bottom: 20px; }
+        
+        /* The Puck */
+        .puck { width: 60px; height: 30px; background: radial-gradient(circle, var(--accent-red), #8a0024); border-radius: 15px; position: absolute; bottom: 10px; transition: bottom 1s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 5px 15px rgba(230,0,61,0.5); z-index: 2; border: 2px solid #ff3366; }
+
+        .bell { position: absolute; top: -20px; font-size: 50px; z-index: 3; transition: 0.1s; }
+        .bell.ring { transform: rotate(15deg) scale(1.2); filter: drop-shadow(0 0 20px var(--accent-gold)); }
+
+        .multiplier-marks { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-bottom: 40px; padding-top: 20px; font-weight: 900; color: var(--text-muted); font-size: 14px; text-align: right; }
+        .multiplier-marks div { position: relative; display: flex; align-items: center; justify-content: flex-end; }
+        .multiplier-marks div::after { content: ''; position: absolute; right: -25px; width: 15px; height: 3px; background: var(--border-color); }
+
+        .game-panel { flex: 1; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
+        
+        .status-badge { font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,193,7,0.3); text-align: center; }
+
+        /* Power Meter */
+        .power-meter { width: 100%; height: 30px; background: #111; border-radius: 15px; border: 2px solid var(--border-color); position: relative; overflow: hidden; }
+        .power-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c); transition: width 0s; }
+        .power-cursor { position: absolute; top: -5px; bottom: -5px; width: 4px; background: #fff; box-shadow: 0 0 10px #fff; left: 0%; transition: left 0s; }
+
+        .controls { background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 18px; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1868b8; transition: 0.1s; background: var(--accent-blue); color: white; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .stage { height: 350px; }
+            .game-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="stage">
+            <div class="multiplier-marks">
+                <div style="color:var(--accent-red)">100x</div>
+                <div style="color:var(--accent-gold)">20x</div>
+                <div style="color:var(--accent-green)">5x</div>
+                <div>2x</div>
+                <div>1.5x</div>
+                <div>1.1x</div>
+                <div>0x</div>
+            </div>
+            <div class="tower">
+                <div class="bell" id="bell">🔔</div>
+                <div class="puck" id="puck"></div>
+            </div>
+        </div>
+
+        <div class="game-panel">
+            <div class="status-badge" id="statusBadge">HIT TO STRIKE</div>
+            
+            <div class="power-meter">
+                <div class="power-fill" id="powerFill"></div>
+                <div class="power-cursor" id="powerCursor"></div>
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <button class="btn-action" id="btnStrike" onclick="strike()">SWING MALLET</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnStrike = document.getElementById('btnStrike');
+        const puck = document.getElementById('puck');
+        const bell = document.getElementById('bell');
+        const powerFill = document.getElementById('powerFill');
+        const powerCursor = document.getElementById('powerCursor');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let powerLevel = 0;
+        let powerDir = 1;
+        let animFrame;
+
+        // Start Oscillating Power Meter
+        function animatePower() {
+            powerLevel += 3.5 * powerDir; // Speed
+            if (powerLevel > 100) { powerLevel = 100; powerDir = -1; }
+            if (powerLevel < 0) { powerLevel = 0; powerDir = 1; }
+            
+            powerFill.style.width = `${powerLevel}%`;
+            powerCursor.style.left = `${powerLevel}%`;
+            
+            animFrame = requestAnimationFrame(animatePower);
+        }
+        animatePower();
+
+        function strike() {
+            if (isPlaying) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isPlaying = true;
+            btnStrike.disabled = true;
+
+            // Stop Meter
+            cancelAnimationFrame(animFrame);
+            const hitPower = powerLevel;
+
+            statusBadge.innerText = 'STRIKING...';
+            statusBadge.style.color = '#fff';
+
+            // Determine Result based on hit power accuracy
+            let multi = 0;
+            let heightPercent = 0;
+
+            if (hitPower > 97) { multi = 100; heightPercent = 95; } // Ring the bell
+            else if (hitPower > 90) { multi = 20; heightPercent = 80; }
+            else if (hitPower > 75) { multi = 5; heightPercent = 65; }
+            else if (hitPower > 50) { multi = 2; heightPercent = 48; }
+            else if (hitPower > 30) { multi = 1.5; heightPercent = 32; }
+            else if (hitPower > 10) { multi = 1.1; heightPercent = 15; }
+            else { multi = 0; heightPercent = 5; } // Dud
+
+            // Animate Puck
+            puck.style.bottom = `${heightPercent}%`;
+
+            setTimeout(() => {
+                if (multi === 100) {
+                    bell.classList.add('ring');
+                    setTimeout(() => bell.classList.remove('ring'), 500);
+                }
+
+                if (multi > 0) {
+                    const win = betAmt * multi;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusBadge.innerText = `BOOM! ${multi}x WON ₹${win.toFixed(2)}`;
+                    statusBadge.style.color = 'var(--accent-green)';
+                } else {
+                    statusBadge.innerText = 'WEAK HIT! BET LOST.';
+                    statusBadge.style.color = 'var(--accent-red)';
+                }
+
+                setTimeout(() => {
+                    puck.style.bottom = '10px'; // Reset puck
+                    isPlaying = false;
+                    btnStrike.disabled = false;
+                    statusBadge.innerText = 'HIT TO STRIKE';
+                    statusBadge.style.color = 'var(--accent-gold)';
+                    animatePower(); // Restart meter
+                }, 2500);
+
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

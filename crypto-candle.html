@@ -1,0 +1,227 @@
+<!-- Save this as crypto-candle.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Binary Candle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #00b894; --accent-red: #d63031; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Trading Chart Canvas */
+        .chart-box { width: 100%; max-width: 800px; height: 350px; background: radial-gradient(circle at center, #0e1c2a 0%, #050b12 100%); border-radius: 16px; border: 1px solid var(--border-color); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        canvas { width: 100%; height: 100%; }
+
+        .chart-overlay { position: absolute; top: 15px; left: 20px; display: flex; gap: 20px; font-size: 14px; font-weight: bold; }
+        .pair { color: #fff; font-weight: 900; font-size: 16px; }
+        .price { font-variant-numeric: tabular-nums; }
+        .price.up { color: var(--accent-green); }
+        .price.down { color: var(--accent-red); }
+
+        .timer-badge { position: absolute; top: 15px; right: 20px; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 900; border: 1px solid var(--border-color); }
+
+        /* Trading Controls */
+        .trade-board { display: flex; gap: 15px; width: 100%; max-width: 800px; }
+        .btn-trade { flex: 1; padding: 22px; font-size: 20px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 0.1s; }
+        .btn-call { background: var(--accent-green); color: white; box-shadow: 0 5px 0 #008f72; }
+        .btn-put { background: var(--accent-red); color: white; box-shadow: 0 5px 0 #9f2425; }
+        .btn-trade:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-trade:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+        
+        .payout-text { font-size: 12px; font-weight: bold; opacity: 0.9; }
+
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+
+        @media (max-width: 768px) {
+            .chart-box { height: 280px; }
+            .trade-board { flex-direction: column; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="chart-box" id="chartBox">
+            <canvas id="chartCanvas"></canvas>
+            <div class="chart-overlay">
+                <div class="pair">BTC / USD</div>
+                <div class="price up" id="priceDisplay">65,420.00</div>
+            </div>
+            <div class="timer-badge" id="timerBadge">EXPIRY: 15s</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>STAKE AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="500" min="50">
+            </div>
+        </div>
+
+        <div class="trade-board">
+            <button class="btn-trade btn-call" id="btnCall" onclick="enterTrade('CALL')">
+                ▲ CALL (GREEN)
+                <span class="payout-text">PAYS 1.92x</span>
+            </button>
+            <button class="btn-trade btn-put" id="btnPut" onclick="enterTrade('PUT')">
+                ▼ PUT (RED)
+                <span class="payout-text">PAYS 1.92x</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('chartCanvas');
+        const ctx = canvas.getContext('2d');
+        const chartBox = document.getElementById('chartBox');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const timerBadge = document.getElementById('timerBadge');
+        const balanceEl = document.getElementById('balance');
+        const btnCall = document.getElementById('btnCall');
+        const btnPut = document.getElementById('btnPut');
+
+        let balance = 10000.00;
+        let currentPrice = 65420.00;
+        let chartData = [];
+        let activeTrade = null;
+        let roundTimeLeft = 15;
+
+        function resize() {
+            canvas.width = chartBox.clientWidth;
+            canvas.height = chartBox.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Populate initial candle history
+        for (let i = 0; i < 40; i++) {
+            currentPrice += (Math.random() - 0.5) * 20;
+            chartData.push(currentPrice);
+        }
+
+        function drawChart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid Lines
+            ctx.strokeStyle = 'rgba(26, 49, 72, 0.4)';
+            ctx.lineWidth = 1;
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Min and Max scale bounds
+            const min = Math.min(...chartData) - 10;
+            const max = Math.max(...chartData) + 10;
+            const stepX = canvas.width / (chartData.length - 1);
+
+            // Path line
+            ctx.beginPath();
+            chartData.forEach((price, idx) => {
+                const x = idx * stepX;
+                const y = canvas.height - ((price - min) / (max - min)) * (canvas.height - 60) - 30;
+                if (idx === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = '#238cf5';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Strike price line if in trade
+            if (activeTrade) {
+                const strikeY = canvas.height - ((activeTrade.strike - min) / (max - min)) * (canvas.height - 60) - 30;
+                ctx.strokeStyle = activeTrade.type === 'CALL' ? 'rgba(0, 184, 148, 0.8)' : 'rgba(214, 48, 49, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath(); ctx.moveTo(0, strikeY); ctx.lineTo(canvas.width, strikeY); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // Live Market Tick Generator
+        setInterval(() => {
+            const delta = (Math.random() - 0.49) * 12;
+            currentPrice += delta;
+            chartData.push(currentPrice);
+            chartData.shift();
+
+            priceDisplay.innerText = currentPrice.toFixed(2);
+            priceDisplay.className = delta >= 0 ? 'price up' : 'price down';
+
+            drawChart();
+        }, 300);
+
+        // Trade Round Countdown Engine
+        setInterval(() => {
+            roundTimeLeft--;
+            timerBadge.innerText = `EXPIRY: ${roundTimeLeft}s`;
+
+            if (roundTimeLeft <= 0) {
+                if (activeTrade) {
+                    resolveTrade();
+                }
+                roundTimeLeft = 15;
+            }
+        }, 1000);
+
+        function enterTrade(direction) {
+            if (activeTrade) return alert('Trade already active for this candle cycle!');
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+
+            activeTrade = {
+                type: direction,
+                stake: betAmt,
+                strike: currentPrice
+            };
+
+            btnCall.disabled = true;
+            btnPut.disabled = true;
+        }
+
+        function resolveTrade() {
+            const finalPrice = currentPrice;
+            const won = (activeTrade.type === 'CALL' && finalPrice > activeTrade.strike) ||
+                        (activeTrade.type === 'PUT' && finalPrice < activeTrade.strike);
+
+            if (won) {
+                const win = activeTrade.stake * 1.92;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                alert(`PROFIT! Price moved in your favor. Won ₹${win.toFixed(2)}`);
+            } else {
+                alert('LOSS! Price closed against your prediction.');
+            }
+
+            activeTrade = null;
+            btnCall.disabled = false;
+            btnPut.disabled = false;
+        }
+    </script>
+</body>
+</html>

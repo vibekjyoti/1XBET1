@@ -1,0 +1,203 @@
+<!-- Save this as rps.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Rock Paper Scissors</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-gold: #f1c40f; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Arena */
+        .arena { width: 100%; max-width: 700px; height: 300px; background: radial-gradient(circle, #1a2a3a 0%, #081018 100%); border-radius: 16px; border: 2px solid var(--accent-blue); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
+        
+        .status-badge { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 20px; font-weight: 900; font-size: 16px; letter-spacing: 2px; border: 1px solid var(--accent-gold); color: var(--accent-gold); z-index: 10; transition: 0.3s; text-align: center; }
+
+        .hand { font-size: 100px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); transition: transform 0.2s; }
+        .hand-player { transform: scaleX(1); }
+        .hand-dealer { transform: scaleX(-1); } /* Flip opponent hand */
+        
+        /* Shaking Animation */
+        .shaking .hand-player { animation: shakePlayer 0.4s infinite; }
+        .shaking .hand-dealer { animation: shakeDealer 0.4s infinite; }
+        
+        @keyframes shakePlayer { 0% { transform: rotate(0deg) scaleX(1); } 50% { transform: rotate(-20deg) scaleX(1); } 100% { transform: rotate(0deg) scaleX(1); } }
+        @keyframes shakeDealer { 0% { transform: rotate(0deg) scaleX(-1); } 50% { transform: rotate(-20deg) scaleX(-1); } 100% { transform: rotate(0deg) scaleX(-1); } }
+
+        .vs-text { font-size: 30px; font-weight: 900; color: rgba(255,255,255,0.2); }
+
+        /* Controls & Betting */
+        .board { display: flex; gap: 15px; width: 100%; max-width: 700px; }
+        .bet-btn { flex: 1; background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .bet-btn:hover { background: #182c40; transform: translateY(-3px); }
+        
+        .bet-icon { font-size: 40px; margin-bottom: 5px; }
+        .bet-title { font-size: 18px; font-weight: 900; text-transform: uppercase; }
+
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 700px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+
+        @media (max-width: 768px) {
+            .arena { padding: 0 20px; height: 220px; }
+            .hand { font-size: 70px; }
+            .board { flex-direction: column; gap: 10px; }
+            .bet-btn { flex-direction: row; justify-content: center; gap: 15px; padding: 15px; }
+            .bet-icon { margin: 0; font-size: 30px; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">10000.00</span></div>
+        </div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="arena" id="arena">
+            <div class="status-badge" id="statusBadge">CHOOSE YOUR WEAPON</div>
+            <div class="hand hand-player" id="hPlayer">✊</div>
+            <div class="vs-text">VS</div>
+            <div class="hand hand-dealer" id="hDealer">✊</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹) • PAYS 1.95x (TIE PUSHES)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="bet-btn" onclick="playGame('ROCK')">
+                <div class="bet-icon">✊</div>
+                <div class="bet-title">ROCK</div>
+            </div>
+            <div class="bet-btn" onclick="playGame('PAPER')">
+                <div class="bet-icon">✋</div>
+                <div class="bet-title">PAPER</div>
+            </div>
+            <div class="bet-btn" onclick="playGame('SCISSORS')">
+                <div class="bet-icon">✌️</div>
+                <div class="bet-title">SCISSORS</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const hPlayer = document.getElementById('hPlayer');
+        const hDealer = document.getElementById('hDealer');
+        const statusBadge = document.getElementById('statusBadge');
+        const arena = document.getElementById('arena');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+
+        const weapons = {
+            'ROCK': '✊',
+            'PAPER': '✋',
+            'SCISSORS': '✌️'
+        };
+        const weaponKeys = ['ROCK', 'PAPER', 'SCISSORS'];
+
+        function playGame(playerChoice) {
+            if (isPlaying) return;
+            const betAmt = parseFloat(betInput.value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isPlaying = true;
+
+            // Reset to Rock for shaking
+            hPlayer.innerText = '✊';
+            hDealer.innerText = '✊';
+            
+            statusBadge.innerText = 'ROCK... PAPER...';
+            statusBadge.style.color = '#fff';
+            statusBadge.style.borderColor = '#fff';
+            arena.classList.add('shaking');
+
+            setTimeout(() => {
+                arena.classList.remove('shaking');
+                
+                // Determine Dealer Choice
+                const dealerChoice = weaponKeys[Math.floor(Math.random() * 3)];
+                
+                hPlayer.innerText = weapons[playerChoice];
+                hDealer.innerText = weapons[dealerChoice];
+
+                resolveDuel(playerChoice, dealerChoice, betAmt);
+            }, 1200);
+        }
+
+        function resolveDuel(p, d, bet) {
+            let result = '';
+            
+            if (p === d) {
+                result = 'TIE';
+            } else if (
+                (p === 'ROCK' && d === 'SCISSORS') ||
+                (p === 'PAPER' && d === 'ROCK') ||
+                (p === 'SCISSORS' && d === 'PAPER')
+            ) {
+                result = 'WIN';
+            } else {
+                result = 'LOSS';
+            }
+
+            if (result === 'WIN') {
+                const winAmt = bet * 1.95;
+                balance += winAmt;
+                statusBadge.innerText = `YOU WIN ₹${winAmt.toFixed(2)}!`;
+                statusBadge.style.color = 'var(--accent-green)';
+                statusBadge.style.borderColor = 'var(--accent-green)';
+            } else if (result === 'TIE') {
+                balance += bet; // Push
+                statusBadge.innerText = `TIE! BET RETURNED.`;
+                statusBadge.style.color = 'var(--accent-gold)';
+                statusBadge.style.borderColor = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = `YOU LOSE!`;
+                statusBadge.style.color = 'var(--accent-red)';
+                statusBadge.style.borderColor = 'var(--accent-red)';
+            }
+            
+            balanceEl.innerText = balance.toFixed(2);
+
+            setTimeout(() => {
+                isPlaying = false;
+                statusBadge.innerText = 'CHOOSE YOUR WEAPON';
+                statusBadge.style.color = 'var(--accent-gold)';
+                statusBadge.style.borderColor = 'var(--accent-gold)';
+                hPlayer.innerText = '✊';
+                hDealer.innerText = '✊';
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

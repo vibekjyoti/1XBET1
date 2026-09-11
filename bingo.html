@@ -1,0 +1,275 @@
+<!-- Save this as bingo.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - 75 Ball Bingo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-green: #2ecc71; --accent-gold: #ffc107; --accent-pink: #e84393;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-pink); }
+
+        .layout { display: flex; gap: 20px; justify-content: center; align-items: flex-start; padding: 30px 15px; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Bingo Card */
+        .bingo-card { flex: 1; background: #fff; border-radius: 12px; border: 4px solid var(--accent-pink); padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card-header { display: grid; grid-template-columns: repeat(5, 1fr); background: var(--accent-pink); border-radius: 6px; margin-bottom: 10px; }
+        .card-header div { text-align: center; font-size: 28px; font-weight: 900; color: #fff; padding: 10px 0; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .grid-cell { aspect-ratio: 1; background: #f1f2f6; border: 2px solid #ccc; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 900; color: #2f3542; transition: 0.3s; }
+        .grid-cell.free { background: var(--accent-gold); color: #111; font-size: 14px; border-color: var(--accent-gold); }
+        .grid-cell.daubed { background: rgba(232, 67, 147, 0.2); position: relative; }
+        /* The Daub marker */
+        .grid-cell.daubed::after { content: ''; position: absolute; width: 80%; height: 80%; background: rgba(232, 67, 147, 0.7); border-radius: 50%; top: 10%; left: 10%; mix-blend-mode: multiply; }
+        
+        .grid-cell.line-win { animation: pulse 0.5s infinite alternate; border-color: var(--accent-green); }
+        @keyframes pulse { from { box-shadow: 0 0 5px var(--accent-green); } to { box-shadow: 0 0 20px var(--accent-green); } }
+
+        /* Right Panel: Controls & Tray */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+        .status-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .status-val { font-size: 20px; font-weight: 900; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px; }
+
+        .balls-tray { display: flex; flex-wrap: wrap; gap: 8px; background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); min-height: 120px; align-content: flex-start; }
+        .drawn-ball { width: 32px; height: 32px; border-radius: 50%; background: radial-gradient(circle at top left, #fff, #bdc3c7); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 14px; color: #111; box-shadow: 0 4px 5px rgba(0,0,0,0.5); animation: dropIn 0.2s ease-out; }
+        .drawn-ball.matched { background: radial-gradient(circle at top left, #ff9ff3, var(--accent-pink)); color: #fff; }
+        
+        @keyframes dropIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-buy { background: var(--accent-pink); color: white; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; padding: 15px; box-shadow: 0 4px 0 #b33970; transition: 0.1s; }
+        .btn-buy:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-buy:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .grid-cell { font-size: 18px; }
+            .card-header div { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="bingo-card">
+            <div class="card-header">
+                <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
+            </div>
+            <div class="card-grid" id="cardGrid">
+                <!-- JS Generated Grid -->
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="status-box">
+                <div style="font-size: 12px; color: #888; margin-bottom: 5px; font-weight: bold;">PAYTABLE (35 BALLS DRAWN)</div>
+                <div style="font-size: 12px; color: #aaa; margin-bottom: 10px;">1 Line = 2x | 2 Lines = 5x | 3 Lines = 20x</div>
+                <div class="status-val" id="statusVal">BUY TICKET TO PLAY</div>
+            </div>
+
+            <div class="balls-tray" id="tray"></div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>TICKET PRICE (₹)</label>
+                    <input type="number" id="betAmount" value="100" min="10">
+                </div>
+                <button class="btn-buy" id="btnBuy" onclick="playBingo()">BUY TICKET & DRAW</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const gridEl = document.getElementById('cardGrid');
+        const trayEl = document.getElementById('tray');
+        const statusVal = document.getElementById('statusVal');
+        const btnBuy = document.getElementById('btnBuy');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let cardNumbers = []; // 2D array [5][5]
+
+        function generateCard() {
+            gridEl.innerHTML = '';
+            cardNumbers = [];
+            
+            // Bingo bounds: B(1-15), I(16-30), N(31-45), G(46-60), O(61-75)
+            const bounds = [ [1,15], [16,30], [31,45], [46,60], [61,75] ];
+
+            for(let row=0; row<5; row++) cardNumbers.push([]);
+
+            for (let col = 0; col < 5; col++) {
+                let colNums = [];
+                while(colNums.length < 5) {
+                    let r = Math.floor(Math.random() * 15) + bounds[col][0];
+                    if (!colNums.includes(r)) colNums.push(r);
+                }
+                for(let row = 0; row < 5; row++) {
+                    cardNumbers[row][col] = colNums[row];
+                }
+            }
+            // Free Space
+            cardNumbers[2][2] = 'FREE';
+
+            // Render
+            for(let row=0; row<5; row++) {
+                for(let col=0; col<5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `cell-${row}-${col}`;
+                    
+                    if (row === 2 && col === 2) {
+                        cell.innerText = 'FREE';
+                        cell.classList.add('free', 'daubed'); // Already marked
+                    } else {
+                        cell.innerText = cardNumbers[row][col];
+                    }
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+        generateCard(); // Initial dummy card
+
+        function playBingo() {
+            if (isPlaying) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Ticket Price');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isPlaying = true;
+            btnBuy.disabled = true;
+
+            trayEl.innerHTML = '';
+            statusVal.innerText = 'DRAWING BALLS...';
+            statusVal.style.color = '#fff';
+
+            generateCard(); // Generate new playable card
+
+            // Generate 35 unique draw balls
+            let drawPool = [];
+            while(drawPool.length < 35) {
+                let r = Math.floor(Math.random() * 75) + 1;
+                if (!drawPool.includes(r)) drawPool.push(r);
+            }
+
+            let drawIndex = 0;
+            const drawAnim = setInterval(() => {
+                const num = drawPool[drawIndex];
+                let isMatch = false;
+
+                // Check card for match
+                for(let r=0; r<5; r++) {
+                    for(let c=0; c<5; c++) {
+                        if (cardNumbers[r][c] === num) {
+                            document.getElementById(`cell-${r}-${c}`).classList.add('daubed');
+                            isMatch = true;
+                        }
+                    }
+                }
+
+                // Add to tray
+                const ballEl = document.createElement('div');
+                ballEl.className = `drawn-ball ${isMatch ? 'matched' : ''}`;
+                ballEl.innerText = num;
+                trayEl.appendChild(ballEl);
+
+                drawIndex++;
+                if (drawIndex >= 35) {
+                    clearInterval(drawAnim);
+                    evaluateWin(betAmt);
+                }
+            }, 150); // Fast draw
+        }
+
+        function evaluateWin(betAmt) {
+            let completedLines = 0;
+
+            // Helper to check state
+            const isDaubed = (r, c) => document.getElementById(`cell-${r}-${c}`).classList.contains('daubed');
+
+            // Check Rows & Cols
+            for (let i = 0; i < 5; i++) {
+                let rowWin = true;
+                let colWin = true;
+                for (let j = 0; j < 5; j++) {
+                    if (!isDaubed(i, j)) rowWin = false;
+                    if (!isDaubed(j, i)) colWin = false;
+                }
+                if (rowWin) {
+                    completedLines++;
+                    for(let j=0; j<5; j++) document.getElementById(`cell-${i}-${j}`).classList.add('line-win');
+                }
+                if (colWin) {
+                    completedLines++;
+                    for(let j=0; j<5; j++) document.getElementById(`cell-${j}-${i}`).classList.add('line-win');
+                }
+            }
+
+            // Diagonals
+            let diag1 = true, diag2 = true;
+            for(let i=0; i<5; i++) {
+                if (!isDaubed(i, i)) diag1 = false;
+                if (!isDaubed(i, 4-i)) diag2 = false;
+            }
+            if (diag1) {
+                completedLines++;
+                for(let i=0; i<5; i++) document.getElementById(`cell-${i}-${i}`).classList.add('line-win');
+            }
+            if (diag2) {
+                completedLines++;
+                for(let i=0; i<5; i++) document.getElementById(`cell-${i}-${4-i}`).classList.add('line-win');
+            }
+
+            // Payout Logic
+            let multi = 0;
+            if (completedLines === 1) multi = 2;
+            else if (completedLines === 2) multi = 5;
+            else if (completedLines >= 3) multi = 20; // Caps at 20x for this mockup
+
+            if (multi > 0) {
+                const win = betAmt * multi;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusVal.innerText = `${completedLines} LINES! WON ₹${win.toFixed(2)}`;
+                statusVal.style.color = 'var(--accent-green)';
+            } else {
+                statusVal.innerText = 'NO LINES COMPLETED.';
+                statusVal.style.color = '#e6003d';
+            }
+
+            setTimeout(() => {
+                isPlaying = false;
+                btnBuy.disabled = false;
+                btnBuy.innerText = 'BUY NEW TICKET';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

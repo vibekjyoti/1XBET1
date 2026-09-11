@@ -1,0 +1,218 @@
+<!-- Save this as color-prediction.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Color Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-green: #28a745; --c-red: #dc3545; --c-violet: #6f42c1; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+        .close-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Timer Stage */
+        .timer-stage { width: 100%; max-width: 600px; background: radial-gradient(circle at center, #1e3042 0%, #0d161e 100%); padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .round-id { font-size: 14px; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+        .countdown { font-size: 80px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        .countdown.danger { color: var(--c-red); animation: pulse 1s infinite alternate; }
+        
+        @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+
+        /* History Tracker */
+        .history-row { display: flex; gap: 8px; margin-top: 25px; overflow-x: auto; max-width: 100%; padding-bottom: 10px; }
+        .hist-ball { width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.4); flex-shrink: 0; }
+
+        /* Betting Area */
+        .betting-board { display: flex; gap: 15px; width: 100%; max-width: 600px; }
+        .bet-btn { flex: 1; padding: 25px 10px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
+        .bet-btn.green { background: var(--c-green); color: white; box-shadow: 0 5px 0 #1e7e34; }
+        .bet-btn.violet { background: var(--c-violet); color: white; box-shadow: 0 5px 0 #5a329e; }
+        .bet-btn.red { background: var(--c-red); color: white; box-shadow: 0 5px 0 #bd2130; }
+        
+        .bet-btn:active:not(.locked) { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); }
+        .bet-btn.selected { border-color: #fff; transform: scale(1.05); z-index: 2; }
+        .bet-btn.locked { filter: grayscale(80%); cursor: not-allowed; }
+
+        .bet-title { font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .payout { font-size: 12px; font-weight: bold; opacity: 0.9; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 600px; background: var(--bg-panel); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .status-toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: var(--accent-blue); padding: 15px 30px; border-radius: 30px; font-weight: 900; font-size: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); transition: 0.3s; opacity: 0; z-index: 100; }
+        .status-toast.show { bottom: 30px; opacity: 1; }
+
+        @media (max-width: 768px) {
+            .countdown { font-size: 65px; }
+            .bet-title { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="header-right">
+            <div class="wallet">₹ <span id="balance">10000.00</span></div>
+            <button class="close-btn" onclick="window.location.href='index.html'">HUB</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <div class="timer-stage">
+            <div class="round-id" id="roundId">ROUND 202609110001</div>
+            <div class="countdown" id="countdown">00:30</div>
+            
+            <div class="history-row" id="historyRow">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+        </div>
+
+        <div class="betting-board" id="bettingBoard">
+            <div class="bet-btn green" onclick="placeBet('GREEN', 2)">
+                <div class="bet-title">GREEN</div>
+                <div class="payout">PAYS 2x</div>
+            </div>
+            <div class="bet-btn violet" onclick="placeBet('VIOLET', 4.5)">
+                <div class="bet-title">VIOLET</div>
+                <div class="payout">PAYS 4.5x</div>
+            </div>
+            <div class="bet-btn red" onclick="placeBet('RED', 2)">
+                <div class="bet-title">RED</div>
+                <div class="payout">PAYS 2x</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="status-toast" id="toast"></div>
+
+    <script>
+        let balance = 10000.00;
+        let timeLeft = 30;
+        let currentRound = 202609110001;
+        let activeBet = null;
+        let history = [
+            { num: 2, color: 'red' }, { num: 7, color: 'green' }, { num: 0, color: 'violet' },
+            { num: 4, color: 'red' }, { num: 9, color: 'green' }
+        ];
+
+        const balanceEl = document.getElementById('balance');
+        const countdownEl = document.getElementById('countdown');
+        const roundIdEl = document.getElementById('roundId');
+        const historyRow = document.getElementById('historyRow');
+        const board = document.getElementById('bettingBoard');
+        const toast = document.getElementById('toast');
+        const betInput = document.getElementById('betAmount');
+
+        function showToast(msg, color) {
+            toast.innerText = msg;
+            toast.style.background = color || 'var(--accent-blue)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function renderHistory() {
+            historyRow.innerHTML = '';
+            history.forEach(item => {
+                const ball = document.createElement('div');
+                ball.className = 'hist-ball';
+                ball.innerText = item.num;
+                ball.style.background = `var(--c-${item.color})`;
+                historyRow.appendChild(ball);
+            });
+        }
+        renderHistory();
+
+        function placeBet(color, multi) {
+            if (timeLeft <= 5) return showToast('BETTING CLOSED!', 'var(--c-red)');
+            if (activeBet) return showToast('You already bet this round.', '#f1c40f');
+            
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            activeBet = { color: color, multi: multi, amount: amt };
+            
+            showToast(`BET PLACED ON ${color}`, `var(--c-${color.toLowerCase()})`);
+        }
+
+        // Logic: 0,5=Violet. 1,3,7,9=Green. 2,4,6,8=Red.
+        function generateResult() {
+            const num = Math.floor(Math.random() * 10);
+            let color = '';
+            if (num === 0 || num === 5) color = 'violet';
+            else if (num % 2 === 0) color = 'red';
+            else color = 'green';
+            return { num, color };
+        }
+
+        setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 5) {
+                countdownEl.classList.add('danger');
+                if (timeLeft === 5) {
+                    board.querySelectorAll('.bet-btn').forEach(b => b.classList.add('locked'));
+                }
+            } else {
+                countdownEl.classList.remove('danger');
+            }
+
+            if (timeLeft < 0) {
+                // Round Over - Process Result
+                const result = generateResult();
+                history.push(result);
+                if (history.length > 15) history.shift();
+                renderHistory();
+
+                if (activeBet) {
+                    if (activeBet.color.toLowerCase() === result.color) {
+                        const win = activeBet.amount * activeBet.multi;
+                        balance += win;
+                        balanceEl.innerText = balance.toFixed(2);
+                        showToast(`WINNER! ROLLED ${result.num} (${result.color.toUpperCase()})`, '#28a745');
+                    } else {
+                        showToast(`LOST! ROLLED ${result.num} (${result.color.toUpperCase()})`, '#dc3545');
+                    }
+                } else {
+                    showToast(`RESULT: ${result.num} (${result.color.toUpperCase()})`, '#112030');
+                }
+
+                // Reset for next round
+                timeLeft = 30;
+                currentRound++;
+                roundIdEl.innerText = `ROUND ${currentRound}`;
+                activeBet = null;
+                board.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('locked'));
+            }
+
+            countdownEl.innerText = `00:${timeLeft.toString().padStart(2, '0')}`;
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!-- Save this as casino-war.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Casino War</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-gold: #f1c40f; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --table-felt: #1a4a38; --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        .table { width: 100%; max-width: 800px; height: 380px; background: radial-gradient(ellipse at center, var(--table-felt) 0%, #0c241b 100%); border-radius: 20px; border: 4px solid #b38c4b; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; overflow: hidden; }
+        .status-badge { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 25px; border-radius: 20px; font-weight: 900; font-size: 15px; letter-spacing: 2px; color: var(--accent-gold); border: 1px solid var(--accent-gold); text-transform: uppercase; z-index: 10; }
+
+        .card-row { display: flex; justify-content: center; gap: 20px; height: 130px; align-items: center; }
+        .side-label { font-size: 12px; font-weight: 900; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 6px; text-align: center; }
+        
+        .slot { width: 90px; height: 125px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; position: relative; }
+        .playing-card { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: white; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; padding: 6px; font-weight: 900; font-size: 20px; line-height: 1; transform: translateY(-40px); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #ccc; }
+        .playing-card.dealt { transform: translateY(0); opacity: 1; }
+        .card-red { color: #e6003d; }
+        .card-black { color: #111; }
+        .suit-center { font-size: 38px; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; }
+
+        /* War Modal Overlay */
+        .war-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); display: none; flex-direction: column; justify-content: center; align-items: center; gap: 15px; z-index: 30; }
+        .war-title { font-size: 28px; font-weight: 900; color: var(--accent-gold); letter-spacing: 3px; }
+        .war-actions { display: flex; gap: 15px; }
+        .btn-modal { padding: 12px 25px; font-size: 16px; font-weight: 900; border-radius: 6px; border: none; cursor: pointer; text-transform: uppercase; }
+        .btn-war { background: var(--accent-red); color: white; }
+        .btn-surrender { background: var(--bg-card); color: white; border: 1px solid #555; }
+
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-deal { flex: 1; background: var(--accent-blue); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #1868b8; }
+        .btn-deal:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .table { height: 340px; padding: 15px; }
+            .slot { width: 75px; height: 105px; }
+            .playing-card { font-size: 16px; }
+            .suit-center { font-size: 28px; }
+            .controls { flex-direction: column; }
+            .btn-deal { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="table">
+            <div class="status-badge" id="statusBadge">PLACE BET & BATTLE</div>
+
+            <!-- Dealer Slot -->
+            <div>
+                <div class="side-label">Dealer Card</div>
+                <div class="card-row">
+                    <div class="slot" id="dealerSlot"></div>
+                </div>
+            </div>
+
+            <!-- Player Slot -->
+            <div>
+                <div class="card-row">
+                    <div class="slot" id="playerSlot"></div>
+                </div>
+                <div class="side-label">Your Card</div>
+            </div>
+
+            <!-- Tie Decision Modal -->
+            <div class="war-modal" id="warModal">
+                <div class="war-title">IT'S A TIE!</div>
+                <p style="color: #aaa; font-size: 13px;">Surrender half your bet or Go to War for double!</p>
+                <div class="war-actions">
+                    <button class="btn-modal btn-surrender" onclick="surrender()">Surrender</button>
+                    <button class="btn-modal btn-war" onclick="goToWar()">Go To War</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-deal" id="btnDeal" onclick="playWar()">DEAL CARDS</button>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        
+        let balance = 10000.00;
+        let currentBet = 0;
+        let isDealing = false;
+
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnDeal = document.getElementById('btnDeal');
+        const pSlot = document.getElementById('playerSlot');
+        const dSlot = document.getElementById('dealerSlot');
+        const warModal = document.getElementById('warModal');
+
+        function getCardWeight(valStr) {
+            if (valStr === 'J') return 11;
+            if (valStr === 'Q') return 12;
+            if (valStr === 'K') return 13;
+            if (valStr === 'A') return 14;
+            return parseInt(valStr);
+        }
+
+        function drawCard() {
+            const v = values[Math.floor(Math.random() * values.length)];
+            const s = suits[Math.floor(Math.random() * suits.length)];
+            return { val: v, suit: s, weight: getCardWeight(v), isRed: s==='♥'||s==='♦' };
+        }
+
+        function createCardDOM(c) {
+            const el = document.createElement('div');
+            el.className = `playing-card ${c.isRed ? 'card-red' : 'card-black'}`;
+            el.innerHTML = `
+                <div>${c.val}</div>
+                <div class="suit-center">${c.suit}</div>
+                <div style="text-align:right; transform:rotate(180deg);">${c.val}</div>
+            `;
+            return el;
+        }
+
+        function playWar() {
+            if (isDealing) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid bet amount');
+            if (betAmt > balance) return alert('Insufficient balance');
+
+            balance -= betAmt;
+            currentBet = betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isDealing = true;
+            btnDeal.disabled = true;
+
+            pSlot.innerHTML = '';
+            dSlot.innerHTML = '';
+            statusBadge.innerText = 'DEALING...';
+
+            const pCard = drawCard();
+            const dCard = drawCard();
+
+            const pEl = createCardDOM(pCard);
+            const dEl = createCardDOM(dCard);
+
+            pSlot.appendChild(pEl);
+            dSlot.appendChild(dEl);
+
+            setTimeout(() => pEl.classList.add('dealt'), 150);
+            setTimeout(() => dEl.classList.add('dealt'), 450);
+
+            setTimeout(() => {
+                if (pCard.weight > dCard.weight) {
+                    const win = currentBet * 2;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusBadge.innerText = `YOU WIN ₹${win.toFixed(2)}!`;
+                    statusBadge.style.color = 'var(--accent-green)';
+                    endGame();
+                } else if (dCard.weight > pCard.weight) {
+                    statusBadge.innerText = `DEALER WINS. BET LOST.`;
+                    statusBadge.style.color = 'var(--accent-red)';
+                    endGame();
+                } else {
+                    warModal.style.display = 'flex';
+                }
+            }, 800);
+        }
+
+        function surrender() {
+            warModal.style.display = 'none';
+            balance += currentBet / 2;
+            balanceEl.innerText = balance.toFixed(2);
+            statusBadge.innerText = `SURRENDERED • HALF BET RETURNED`;
+            statusBadge.style.color = '#fff';
+            endGame();
+        }
+
+        function goToWar() {
+            if (balance < currentBet) return alert('Insufficient balance to match bet for War!');
+            warModal.style.display = 'none';
+
+            balance -= currentBet; // Match identical stake
+            balanceEl.innerText = balance.toFixed(2);
+            statusBadge.innerText = 'GOING TO WAR!';
+
+            setTimeout(() => {
+                pSlot.innerHTML = '';
+                dSlot.innerHTML = '';
+
+                const pWarCard = drawCard();
+                const dWarCard = drawCard();
+
+                const pEl = createCardDOM(pWarCard);
+                const dEl = createCardDOM(dWarCard);
+
+                pSlot.appendChild(pEl);
+                dSlot.appendChild(dEl);
+
+                setTimeout(() => pEl.classList.add('dealt'), 150);
+                setTimeout(() => dEl.classList.add('dealt'), 450);
+
+                setTimeout(() => {
+                    if (pWarCard.weight >= dWarCard.weight) { // Player wins ties in War
+                        const warWin = currentBet * 3; // 1:1 on raise + original
+                        balance += warWin;
+                        balanceEl.innerText = balance.toFixed(2);
+                        statusBadge.innerText = `WAR WON! ₹${warWin.toFixed(2)}`;
+                        statusBadge.style.color = 'var(--accent-green)';
+                    } else {
+                        statusBadge.innerText = `LOST THE WAR!`;
+                        statusBadge.style.color = 'var(--accent-red)';
+                    }
+                    endGame();
+                }, 800);
+            }, 600);
+        }
+
+        function endGame() {
+            setTimeout(() => {
+                isDealing = false;
+                btnDeal.disabled = false;
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!-- Save this as diamonds.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Diamonds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #0984e3; --accent-green: #00b894; --accent-gold: #ffc107;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+
+        /* Gem Drop Stage */
+        .stage { width: 100%; max-width: 700px; height: 260px; background: radial-gradient(circle at center, #172738 0%, #09121a 100%); border-radius: 16px; border: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 15px; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); }
+
+        .gem-row { display: flex; gap: 15px; }
+        .gem-slot { width: 80px; height: 100px; background: rgba(0,0,0,0.5); border-radius: 12px; border: 2px solid #203a56; display: flex; justify-content: center; align-items: center; font-size: 48px; transition: transform 0.2s; box-shadow: inset 0 0 15px rgba(0,0,0,0.6); }
+        .gem-slot.rolling { animation: gemBounce 0.15s infinite alternate; }
+
+        @keyframes gemBounce { from { transform: translateY(-8px) scale(0.95); } to { transform: translateY(8px) scale(1.05); } }
+
+        /* Paytable Legend */
+        .payout-legend { display: flex; gap: 10px; width: 100%; max-width: 700px; overflow-x: auto; padding-bottom: 5px; }
+        .leg-item { flex: 1; min-width: 100px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 5px; text-align: center; font-size: 11px; font-weight: bold; }
+        .leg-item span { display: block; font-size: 14px; color: var(--accent-gold); font-weight: 900; margin-top: 3px; }
+        .leg-item.active { border-color: var(--accent-gold); background: rgba(255,193,7,0.15); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 700px; background: var(--bg-panel); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-play { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #008f72; transition: 0.1s; }
+        .btn-play:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-play:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .gem-slot { width: 55px; height: 75px; font-size: 32px; }
+            .controls { flex-direction: column; }
+            .btn-play { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="stage">
+            <div class="status-badge" id="statusBadge">ROLL THE GEMS</div>
+            <div class="gem-row">
+                <div class="gem-slot" id="g0">💎</div>
+                <div class="gem-slot" id="g1">💎</div>
+                <div class="gem-slot" id="g2">💎</div>
+                <div class="gem-slot" id="g3">💎</div>
+                <div class="gem-slot" id="g4">💎</div>
+            </div>
+        </div>
+
+        <div class="payout-legend">
+            <div class="leg-item" id="leg-pair">Pair<span>1x</span></div>
+            <div class="leg-item" id="leg-2pair">2 Pair<span>4x</span></div>
+            <div class="leg-item" id="leg-3kind">3 of Kind<span>5x</span></div>
+            <div class="leg-item" id="leg-fullhouse">Full House<span>20x</span></div>
+            <div class="leg-item" id="leg-4kind">4 of Kind<span>30x</span></div>
+            <div class="leg-item" id="leg-5kind">5 of Kind<span>50x</span></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-play" id="btnPlay" onclick="playDiamonds()">ROLL GEMS</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnPlay = document.getElementById('btnPlay');
+        const slots = [
+            document.getElementById('g0'), document.getElementById('g1'),
+            document.getElementById('g2'), document.getElementById('g3'),
+            document.getElementById('g4')
+        ];
+
+        let balance = 10000.00;
+        let isRolling = false;
+
+        // 7 Colored Gems
+        const gemPool = ['💎', '🟣', '🟢', '🟡', '🔴', '🔵', '🟠'];
+
+        function evaluateGems(arr) {
+            const counts = {};
+            arr.forEach(g => counts[g] = (counts[g] || 0) + 1);
+            const freqs = Object.values(counts).sort((a, b) => b - a);
+
+            if (freqs[0] === 5) return { id: '5kind', name: '5 OF A KIND', multi: 50 };
+            if (freqs[0] === 4) return { id: '4kind', name: '4 OF A KIND', multi: 30 };
+            if (freqs[0] === 3 && freqs[1] === 2) return { id: 'fullhouse', name: 'FULL HOUSE', multi: 20 };
+            if (freqs[0] === 3) return { id: '3kind', name: '3 OF A KIND', multi: 5 };
+            if (freqs[0] === 2 && freqs[1] === 2) return { id: '2pair', name: 'TWO PAIR', multi: 4 };
+            if (freqs[0] === 2) return { id: 'pair', name: 'ONE PAIR', multi: 1 };
+            return null;
+        }
+
+        function playDiamonds() {
+            if (isRolling) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isRolling = true;
+            btnPlay.disabled = true;
+
+            document.querySelectorAll('.leg-item').forEach(l => l.classList.remove('active'));
+            statusBadge.innerText = 'ROLLING...';
+            slots.forEach(s => s.classList.add('rolling'));
+
+            const rollAnim = setInterval(() => {
+                slots.forEach(s => s.innerText = gemPool[Math.floor(Math.random() * gemPool.length)]);
+            }, 70);
+
+            setTimeout(() => {
+                clearInterval(rollAnim);
+                slots.forEach(s => s.classList.remove('rolling'));
+
+                // Final deterministic roll
+                const finalGems = [];
+                for (let i = 0; i < 5; i++) {
+                    const gem = gemPool[Math.floor(Math.random() * gemPool.length)];
+                    finalGems.push(gem);
+                    slots[i].innerText = gem;
+                }
+
+                const result = evaluateGems(finalGems);
+
+                if (result) {
+                    const win = betAmt * result.multi;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+
+                    statusBadge.innerText = `${result.name}! PAYS ₹${win.toFixed(2)}`;
+                    statusBadge.style.color = 'var(--accent-green)';
+                    document.getElementById(`leg-${result.id}`).classList.add('active');
+                } else {
+                    statusBadge.innerText = 'NO MATCHES • BET LOST';
+                    statusBadge.style.color = '#e74c3c';
+                }
+
+                setTimeout(() => {
+                    isRolling = false;
+                    btnPlay.disabled = false;
+                }, 1500);
+
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!-- Save this as apple.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Apple of Fortune</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #2ecc71; --accent-red: #e74c3c; --accent-blue: #3498db;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; gap: 20px; justify-content: center; padding: 30px 15px; flex: 1; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Left Side: Game Grid */
+        .game-area { flex: 2; background: linear-gradient(180deg, #1d4d30 0%, #0e2918 100%); border-radius: 16px; border: 2px solid #27ae60; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 14px; color: #fff; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); }
+
+        .grid { display: flex; flex-direction: column-reverse; gap: 5px; margin-top: 40px; }
+        .grid-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; opacity: 0.4; pointer-events: none; transition: 0.3s; }
+        .grid-row.active { opacity: 1; pointer-events: auto; background: rgba(255,255,255,0.1); border-radius: 8px; }
+        .grid-row.passed { opacity: 0.8; pointer-events: none; }
+        
+        .cell { aspect-ratio: 1.5; background: rgba(0,0,0,0.4); border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; transition: 0.2s; }
+        .grid-row.active .cell:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .cell.good { background: #2ecc71; border-color: #fff; box-shadow: 0 0 15px rgba(46,204,113,0.5); }
+        .cell.bad { background: #e74c3c; border-color: #fff; box-shadow: 0 0 15px rgba(231,76,60,0.5); }
+
+        /* Right Side: Multipliers & Controls */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+        .multipliers-list { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; display: flex; flex-direction: column-reverse; gap: 5px; flex: 1; justify-content: space-between; }
+        .multi-step { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-muted); padding: 5px 10px; border-radius: 4px; border: 1px solid transparent; }
+        .multi-step.active { background: rgba(46,204,113,0.2); color: var(--accent-green); border-color: var(--accent-green); }
+        
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; }
+        .btn-play { background: var(--accent-blue); color: white; }
+        .btn-cashout { background: #f1c40f; color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .cell { font-size: 22px; aspect-ratio: 1.2; }
+            .multipliers-list { flex-direction: row; flex-wrap: wrap; height: auto; }
+            .multi-step { flex: 1 0 18%; justify-content: center; font-size: 11px; padding: 8px 4px; text-align: center; }
+            .multi-step span:first-child { display: none; } /* hide step number on mobile to save space */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-area">
+            <div class="status-badge" id="statusBadge">CLIMB THE TREE</div>
+            <div class="grid" id="grid">
+                <!-- JS generated rows 0-9 -->
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="multipliers-list" id="multiList">
+                <!-- JS generated multipliers -->
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="100" min="10">
+                </div>
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">PLACE BET</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('grid');
+        const multiList = document.getElementById('multiList');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const statusBadge = document.getElementById('statusBadge');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentRow = 0;
+        let currentBet = 0;
+        
+        // Classic 1xBet progression multipliers
+        const multipliers = [1.23, 1.54, 1.93, 2.41, 4.02, 6.71, 11.18, 27.97, 69.93, 349.68];
+        let badApplesMap = []; // Stores indices of bad apples for each row
+
+        // Initialize UI
+        function initUI() {
+            grid.innerHTML = '';
+            multiList.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                // Multipliers
+                const mStep = document.createElement('div');
+                mStep.className = 'multi-step';
+                mStep.id = `multi-${i}`;
+                mStep.innerHTML = `<span>Step ${i+1}</span> <span>${multipliers[i]}x</span>`;
+                multiList.appendChild(mStep);
+
+                // Grid Rows
+                const rDiv = document.createElement('div');
+                rDiv.className = 'grid-row';
+                rDiv.id = `row-${i}`;
+                
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.onclick = () => selectApple(i, j, cell);
+                    rDiv.appendChild(cell);
+                }
+                grid.appendChild(rDiv);
+            }
+        }
+        initUI();
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentRow = 0;
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true; // Can't cashout before step 1
+            btnCashout.innerText = `CASHOUT (₹0)`;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'SELECT AN APPLE';
+            statusBadge.style.color = '#fff';
+
+            // Reset Board Visuals
+            document.querySelectorAll('.grid-row').forEach(r => r.className = 'grid-row');
+            document.querySelectorAll('.cell').forEach(c => {
+                c.className = 'cell';
+                c.innerHTML = '';
+            });
+            document.querySelectorAll('.multi-step').forEach(m => m.classList.remove('active'));
+
+            document.getElementById(`row-0`).classList.add('active');
+
+            // Generate Bad Apples Math
+            // Rows 1-4 (idx 0-3): 1 bad apple
+            // Rows 5-7 (idx 4-6): 2 bad apples
+            // Rows 8-9 (idx 7-8): 3 bad apples
+            // Row 10 (idx 9): 4 bad apples
+            badApplesMap = [];
+            for (let r = 0; r < 10; r++) {
+                let badCount = 1;
+                if (r >= 4) badCount = 2;
+                if (r >= 7) badCount = 3;
+                if (r === 9) badCount = 4;
+
+                let badIndices = [];
+                while(badIndices.length < badCount) {
+                    const rand = Math.floor(Math.random() * 5);
+                    if(!badIndices.includes(rand)) badIndices.push(rand);
+                }
+                badApplesMap.push(badIndices);
+            }
+        }
+
+        function selectApple(rowIdx, colIdx, cell) {
+            if (!isPlaying || rowIdx !== currentRow) return;
+
+            const isBad = badApplesMap[rowIdx].includes(colIdx);
+            
+            if (isBad) {
+                // Game Over
+                cell.classList.add('bad');
+                cell.innerHTML = '☠️';
+                revealRow(rowIdx);
+                endGame(false, `POISONED! BET LOST.`);
+            } else {
+                // Safe
+                cell.classList.add('good');
+                cell.innerHTML = '🍏';
+                
+                document.getElementById(`multi-${rowIdx}`).classList.add('active');
+                if (rowIdx > 0) document.getElementById(`multi-${rowIdx-1}`).classList.remove('active');
+
+                const win = currentBet * multipliers[rowIdx];
+                btnCashout.disabled = false;
+                btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+                document.getElementById(`row-${currentRow}`).classList.remove('active');
+                document.getElementById(`row-${currentRow}`).classList.add('passed');
+                
+                currentRow++;
+                if (currentRow > 9) {
+                    // Won highest tier automatically
+                    endGame(true, `MAX LEVEL REACHED!`);
+                } else {
+                    document.getElementById(`row-${currentRow}`).classList.add('active');
+                }
+            }
+        }
+
+        function revealRow(rowIdx) {
+            const rDiv = document.getElementById(`row-${rowIdx}`);
+            const badIndices = badApplesMap[rowIdx];
+            for (let j = 0; j < 5; j++) {
+                const c = rDiv.children[j];
+                if (c.innerHTML === '') {
+                    if (badIndices.includes(j)) {
+                        c.innerHTML = '☠️';
+                        c.style.opacity = '0.5';
+                    } else {
+                        c.innerHTML = '🍏';
+                        c.style.opacity = '0.5';
+                    }
+                }
+            }
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentRow === 0) return;
+            endGame(true, `SUCCESS!`);
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentRow - 1];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-green)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

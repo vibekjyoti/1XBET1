@@ -1,0 +1,225 @@
+<!-- Save this as red-dog.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Red Dog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #27ae60; --table-green: #0a4f2c; --accent-gold: #ffc107;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Table */
+        .table { width: 100%; max-width: 800px; height: 320px; background: radial-gradient(ellipse at bottom, var(--accent-green) 0%, var(--table-green) 100%); border-radius: 20px; border: 4px solid #b38c4b; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); position: relative; display: flex; justify-content: center; align-items: center; gap: 30px; }
+        
+        .status-badge { position: absolute; top: 20px; background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 20px; font-weight: 900; font-size: 16px; letter-spacing: 2px; color: var(--accent-gold); border: 1px solid var(--accent-gold); text-transform: uppercase; }
+
+        /* Card Slots */
+        .card-slot { width: 90px; height: 130px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; }
+        .slot-center { width: 100px; height: 145px; border-color: var(--accent-gold); } /* Middle card is bigger */
+
+        .playing-card { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: white; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; padding: 5px; font-weight: 900; font-size: 20px; line-height: 1; transform: translateY(-50px); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #ccc; }
+        .playing-card.dealt { transform: translateY(0); opacity: 1; }
+        
+        .card-red { color: #e6003d; }
+        .card-black { color: #111; }
+        .suit-center { font-size: 40px; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; }
+
+        .spread-indicator { position: absolute; bottom: 30px; font-size: 14px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 15px; color: #fff; display: none; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 800px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { flex: 1; background: #238cf5; color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #1868b8; transition: 0.1s; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .table { gap: 10px; height: 260px; }
+            .card-slot { width: 65px; height: 95px; }
+            .slot-center { width: 75px; height: 110px; }
+            .playing-card { font-size: 16px; }
+            .suit-center { font-size: 28px; }
+            .controls { flex-direction: column; }
+            .btn-action { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="table">
+            <div class="status-badge" id="statusBadge">PLACE YOUR BET</div>
+            
+            <div class="card-slot" id="slot1"></div>
+            <div class="card-slot slot-center" id="slot3"></div> <!-- 3rd card in middle visually -->
+            <div class="card-slot" id="slot2"></div>
+
+            <div class="spread-indicator" id="spreadInfo">SPREAD: ?</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action" id="btnDeal" onclick="playGame()">DEAL CARDS</button>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        
+        let balance = 10000.00;
+        let isPlaying = false;
+
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const spreadInfo = document.getElementById('spreadInfo');
+        const btnDeal = document.getElementById('btnDeal');
+        const slot1 = document.getElementById('slot1');
+        const slot2 = document.getElementById('slot2');
+        const slot3 = document.getElementById('slot3');
+
+        function getVal(vStr) {
+            if (vStr === 'J') return 11;
+            if (vStr === 'Q') return 12;
+            if (vStr === 'K') return 13;
+            if (vStr === 'A') return 14;
+            return parseInt(vStr);
+        }
+
+        function createCard(c) {
+            const el = document.createElement('div');
+            el.className = `playing-card ${c.isRed ? 'card-red' : 'card-black'}`;
+            el.innerHTML = `
+                <div>${c.val}</div>
+                <div class="suit-center">${c.suit}</div>
+                <div style="text-align:right; transform:rotate(180deg);">${c.val}</div>
+            `;
+            return el;
+        }
+
+        function getRandomCard() {
+            const v = values[Math.floor(Math.random() * values.length)];
+            const s = suits[Math.floor(Math.random() * suits.length)];
+            return { val: v, suit: s, numVal: getVal(v), isRed: s==='♥'||s==='♦' };
+        }
+
+        function playGame() {
+            if (isPlaying) return;
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isPlaying = true;
+            btnDeal.disabled = true;
+
+            // Reset
+            slot1.innerHTML = ''; slot2.innerHTML = ''; slot3.innerHTML = '';
+            spreadInfo.style.display = 'none';
+
+            const c1 = getRandomCard();
+            const c2 = getRandomCard();
+
+            const el1 = createCard(c1);
+            const el2 = createCard(c2);
+
+            slot1.appendChild(el1);
+            slot2.appendChild(el2);
+
+            setTimeout(() => el1.classList.add('dealt'), 100);
+            setTimeout(() => el2.classList.add('dealt'), 400);
+
+            setTimeout(() => {
+                let v1 = c1.numVal;
+                let v2 = c2.numVal;
+                if (v1 > v2) { [v1, v2] = [v2, v1]; } // Sort low to high
+
+                const spread = (v2 - v1) - 1;
+
+                if (spread < 0) { // Pair
+                    statusBadge.innerText = 'PAIR - PUSH!';
+                    statusBadge.style.color = '#fff';
+                    balance += betAmt; // Return bet
+                    endRound();
+                } else if (spread === 0) { // Consecutive
+                    statusBadge.innerText = 'CONSECUTIVE - PUSH!';
+                    statusBadge.style.color = '#fff';
+                    balance += betAmt; // Return bet
+                    endRound();
+                } else {
+                    // Spread exists, deal 3rd card
+                    let multi = 1;
+                    if (spread === 1) multi = 5;
+                    else if (spread === 2) multi = 4;
+                    else if (spread === 3) multi = 2;
+
+                    spreadInfo.innerText = `SPREAD: ${spread} (PAYS ${multi}x)`;
+                    spreadInfo.style.display = 'block';
+                    statusBadge.innerText = 'DEALING 3RD CARD...';
+
+                    setTimeout(() => {
+                        const c3 = getRandomCard();
+                        const el3 = createCard(c3);
+                        slot3.appendChild(el3);
+                        
+                        setTimeout(() => el3.classList.add('dealt'), 100);
+
+                        setTimeout(() => {
+                            if (c3.numVal > v1 && c3.numVal < v2) {
+                                // Win
+                                const win = betAmt * multi;
+                                balance += win;
+                                balanceEl.innerText = balance.toFixed(2);
+                                statusBadge.innerText = `WON ₹${win.toFixed(2)}!`;
+                                statusBadge.style.color = '#2ecc71';
+                            } else {
+                                statusBadge.innerText = `OUTSIDE SPREAD. LOST.`;
+                                statusBadge.style.color = '#e74c3c';
+                            }
+                            endRound();
+                        }, 800);
+                    }, 1500);
+                }
+            }, 1000);
+        }
+
+        function endRound() {
+            balanceEl.innerText = balance.toFixed(2);
+            setTimeout(() => {
+                isPlaying = false;
+                btnDeal.disabled = false;
+                statusBadge.innerText = 'PLACE YOUR BET';
+                statusBadge.style.color = '#ffc107';
+                spreadInfo.style.display = 'none';
+                slot1.innerHTML = ''; slot2.innerHTML = ''; slot3.innerHTML = '';
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
