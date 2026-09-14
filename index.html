@@ -18,6 +18,384 @@
       .my-bets-content { background-color: #eaf0f6; border-radius: 8px; width: 95%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.4); display: flex; flex-direction: column; }
       .my-bets-header { background: #103856; color: white; padding: 15px 20px; font-size: 1.6rem; font-weight: bold; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;}
       .my-bets-body { padding: 20px; }
+
+      /* Mobile bet slip redesign */
+      .mobile-bet-slip {
+        position: fixed;
+        right: 20px;
+        bottom: 0;
+        width: 340px;
+        max-height: 78vh;
+        background: #eaf0f6;
+        box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.18);
+        border-radius: 12px 12px 0 0;
+        display: none;
+        z-index: 1500;
+        overflow: hidden;
+      }
+      .mobile-bet-slip .bet-slip-header {
+        background: linear-gradient(180deg, #0d5b8a 0%, #0c4b73 100%);
+        color: #fff;
+        padding: 12px 16px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .mobile-bet-slip .bet-slip-header .bet-slip-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mobile-bet-slip .bet-slip-header .bet-slip-close {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 2.6rem;
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0.9;
+      }
+      .mobile-bet-slip .bet-slip-body {
+        padding: 14px;
+        max-height: calc(78vh - 52px);
+        overflow-y: auto;
+      }
+      .mobile-bet-slip .bet-slip-match {
+        margin: 0 0 10px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1d2a33;
+        line-height: 1.4;
+      }
+      .mobile-bet-slip .market-row { margin-bottom: 10px; }
+      .mobile-bet-slip .market-row label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.2rem;
+        color: #4a5d6b;
+        font-weight: 700;
+      }
+      .mobile-bet-slip .market-row select,
+      .mobile-bet-slip .market-row input {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid #d3dfe8;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #fff;
+        font-size: 1.35rem;
+        color: #1d2a33;
+      }
+      .mobile-bet-slip .market-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #dfe7ee;
+        margin-bottom: 12px;
+      }
+      .mobile-bet-slip .market-summary .selection {
+        font-size: 1.3rem;
+        color: #1f72ad;
+        font-weight: 700;
+        flex: 1;
+      }
+      .mobile-bet-slip .market-summary .odds {
+        background: #eaf0f6;
+        border-radius: 6px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1d2a33;
+        padding: 6px 8px;
+      }
+      .mobile-bet-slip .choice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .mobile-bet-slip .choice-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        border: 1px solid #dfe7ee;
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-height: 48px;
+        font-size: 1.25rem;
+        color: #1d2a33;
+        font-weight: 600;
+      }
+      .mobile-bet-slip .choice-card strong {
+        font-size: 1.28rem;
+        color: #1d2a33;
+      }
+      .mobile-bet-slip .stake-box {
+        margin-bottom: 12px;
+      }
+      .mobile-bet-slip .stake-box label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.2rem;
+        color: #4a5d6b;
+        font-weight: 700;
+      }
+      .mobile-bet-slip .return-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 10px;
+        border-top: 1px solid #dfe7ee;
+        margin-bottom: 12px;
+        font-size: 1.3rem;
+        color: #4a5d6b;
+      }
+      .mobile-bet-slip .return-row strong {
+        color: #668a28;
+      }
+      .mobile-bet-slip .place-bet-btn {
+        width: 100%;
+        height: 46px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #7ca52d 0%, #668a28 100%);
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .mobile-bet-slip .promo-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: linear-gradient(180deg, #dfeff9 0%, #cfe0ef 100%);
+        color: #0d4d76;
+        border: 1px solid #bfd5ea;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        font-weight: 700;
+      }
+      .mobile-bet-slip .promo-banner .promo-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #1f72ad 0%, #0d4d76 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.4rem;
+      }
+      .quick-events-step {
+        background: #dfeaf3;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 10px 0 0;
+        border: 1px solid #c7d9ea;
+      }
+      .quick-events-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #cfe1f0;
+        color: #103856;
+        font-weight: 800;
+        font-size: 1.4rem;
+        padding: 12px 14px;
+      }
+      .quick-events-header .mini-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .quick-events-header .mini-badge {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #1f72ad;
+        display: inline-block;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,0.7);
+      }
+      .quick-events-body {
+        padding: 10px;
+        background: #dfeaf3;
+      }
+      .quick-events-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .quick-event-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        background: #f7fbff;
+        border: 1px solid #d4e3ef;
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-height: 48px;
+        color: #1d2a33;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .quick-event-card .event-label {
+        line-height: 1.3;
+      }
+      .quick-event-card .event-odds {
+        min-width: 42px;
+        text-align: right;
+        color: #1c76bd;
+        font-weight: 800;
+      }
+      .quick-event-card:hover {
+        background: #edf6ff;
+      }
+
+      .match-detail-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(13, 33, 48, 0.68);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 2000;
+      }
+      .match-detail-modal.open {
+        display: flex;
+      }
+      .match-detail-panel {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        background: #eaf0f6;
+        overflow: hidden;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.18);
+      }
+      .match-detail-header {
+        background: linear-gradient(180deg, #0d5b8a 0%, #0c4b73 100%);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        font-size: 2rem;
+        font-weight: 800;
+        min-height: 56px;
+      }
+      .match-detail-header button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 3rem;
+        cursor: pointer;
+        line-height: 1;
+      }
+      .match-detail-body {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+        padding: 10px 12px 24px;
+      }
+      .match-detail-body .market-group {
+        background: #dfeaf3;
+        border: 1px solid #c9d9ea;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .match-detail-body .market-group-header {
+        background: #c6dcef;
+        color: #0f3b5c;
+        font-size: 1.8rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 14px;
+        line-height: 1.2;
+        cursor: pointer;
+      }
+      .match-detail-body .market-group-header .title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+      }
+      .match-detail-body .market-group-header .title-wrap .mini-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #1f72ad;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,0.7);
+        flex-shrink: 0;
+      }
+      .match-detail-body .market-group-header .chevron {
+        font-size: 1.8rem;
+        transition: transform 0.2s ease;
+      }
+      .match-detail-body .market-group.collapsed .market-group-content {
+        display: none;
+      }
+      .match-detail-body .market-group:not(.collapsed) .market-group-header .chevron {
+        transform: rotate(180deg);
+      }
+      .match-detail-body .market-group-content {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 8px;
+      }
+      .match-detail-body .market-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: #f8fbff;
+        border: 1px solid #d9e5f0;
+        border-radius: 8px;
+        padding: 11px 12px;
+        min-height: 44px;
+        color: #1d2a33;
+        font-size: 1.55rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .match-detail-body .market-option .name {
+        line-height: 1.3;
+        flex: 1;
+      }
+      .match-detail-body .market-option .value {
+        color: #1f72ad;
+        font-weight: 800;
+        min-width: 52px;
+        text-align: right;
+      }
+      .match-detail-body .market-option:hover {
+        background: #edf6ff;
+      }
+      @media (max-width: 767px) {
+        .mobile-bet-slip {
+          left: 0;
+          right: 0;
+          width: 100%;
+          max-width: none;
+          border-radius: 16px 16px 0 0;
+          max-height: 76vh;
+        }
+        .mobile-bet-slip .bet-slip-body {
+          max-height: calc(76vh - 56px);
+        }
+      }
       
       .bet-card { border: 1px solid #d6dbdd; border-radius: 6px; margin-bottom: 15px; overflow: hidden; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
       .bet-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -204,9 +582,755 @@
 
         #bet-slip { width: 100%; right: 0; border-radius: 15px 15px 0 0; }
       }
+
+      @media (max-width: 767px) {
+        body {
+          background: #111;
+          padding: 0;
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+        }
+
+        header,
+        main,
+        footer,
+        #bet-slip,
+        #match-detail-modal,
+        .desktop-site,
+        .landing,
+        .live-bets,
+        .sports-book,
+        .live-bets-static,
+        .casino-games,
+        .main-head,
+        .top-nav {
+          display: none !important;
+        }
+
+        #mobile-app-shell {
+          display: block !important;
+          width: 100%;
+          max-width: 430px;
+          min-height: 100vh;
+          background: linear-gradient(180deg, #0a2d55 0%, #0d4e7f 100%);
+          box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+          border-radius: 0;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .phone-frame {
+          width: 100%;
+          min-height: 100vh;
+          background: linear-gradient(180deg, #0d2d52 0%, #0d4c7d 100%);
+          color: #fff;
+          font-family: "Roboto", sans-serif;
+          padding-bottom: 72px;
+        }
+
+        .status-bar {
+          height: 46px;
+          padding: 0 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 1.4rem;
+          font-weight: 700;
+          background: rgba(0,0,0,0.18);
+        }
+
+        .status-bar .right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .status-bar .signal {
+          width: 18px;
+          height: 12px;
+          border-radius: 3px;
+          background: linear-gradient(90deg, #d9d9d9 0 25%, #b3b3b3 25% 50%, #7d7d7d 50% 100%);
+        }
+
+        .status-bar .battery {
+          width: 28px;
+          height: 14px;
+          border: 1.5px solid rgba(255,255,255,0.7);
+          border-radius: 4px;
+          position: relative;
+        }
+
+        .status-bar .battery::after {
+          content: "";
+          position: absolute;
+          right: -4px;
+          top: 3px;
+          width: 3px;
+          height: 6px;
+          background: rgba(255,255,255,0.7);
+          border-radius: 2px;
+        }
+
+        .status-bar .battery::before {
+          content: "";
+          position: absolute;
+          inset: 2px 2px 2px 2px;
+          background: linear-gradient(90deg, #b8d66d 0%, #81c550 100%);
+          border-radius: 2px;
+        }
+
+        .app-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 10px 14px 12px;
+          background: linear-gradient(180deg, #0c2d52 0%, #0b3f69 100%);
+        }
+
+        .brand {
+          font-size: 4rem;
+          font-weight: 900;
+          letter-spacing: -0.1em;
+          color: #fff;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        .brand .x {
+          color: #fff;
+        }
+
+        .brand .bet {
+          color: #e8f4ff;
+          letter-spacing: -0.08em;
+        }
+
+        .brand-mark {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 26px;
+          height: 26px;
+          border-radius: 8px;
+          background: linear-gradient(180deg, #2fd0ff 0%, #0c5aa4 100%);
+          color: #fff;
+          font-size: 1.2rem;
+          margin-left: 4px;
+          box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45);
+        }
+
+        .top-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .action-btn {
+          border: 0;
+          height: 36px;
+          padding: 0 18px;
+          border-radius: 10px;
+          font-size: 1.4rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          background: linear-gradient(180deg, #8dcf36 0%, #5ca525 100%);
+          color: #fff;
+          box-shadow: inset 0 -2px rgba(0,0,0,0.15);
+        }
+
+        .action-btn.outline {
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.22);
+        }
+
+        .hamburger {
+          width: 32px;
+          height: 32px;
+          position: relative;
+          margin-left: 4px;
+        }
+
+        .hamburger span {
+          position: absolute;
+          left: 6px;
+          right: 6px;
+          height: 3px;
+          border-radius: 3px;
+          background: #fff;
+        }
+
+        .hamburger span:nth-child(1) { top: 8px; }
+        .hamburger span:nth-child(2) { top: 15px; }
+        .hamburger span:nth-child(3) { top: 22px; }
+
+        .sport-nav {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px 6px;
+          background: rgba(12, 39, 61, 0.9);
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sport-pill {
+          flex: 1;
+          min-height: 42px;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.04);
+          color: #dfeeff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-weight: 700;
+          font-size: 1.3rem;
+          text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sport-pill.active {
+          background: rgba(255,255,255,0.1);
+          box-shadow: inset 0 -2px rgba(91, 153, 255, 0.3);
+        }
+
+        .sport-pill .dot {
+          width: 16px;
+          height: 16px;
+          background: #b8d66d;
+          border-radius: 50%;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.14);
+        }
+
+        .hero-card {
+          margin: 12px 12px 8px;
+          height: 220px;
+          border-radius: 18px;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(120deg, rgba(9,42,81,0.5), rgba(15,98,160,0.3)), radial-gradient(circle at 42% 22%, rgba(69,184,255,0.4), transparent 30%), linear-gradient(180deg, #2d87d9 0%, #0d518a 100%);
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+
+        .hero-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, rgba(255,255,255,0.08) 0 15%, transparent 15% 100%);
+          opacity: 0.8;
+        }
+
+        .hero-content {
+          position: absolute;
+          inset: 0;
+          padding: 18px 20px 0 20px;
+          z-index: 1;
+        }
+
+        .hero-title {
+          font-size: 3rem;
+          font-weight: 900;
+          line-height: 0.98;
+          letter-spacing: -0.06em;
+          text-transform: uppercase;
+          max-width: 60%;
+          margin-bottom: 8px;
+        }
+
+        .hero-sub {
+          font-size: 1.45rem;
+          color: rgba(255,255,255,0.9);
+          line-height: 1.4;
+          max-width: 72%;
+        }
+
+        .hero-cta {
+          margin-top: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 170px;
+          height: 42px;
+          border-radius: 10px;
+          background: linear-gradient(180deg, #99d93e 0%, #78b92b 100%);
+          color: #fff;
+          font-size: 1.5rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          box-shadow: inset 0 -2px rgba(0,0,0,0.12);
+        }
+
+        .hero-figure {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          width: 56%;
+          height: 100%;
+          background: radial-gradient(circle at 50% 25%, rgba(85,208,255,0.7), rgba(15,105,170,0)) 35%, linear-gradient(180deg, rgba(255,255,255,0.12), transparent 30%);
+        }
+
+        .hero-figure::before {
+          content: "";
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          right: 48px;
+          bottom: 12px;
+          border-radius: 50%;
+          background: radial-gradient(circle at center, rgba(90,220,255,0.78), rgba(12,89,139,0.1) 65%, transparent 66%);
+        }
+
+        .hero-figure::after {
+          content: "";
+          position: absolute;
+          width: 150px;
+          height: 150px;
+          right: 36px;
+          bottom: 40px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 30% 35%, #97ee6f 0%, #4edd36 25%, #2d9b32 70%, rgba(10,74,25,0.82) 100%);
+          box-shadow: inset 0 0 18px rgba(255,255,255,0.4), 0 0 30px rgba(125, 230, 110, 0.7);
+        }
+
+        .hero-dots {
+          position: absolute;
+          left: 25px;
+          bottom: 12px;
+          display: flex;
+          gap: 8px;
+          z-index: 2;
+        }
+
+        .hero-dots span {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.35);
+        }
+
+        .hero-dots span.active {
+          background: #8ddf36;
+          box-shadow: 0 0 0 3px rgba(141,223,54,0.25);
+        }
+
+        .mini-games {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 8px;
+          margin: 0 12px;
+        }
+
+        .mini-game {
+          background: linear-gradient(180deg, #1f6fb5 0%, #0c3d65 100%);
+          border-radius: 12px;
+          padding: 10px 6px 8px;
+          text-align: center;
+          min-height: 74px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+          text-transform: capitalize;
+          color: #dfeeff;
+          font-size: 1.1rem;
+          font-weight: 700;
+        }
+
+        .mini-game .icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          background: linear-gradient(180deg, #95d83d 0%, #5cb425 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem;
+          color: #fff;
+          box-shadow: inset 0 -2px rgba(0,0,0,0.15);
+        }
+
+        .tabs-row {
+          margin: 12px 12px 0;
+          background: rgba(33,84,123,0.9);
+          border-radius: 12px;
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0,1fr));
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .tab-chip {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          min-height: 52px;
+          font-size: 1.2rem;
+          color: #dfeeff;
+          background: rgba(255,255,255,0.02);
+          border-right: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .tab-chip:last-child { border-right: none; }
+
+        .tab-chip.active {
+          background: rgba(109, 173, 255, 0.18);
+          color: #fff;
+        }
+
+        .tab-chip .tab-icon {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.75);
+        }
+
+        .match-card {
+          margin: 12px 12px 0;
+          background: #edf2f7;
+          border-radius: 16px 16px 0 0;
+          overflow: hidden;
+          color: #1a2d39;
+          box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        }
+
+        .match-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 14px 8px;
+          background: #d9eaf5;
+        }
+
+        .match-head .league {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 1.5rem;
+          font-weight: 900;
+        }
+
+        .match-head .live-badge {
+          background: #ff5a5a;
+          color: #fff;
+          border-radius: 6px;
+          font-size: 1.1rem;
+          font-weight: 700;
+          padding: 4px 8px;
+        }
+
+        .match-body {
+          padding: 8px 10px 10px;
+        }
+
+        .match-team {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 4px;
+          border-bottom: 1px solid rgba(63, 93, 116, 0.2);
+        }
+
+        .team-left {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 0;
+        }
+
+        .team-crest {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 1.2rem;
+          font-weight: 800;
+          background: linear-gradient(180deg, #ffcf4a 0%, #f39d32 100%);
+        }
+
+        .team-name {
+          font-size: 1.6rem;
+          font-weight: 700;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .score {
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: #0d2f52;
+        }
+
+        .match-score-row {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0,1fr));
+          gap: 8px;
+          padding: 10px 0 0;
+        }
+
+        .score-box {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: rgba(192,216,233,0.5);
+          border-radius: 8px;
+          min-height: 52px;
+          color: #1f3f59;
+          font-weight: 700;
+          font-size: 1.3rem;
+        }
+
+        .score-box strong {
+          font-size: 1.8rem;
+          color: #0f3558;
+        }
+
+        .bonus-box {
+          margin: 12px 12px 0;
+          background: linear-gradient(90deg, #0b3b69 0%, #0f5a92 100%);
+          border-radius: 14px;
+          padding: 16px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          color: #fff;
+        }
+
+        .bonus-text {
+          font-size: 1.6rem;
+          line-height: 1.2;
+          font-weight: 900;
+          text-transform: uppercase;
+        }
+
+        .bonus-text small {
+          display: block;
+          margin-top: 8px;
+          font-size: 1.15rem;
+          text-transform: none;
+          font-weight: 500;
+          opacity: 0.9;
+        }
+
+        .bonus-register {
+          background: linear-gradient(180deg, #8ddf36 0%, #61b62f 100%);
+          color: #fff;
+          border-radius: 10px;
+          padding: 12px 18px;
+          font-weight: 900;
+          font-size: 1.4rem;
+          text-transform: uppercase;
+          box-shadow: inset 0 -2px rgba(0,0,0,0.12);
+        }
+
+        .bet-area {
+          margin: 12px 12px 0;
+          background: #edf2f7;
+          border-radius: 12px 12px 0 0;
+          overflow: hidden;
+          color: #1c2e42;
+          box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        }
+
+        .bet-switch {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .bet-switch button {
+          border: none;
+          background: #dfeaf6;
+          color: #1f4a76;
+          font-size: 1.6rem;
+          font-weight: 800;
+          min-height: 48px;
+        }
+
+        .bet-switch button.active {
+          background: #fff;
+          color: #1a2d39;
+        }
+
+        .empty-bet {
+          min-height: 150px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: #4f6b84;
+          padding: 18px 18px 22px;
+          font-size: 1.5rem;
+          line-height: 1.5;
+        }
+
+        .bottom-nav {
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
+          bottom: 0;
+          width: 100%;
+          max-width: 430px;
+          background: #0f2c51;
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0,1fr));
+          padding: 8px 8px 10px;
+          gap: 6px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .nav-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+          min-height: 54px;
+          color: #dcecfb;
+          font-size: 1.1rem;
+          font-weight: 700;
+          text-transform: capitalize;
+          position: relative;
+        }
+
+        .nav-item.active::before {
+          content: "";
+          position: absolute;
+          left: 20%;
+          right: 20%;
+          top: 0;
+          height: 3px;
+          background: #7bcf2c;
+          border-radius: 999px;
+        }
+
+        .nav-item .nav-icon {
+          width: 22px;
+          height: 22px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.18);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.3rem;
+        }
+      }
     </style>
   </head>
   <body>
+    <div id="mobile-app-shell" style="display:none;">
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>11:40</span>
+          <div class="right">
+            <span class="signal"></span>
+            <span>100</span>
+            <span class="battery"></span>
+          </div>
+        </div>
+
+        <div class="app-header">
+          <div class="brand">
+            <span class="x">1</span><span class="bet">X</span><span class="bet">BET</span>
+            <span class="brand-mark">🇮🇳</span>
+          </div>
+
+          <div class="top-actions">
+            <button class="action-btn">Registration</button>
+            <button class="action-btn outline">Log In</button>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+
+        <div class="sport-nav">
+          <div class="sport-pill active"><span class="dot"></span>Sports</div>
+          <div class="sport-pill"><span class="dot"></span>Live</div>
+          <div class="sport-pill"><span class="dot"></span>Slots</div>
+          <div class="sport-pill"><span class="dot"></span>More</div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-content">
+            <div class="hero-title">Grand Slam Tournaments</div>
+            <div class="hero-sub">Bet on Grand Slam Tournaments and win cool prizes</div>
+            <div class="hero-cta">Take part</div>
+          </div>
+          <div class="hero-figure"></div>
+          <div class="hero-dots"><span class="active"></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="mini-games">
+          <div class="mini-game"><div class="icon">X</div><div>1xGames</div></div>
+          <div class="mini-game"><div class="icon">C</div><div>Crash</div></div>
+          <div class="mini-game"><div class="icon">★</div><div>Crystal</div></div>
+          <div class="mini-game"><div class="icon">🔥</div><div>Burning Hot</div></div>
+          <div class="mini-game"><div class="icon">Z</div><div>Midgard</div></div>
+        </div>
+
+        <div class="tabs-row">
+          <div class="tab-chip active"><div class="tab-icon"></div><div>Matches</div></div>
+          <div class="tab-chip"><div class="tab-icon"></div><div>Featured</div></div>
+          <div class="tab-chip"><div class="tab-icon"></div><div>Upcoming</div></div>
+          <div class="tab-chip"><div class="tab-icon"></div><div>Cricket</div></div>
+          <div class="tab-chip"><div class="tab-icon"></div><div>More</div></div>
+        </div>
+
+        <div class="match-card">
+          <div class="match-head">
+            <div class="league">Sri Lanka. Major Clubs</div>
+            <div class="live-badge">LIVE</div>
+          </div>
+          <div class="match-body">
+            <div class="match-team">
+              <div class="team-left"><div class="team-crest">K</div><div class="team-name">Kurunegala Youth</div></div>
+              <div class="score">91/10</div>
+            </div>
+            <div class="match-team">
+              <div class="team-left"><div class="team-crest" style="background:linear-gradient(180deg,#ff7b7b,#d63d3d);">C</div><div class="team-name">Colombo CC</div></div>
+              <div class="score">27/0 (2.1)</div>
+            </div>
+            <div class="match-score-row">
+              <div class="score-box"><span>1</span><strong>1.85</strong></div>
+              <div class="score-box"><span>X</span><strong>2.00</strong></div>
+              <div class="score-box"><span>2</span><strong>+8</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bonus-box">
+          <div class="bonus-text">Bonus on your 1st deposit<small>Get a 100% bonus and start winning!</small></div>
+          <button class="bonus-register">Register</button>
+        </div>
+
+        <div class="bet-area">
+          <div class="bet-switch">
+            <button class="active">Bet slip</button>
+            <button>My bets</button>
+          </div>
+          <div class="empty-bet">Your bet slip is empty.<br>Find an event you're interested in and press the odds to add it to your bet slip.</div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">⚽</div><div>Sports</div></div>
+          <div class="nav-item"><div class="nav-icon">🎲</div><div>Casino</div></div>
+          <div class="nav-item active"><div class="nav-icon">⚡</div><div>Quick Play</div></div>
+          <div class="nav-item"><div class="nav-icon">🧾</div><div>Bet slip</div></div>
+          <div class="nav-item"><div class="nav-icon">👤</div><div>Profile</div></div>
+        </div>
+      </div>
+    </div>
     <!-- targets for slider anchors -->
     <ins id="slide1"></ins>
     <ins id="slide2"></ins>
@@ -985,17 +2109,22 @@
     <!-- ============================================== -->
     <!-- DYNAMIC BET SLIP UI                            -->
     <!-- ============================================== -->
-    <div id="bet-slip" style="position: fixed; bottom: 0; right: 20px; width: 340px; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); border-radius: 8px 8px 0 0; display: none; z-index: 1500;">
-      <div style="background: #103856; color: #fff; padding: 12px 15px; border-radius: 8px 8px 0 0; font-size: 1.4rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-        <span><i class="fa fa-ticket"></i> Bet Slip</span>
-        <span style="cursor:pointer; font-size: 2rem;" onclick="window.closeBetSlip()">&times;</span>
+    <div id="bet-slip" class="mobile-bet-slip">
+      <div class="bet-slip-header">
+        <div class="bet-slip-title"><span>📌</span> <span>Bet Slip</span></div>
+        <button class="bet-slip-close" type="button" aria-label="Close bet slip" onclick="window.closeBetSlip()">&times;</button>
       </div>
-      <div style="padding: 15px; max-height: 72vh; overflow-y: auto;">
-        <p id="bet-match-title" style="margin: 0 0 8px; font-weight: bold; font-size: 1.3rem; color: #333;"></p>
+      <div class="bet-slip-body">
+        <div class="promo-banner">
+          <span class="promo-dot">✓</span>
+          <span>Get 25% cashback on sports</span>
+        </div>
 
-        <div style="margin-bottom: 10px;">
-          <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Bet market</label>
-          <select id="bet-market" onchange="window.updateBetMarket()" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.3rem; background: #fff; box-sizing: border-box;">
+        <p id="bet-match-title" class="bet-slip-match"></p>
+
+        <div class="market-row">
+          <label>Bet market</label>
+          <select id="bet-market" onchange="window.updateBetMarket()">
             <option value="Match Winner">Match Winner</option>
             <option value="1st Innings Runs">1st Innings Runs</option>
             <option value="2nd Innings Runs">2nd Innings Runs</option>
@@ -1009,25 +2138,42 @@
           </select>
         </div>
 
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.3rem;">
-          <span id="bet-selection" style="color: #1f72ad; font-weight: bold;"></span>
-          <span id="bet-odds" style="background: #eaf0f6; padding: 2px 6px; border-radius: 4px; font-weight: bold;"></span>
+        <div class="market-summary">
+          <span id="bet-selection" class="selection"></span>
+          <span id="bet-odds" class="odds"></span>
         </div>
 
-        <div style="margin-bottom: 10px;">
-          <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Selection / player / runs / over</label>
-          <input type="text" id="bet-custom-option" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box;" placeholder="e.g. Team A, 150-170, Over 5, Player X" oninput="window.updateBetSelectionFromInput()">
+        <div class="choice-grid">
+          <div class="choice-card"><span>Team A</span><strong>1.01</strong></div>
+          <div class="choice-card"><span>Team B</span><strong>15.7</strong></div>
         </div>
-        
-        <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Stake (Virtual INR):</label>
-        <input type="number" id="bet-stake" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box;" placeholder="e.g. 500" oninput="window.calculateReturn()">
-        
-        <div style="display: flex; justify-content: space-between; font-size: 1.3rem; margin-bottom: 15px; padding-top: 10px; border-top: 1px solid #eee;">
-          <span style="color: #555;">Potential Return:</span>
-          <strong id="bet-return" style="color: #668a28;">0.00</strong>
+
+        <div class="market-row">
+          <label>Selection / player / runs / over</label>
+          <input type="text" id="bet-custom-option" placeholder="e.g. Team A, 150-170, Over 5, Player X" oninput="window.updateBetSelectionFromInput()">
         </div>
-        
-        <button id="btn-place-bet" style="width: 100%; padding: 12px; background: #668a28; color: #fff; border: none; border-radius: 4px; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: 0.3s;">Place Virtual Bet</button>
+
+        <div class="stake-box">
+          <label>Stake (Virtual INR)</label>
+          <input type="number" id="bet-stake" placeholder="e.g. 500" oninput="window.calculateReturn()">
+        </div>
+
+        <div class="return-row">
+          <span>Potential Return:</span>
+          <strong id="bet-return">0.00</strong>
+        </div>
+
+        <button id="btn-place-bet" class="place-bet-btn" type="button">Place Virtual Bet</button>
+      </div>
+    </div>
+
+    <div id="match-detail-modal" class="match-detail-modal" aria-modal="true" role="dialog">
+      <div class="match-detail-panel">
+        <div class="match-detail-header">
+          <span id="match-detail-title">Match Markets</span>
+          <button type="button" aria-label="Close match details" onclick="window.closeMatchDetailModal()">&times;</button>
+        </div>
+        <div id="match-detail-body" class="match-detail-body"></div>
       </div>
     </div>
     
@@ -1372,6 +2518,131 @@
         document.getElementById('bet-slip').style.display = 'none';
       };
 
+      window.buildMatchDetailGroups = function(match) {
+        const teamA = match.team_a || 'Team A';
+        const teamB = match.team_b || 'Team B';
+        const oddsA = Number(match?.odds?.team_a || 1.9);
+        const oddsB = Number(match?.odds?.team_b || 1.8);
+        const formatOdds = (value) => Number(value).toFixed(2);
+
+        const makeOption = (name, value, market) => ({
+          name,
+          value,
+          market,
+          odds: Number(value)
+        });
+
+        const groups = [
+          {
+            title: 'Total 2',
+            items: [
+              makeOption('230.5 Over', formatOdds(oddsA * 1.1), 'Total 2'),
+              makeOption('230.5 Under', formatOdds(oddsB * 1.12), 'Total 2')
+            ]
+          },
+          {
+            title: 'Individual Total 2 Even',
+            items: [
+              makeOption('Yes', formatOdds(1.87), 'Individual Total 2 Even'),
+              makeOption('No', formatOdds(1.87), 'Individual Total 2 Even')
+            ]
+          },
+          {
+            title: 'Total Runs 2 Even/Odd',
+            items: [
+              makeOption('First 35 Overs Even', formatOdds(1.87), 'Total Runs 2 Even/Odd'),
+              makeOption('First 35 Overs Odd', formatOdds(1.87), 'Total Runs 2 Even/Odd')
+            ]
+          },
+          {
+            title: 'Over, Total Runs Team 2. Quick events',
+            items: [
+              makeOption('35 - Over 4.5', formatOdds(1.704), 'Over, Total Runs Team 2'),
+              makeOption('35 - Under 4.5', formatOdds(1.975), 'Over, Total Runs Team 2'),
+              makeOption('35 - Over 5', formatOdds(1.845), 'Over, Total Runs Team 2'),
+              makeOption('35 - Under 5', formatOdds(1.816), 'Over, Total Runs Team 2')
+            ]
+          },
+          {
+            title: 'Overs Interval. Team 2 Total Runs In Each Over. Quick events',
+            items: [
+              makeOption('Overs 35-36. Over 3.5 - Yes', formatOdds(2.125), 'Overs Interval. Team 2 Total Runs In Each Over'),
+              makeOption('Overs 35-36. Under 3.5 - Yes', formatOdds(5.25), 'Overs Interval. Team 2 Total Runs In Each Over'),
+              makeOption('Overs 35-36. Over 4.5 - Yes', formatOdds(3.275), 'Overs Interval. Team 2 Total Runs In Each Over'),
+              makeOption('Overs 35-36. Under 4.5 - Yes', formatOdds(2.99), 'Overs Interval. Team 2 Total Runs In Each Over')
+            ]
+          },
+          {
+            title: 'Team 2, Will A Wicket Fall In Over? Quick events',
+            items: [
+              makeOption('Over 35, Will A Wicket Be Taken - Yes', formatOdds(3.94), 'Team 2, Will A Wicket Fall In Over?'),
+              makeOption('Over 35, Will A Wicket Be Taken - No', formatOdds(1.21), 'Team 2, Will A Wicket Fall In Over?')
+            ]
+          },
+          {
+            title: 'Team 2, Extras In Over. Quick events',
+            items: [
+              makeOption('Extras In Over 35 - Yes', formatOdds(3.475), 'Team 2, Extras In Over'),
+              makeOption('Extras In Over 35 - No', formatOdds(1.25), 'Team 2, Extras In Over')
+            ]
+          },
+          {
+            title: 'Over, Delivery, Team 2 Exact Total Runs. Quick events',
+            items: [
+              makeOption('Over 34, Delivery 3, Exactly 0', formatOdds(1.91), 'Over, Delivery, Team 2 Exact Total Runs'),
+              makeOption('Over 34, Delivery 3, Exactly 1', formatOdds(2.34), 'Over, Delivery, Team 2 Exact Total Runs'),
+              makeOption('Over 34, Delivery 3, Exactly 3', formatOdds(50), 'Over, Delivery, Team 2 Exact Total Runs'),
+              makeOption('Over 34, Delivery 3, Exactly 4', formatOdds(10.5), 'Over, Delivery, Team 2 Exact Total Runs')
+            ]
+          }
+        ];
+
+        return groups;
+      };
+
+      window.openMatchDetailModal = function(match) {
+        const modal = document.getElementById('match-detail-modal');
+        const body = document.getElementById('match-detail-body');
+        const title = document.getElementById('match-detail-title');
+
+        if (!match || !body || !modal) return;
+
+        const headerTitle = `${match.team_a || 'Team A'} vs ${match.team_b || 'Team B'}`;
+        title.textContent = headerTitle;
+
+        const groups = window.buildMatchDetailGroups(match);
+        body.innerHTML = groups.map((group, index) => `
+          <div class="market-group ${index === 0 ? '' : 'collapsed'}">
+            <div class="market-group-header" data-group-index="${index}">
+              <div class="title-wrap"><span class="mini-dot"></span><span>${group.title}</span></div>
+              <span class="chevron">⌃</span>
+            </div>
+            <div class="market-group-content">
+              ${group.items.map(item => `
+                <div class="market-option" onclick="window.openBetSlip('${headerTitle.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', ${item.odds}, '${item.market.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')">
+                  <span class="name">${item.name}</span>
+                  <span class="value">${item.value}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        body.querySelectorAll('.market-group-header').forEach((header) => {
+          header.addEventListener('click', () => {
+            const group = header.parentElement;
+            group.classList.toggle('collapsed');
+          });
+        });
+
+        modal.classList.add('open');
+      };
+
+      window.closeMatchDetailModal = function() {
+        const modal = document.getElementById('match-detail-modal');
+        if (modal) modal.classList.remove('open');
+      };
+
       window.calculateReturn = function() {
         const stake = parseFloat(document.getElementById('bet-stake').value);
         if (!isNaN(stake) && stake > 0) {
@@ -1622,6 +2893,96 @@
         };
 
         // Helper function to build match rows
+        const buildQuickEvents = (match, safeMatchName, safeTeamA, safeTeamB) => {
+          const oddsA = Number(match?.odds?.team_a || 1.9);
+          const oddsB = Number(match?.odds?.team_b || 1.8);
+          const quickGroups = [
+            {
+              title: 'Total 2',
+              cards: [
+                { label: '230.5 Over', odds: 1.725, selection: '230.5 Over', market: 'Total Runs' },
+                { label: '230.5 Under', odds: 1.945, selection: '230.5 Under', market: 'Total Runs' },
+              ]
+            },
+            {
+              title: 'Individual Total 2 Even',
+              cards: [
+                { label: 'Yes', odds: 1.87, selection: 'Yes', market: 'Individual Total 2 Even' },
+                { label: 'No', odds: 1.87, selection: 'No', market: 'Individual Total 2 Even' },
+              ]
+            },
+            {
+              title: 'Total Runs 2 Even/Odd',
+              cards: [
+                { label: 'First 35 Overs Even', odds: 1.87, selection: 'First 35 Overs Even', market: 'Total Runs 2 Even/Odd' },
+                { label: 'First 35 Overs Odd', odds: 1.87, selection: 'First 35 Overs Odd', market: 'Total Runs 2 Even/Odd' },
+              ]
+            },
+            {
+              title: 'Over, Total Runs Team 2. Quick events',
+              cards: [
+                { label: '35 - Over 4.5', odds: 1.704, selection: '35 - Over 4.5', market: 'Over, Total Runs Team 2' },
+                { label: '35 - Under 4.5', odds: 1.975, selection: '35 - Under 4.5', market: 'Over, Total Runs Team 2' },
+                { label: '35 - Over 5', odds: 1.845, selection: '35 - Over 5', market: 'Over, Total Runs Team 2' },
+                { label: '35 - Under 5', odds: 1.816, selection: '35 - Under 5', market: 'Over, Total Runs Team 2' },
+              ]
+            },
+            {
+              title: 'Overs Interval. Team 2 Total Runs In Each Over. Quick events',
+              cards: [
+                { label: 'Overs 35-36. Over 3.5 - Yes', odds: 2.125, selection: 'Overs 35-36. Over 3.5 - Yes', market: 'Overs Interval. Team 2 Total Runs In Each Over' },
+                { label: 'Overs 35-36. Under 3.5 - Yes', odds: 5.25, selection: 'Overs 35-36. Under 3.5 - Yes', market: 'Overs Interval. Team 2 Total Runs In Each Over' },
+                { label: 'Overs 35-36. Over 4.5 - Yes', odds: 3.275, selection: 'Overs 35-36. Over 4.5 - Yes', market: 'Overs Interval. Team 2 Total Runs In Each Over' },
+                { label: 'Overs 35-36. Under 4.5 - Yes', odds: 2.99, selection: 'Overs 35-36. Under 4.5 - Yes', market: 'Overs Interval. Team 2 Total Runs In Each Over' },
+              ]
+            },
+            {
+              title: 'Team 2, Will A Wicket Fall In Over? Quick events',
+              cards: [
+                { label: 'Over 35, Will A Wicket Be Taken - Yes', odds: 3.94, selection: 'Over 35, Will A Wicket Be Taken - Yes', market: 'Team 2, Will A Wicket Fall In Over?' },
+                { label: 'Over 35, Will A Wicket Be Taken - No', odds: 1.21, selection: 'Over 35, Will A Wicket Be Taken - No', market: 'Team 2, Will A Wicket Fall In Over?' },
+              ]
+            },
+            {
+              title: 'Team 2, Extras In Over. Quick events',
+              cards: [
+                { label: 'Extras In Over 35 - Yes', odds: 3.475, selection: 'Extras In Over 35 - Yes', market: 'Team 2, Extras In Over' },
+                { label: 'Extras In Over 35 - No', odds: 1.25, selection: 'Extras In Over 35 - No', market: 'Team 2, Extras In Over' },
+              ]
+            },
+            {
+              title: 'Over, Delivery, Team 2 Exact Total Runs. Quick events',
+              cards: [
+                { label: 'Over 34, Delivery 3, Exactly 0', odds: 1.91, selection: 'Over 34, Delivery 3, Exactly 0', market: 'Over, Delivery, Team 2 Exact Total Runs' },
+                { label: 'Over 34, Delivery 3, Exactly 1', odds: 2.34, selection: 'Over 34, Delivery 3, Exactly 1', market: 'Over, Delivery, Team 2 Exact Total Runs' },
+                { label: 'Over 34, Delivery 3, Exactly 3', odds: 50, selection: 'Over 34, Delivery 3, Exactly 3', market: 'Over, Delivery, Team 2 Exact Total Runs' },
+                { label: 'Over 34, Delivery 3, Exactly 4', odds: 10.5, selection: 'Over 34, Delivery 3, Exactly 4', market: 'Over, Delivery, Team 2 Exact Total Runs' },
+              ]
+            }
+          ];
+
+          return `
+            ${quickGroups.map(group => `
+              <div class="quick-events-step">
+                <div class="quick-events-header">
+                  <div class="mini-title"><span class="mini-badge"></span><span>${group.title}</span></div>
+                  <span>⌃</span>
+                </div>
+                <div class="quick-events-body">
+                  <div class="quick-events-grid">
+                    ${group.cards.map(card => `
+                      <div class="quick-event-card" onclick="window.openBetSlip('${safeMatchName}', '${card.selection.replace(/'/g, "\\'")}', ${card.odds}, '${card.market}', '${card.selection.replace(/'/g, "\\'")}')">
+                        <span class="event-label">${card.label}</span>
+                        <span class="event-odds">${card.odds.toFixed(2)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          `;
+        };
+
         const buildMatchRows = (matches, listElement, emptyMessage) => {
           if (!listElement) return;
 
@@ -1637,42 +2998,62 @@
             const safeMatchName = `${String(match.team_a || '').replace(/'/g, "\\'")} vs ${String(match.team_b || '').replace(/'/g, "\\'")}`;
             const safeTeamA = String(match.team_a || '').replace(/'/g, "\\'");
             const safeTeamB = String(match.team_b || '').replace(/'/g, "\\'");
+            const matchJson = encodeURIComponent(JSON.stringify(match));
 
             htmlString += `
-              <div class="static-row" style="border-bottom: 2px solid #eef4f8; margin-bottom: 5px;">
-                <div class="title-unit flex" style="width: 50%;">
-                  <div class="row" style="width: 100%; display: flex; flex-direction: column; padding: 10px;">
-                    <div class="text" style="width: 100%;">
-                      <p style="font-weight: 500; font-size: 1.4rem; color: #1f72ad; margin: 0 0 5px 0;">${match.team_a} vs ${match.team_b}</p>
+              <div class="match-detail-trigger" data-match="${matchJson}" style="border-bottom: 2px solid #eef4f8; margin-bottom: 5px; cursor: pointer;">
+                <div class="static-row" style="border-bottom: 2px solid #eef4f8; margin-bottom: 5px;">
+                  <div class="title-unit flex" style="width: 50%;">
+                    <div class="row" style="width: 100%; display: flex; flex-direction: column; padding: 10px;">
+                      <div class="text" style="width: 100%;">
+                        <p style="font-weight: 500; font-size: 1.4rem; color: #1f72ad; margin: 0 0 5px 0;">${match.team_a} vs ${match.team_b}</p>
+                      </div>
+                      <div style="font-weight: bold; color: #d9534f; font-size: 1.3rem; margin-bottom: 3px;">${match.score}</div>
+                      <div style="font-size: 1.1rem; color: #777; font-weight: bold;">⏱️ ${match.status}</div>
                     </div>
-                    <div style="font-weight: bold; color: #d9534f; font-size: 1.3rem; margin-bottom: 3px;">${match.score}</div>
-                    <div style="font-size: 1.1rem; color: #777; font-weight: bold;">⏱️ ${match.status}</div>
                   </div>
-                </div>
-                <div class="first-numbers flex" style="width: 50%; justify-content: flex-start; gap: 10px; flex-wrap: wrap;">
-                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamA}', ${match.odds.team_a}, 'Match Winner', '${safeTeamA}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
-                    1: ${match.odds.team_a.toFixed(2)}
-                  </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamB}', ${match.odds.team_b}, 'Match Winner', '${safeTeamB}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
-                    2: ${match.odds.team_b.toFixed(2)}
-                  </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', '1st Innings Runs: 150-170', ${(match.odds.team_a || 1.8) * 1.1}, '1st Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
-                    1st Innings 150-170
-                  </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', '2nd Innings Runs: 150-170', ${(match.odds.team_b || 1.9) * 1.12}, '2nd Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
-                    2nd Innings 150-170
-                  </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', 'Runs in Over 5', 1.9, 'Runs in Over', 'Over 5')" style="padding: 10px 16px; background-color: #f4f0ff; font-weight: bold; border-radius: 4px; color: #4d3ea3; cursor: pointer;">
-                    Over 5 Runs
-                  </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', 'Player to Get Wicket', 2.4, 'Player to Get Wicket', 'Player X')" style="padding: 10px 16px; background-color: #fff1ef; font-weight: bold; border-radius: 4px; color: #9b3c2a; cursor: pointer;">
-                    Wicket Pick
-                  </span>
+                  <div class="first-numbers flex" style="width: 50%; justify-content: flex-start; gap: 10px; flex-wrap: wrap;">
+                    <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamA}', ${match.odds.team_a}, 'Match Winner', '${safeTeamA}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
+                      1: ${match.odds.team_a.toFixed(2)}
+                    </span>
+                    <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamB}', ${match.odds.team_b}, 'Match Winner', '${safeTeamB}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
+                      2: ${match.odds.team_b.toFixed(2)}
+                    </span>
+                    <span onclick="window.openBetSlip('${safeMatchName}', '1st Innings Runs: 150-170', ${(match.odds.team_a || 1.8) * 1.1}, '1st Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
+                      1st Innings 150-170
+                    </span>
+                    <span onclick="window.openBetSlip('${safeMatchName}', '2nd Innings Runs: 150-170', ${(match.odds.team_b || 1.9) * 1.12}, '2nd Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
+                      2nd Innings 150-170
+                    </span>
+                    <span onclick="window.openBetSlip('${safeMatchName}', 'Runs in Over 5', 1.9, 'Runs in Over', 'Over 5')" style="padding: 10px 16px; background-color: #f4f0ff; font-weight: bold; border-radius: 4px; color: #4d3ea3; cursor: pointer;">
+                      Over 5 Runs
+                    </span>
+                    <span onclick="window.openBetSlip('${safeMatchName}', 'Player to Get Wicket', 2.4, 'Player to Get Wicket', 'Player X')" style="padding: 10px 16px; background-color: #fff1ef; font-weight: bold; border-radius: 4px; color: #9b3c2a; cursor: pointer;">
+                      Wicket Pick
+                    </span>
+                  </div>
                 </div>
               </div>
             `;
           });
           listElement.innerHTML = htmlString;
+
+          listElement.querySelectorAll('.match-detail-trigger').forEach((trigger) => {
+            trigger.addEventListener('click', (event) => {
+              const target = event.target;
+              if (target.closest('span') && target.closest('span').onclick) {
+                return;
+              }
+              const payload = trigger.dataset.match;
+              if (!payload) return;
+              try {
+                const match = JSON.parse(decodeURIComponent(payload));
+                window.openMatchDetailModal(match);
+              } catch (error) {
+                console.error('Failed to parse match detail payload', error);
+              }
+            });
+          });
         };
 
         // Listen for Cricket Updates
