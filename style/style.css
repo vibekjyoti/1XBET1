@@ -74,12 +74,13 @@ a {
 
   body {
     overflow-x: hidden;
+    background: linear-gradient(180deg, #0b2d48 0%, #0d3d5d 100%);
   }
 
   .container {
     width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .top-nav .container {
@@ -88,6 +89,8 @@ a {
     padding: 8px 10px;
     align-items: center;
     flex-wrap: wrap;
+    border-radius: 0 0 14px 14px;
+    overflow: hidden;
   }
 
   .top-nav .burger {
@@ -96,12 +99,17 @@ a {
     justify-content: center;
     padding: 8px 10px;
     min-width: 44px;
+    border-radius: 10px;
+    background: rgba(12, 49, 77, 0.08);
   }
 
   .top-nav .left-nav,
   .top-nav .right-nav {
     display: none;
     width: 100%;
+    background: #174b73;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .top-nav .left-nav.mobile-open,
@@ -111,6 +119,8 @@ a {
     position: static;
     width: 100%;
     margin-top: 10px;
+    gap: 8px;
+    padding: 8px;
   }
 
   .top-nav .left-nav > div,
@@ -119,6 +129,8 @@ a {
     height: 44px;
     border-left: none;
     border-right: none;
+    border-radius: 10px;
+    overflow: hidden;
   }
 
   .top-nav .left-nav .bet-app,
@@ -143,11 +155,14 @@ a {
   .main-head .container {
     flex-direction: column;
     padding-top: 10px;
+    border-radius: 14px 14px 0 0;
+    overflow: hidden;
   }
 
   .main-head .logo {
     width: 100%;
     text-align: center;
+    padding: 8px 0;
   }
 
   .main-head .logo img {
@@ -156,22 +171,36 @@ a {
 
   .main-head ul {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    justify-content: flex-start;
     gap: 8px;
-    padding-bottom: 8px;
+    padding: 0 0 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .main-head ul::-webkit-scrollbar {
+    display: none;
   }
 
   .main-head ul li {
-    width: 100%;
+    width: auto;
     height: auto;
     line-height: 1.5;
-    padding: 10px 12px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+    flex-shrink: 0;
   }
 
   .landing .container {
-    flex-direction: column-reverse;
-    gap: 15px;
+    flex-direction: column;
+    gap: 16px;
+    background: linear-gradient(180deg, #0a2a42 0%, #0d3d5f 100%);
+    border-radius: 16px;
+    overflow: hidden;
   }
 
   .landing .registration,
@@ -179,20 +208,69 @@ a {
     width: 100%;
   }
 
+  .landing .registration {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .landing .registration .title {
+    min-height: 42px;
+    font-size: 1.4rem;
+  }
+
+  .landing .form {
+    padding: 16px 14px;
+  }
+
+  .landing form select,
+  .landing form input,
+  .landing form button {
+    height: 42px;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+
   .landing .gallery {
-    height: 300px;
+    height: 260px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   }
 
   .landing .gallery .slider h3,
   .landing .gallery .slider p,
   .landing .gallery .slider button {
-    margin-left: 20px;
+    margin-left: 18px;
     padding-left: 0;
-    max-width: 80%;
+    max-width: 75%;
+  }
+
+  .landing .gallery .slider h3 {
+    font-size: 1.8rem;
+    margin-top: 18px;
+    margin-bottom: 12px;
+  }
+
+  .landing .gallery .slider p {
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+
+  .landing .gallery .slider button {
+    margin-bottom: 18px;
+    padding: 1.4rem 1.8rem;
+    height: 38px;
+    font-size: 1.2rem;
+    border-radius: 999px;
   }
 
   .live-bets .container {
     flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   }
 
   .live-bets .title,
@@ -201,23 +279,96 @@ a {
     width: 100%;
   }
 
+  .live-bets .title {
+    padding: 12px 14px;
+    background: linear-gradient(180deg, #4b89b9 0%, #3f75a3 100%);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .live-bets .title h2 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+
+  .live-bets .title input {
+    height: 38px;
+    font-size: 1.4rem;
+    border-radius: 10px;
+    padding-left: 34px;
+  }
+
+  .live-bets .title i {
+    left: 22px;
+    bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  .live-bets .live-icon {
+    display: none;
+  }
+
   .live-bets nav > .features {
     overflow-x: auto;
     justify-content: flex-start;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    padding: 8px 10px;
   }
 
   .live-bets nav > .features > li {
     min-width: 110px;
     width: auto;
     flex-shrink: 0;
+    border-radius: 12px;
+    padding: 8px 10px;
+  }
+
+  .sports-pill {
+    padding: 8px 10px;
+    min-height: 74px;
+  }
+
+  .sports-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.4rem;
   }
 
   .live-bets nav ul .sports-menu .sports-menu-list,
   .live-bets nav ul .play-menu .play-menu-list {
     right: 0;
     width: 200px;
+  }
+
+  .sports-book .container {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .sports-book .title {
+    padding: 12px 14px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .sports-book .title h2 {
+    font-size: 1.6rem;
+  }
+
+  .sports-book nav > .features {
+    overflow-x: auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .sports-book nav > .features > li {
+    min-width: 110px;
+    width: auto;
+    flex-shrink: 0;
+    border-radius: 12px;
+    padding: 10px 12px;
   }
 
   .live-bets-static {
@@ -254,6 +405,17 @@ a {
     width: 100%;
     left: auto;
     right: auto;
+    box-shadow: none;
+    border-radius: 12px;
+  }
+
+  .main-head ul .sports .sports-list li,
+  .main-head ul .live .live-list li,
+  .main-head ul .promo .promo-list li,
+  .main-head ul .more .more-list li {
+    padding: 10px 14px;
+    line-height: 1.4;
+    font-size: 1.3rem;
   }
 
   .casino-games .title {
@@ -281,6 +443,16 @@ a {
 
   .my-bets-content {
     width: 96%;
+  }
+
+  .my-bets-header {
+    font-size: 1.5rem;
+    padding: 12px 14px;
+  }
+
+  .bet-card-header,
+  .bet-row {
+    font-size: 1.2rem;
   }
 
   #bet-slip {
