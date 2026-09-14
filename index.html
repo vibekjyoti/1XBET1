@@ -642,6 +642,31 @@
           border: 1px solid rgba(255,255,255,0.06);
         }
 
+        .header-auth-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .header-auth-btn {
+          border: 0;
+          border-radius: 10px;
+          padding: 10px 16px;
+          font-size: 1.3rem;
+          font-weight: 800;
+          cursor: pointer;
+          color: #fff;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background: linear-gradient(180deg, #8ad634 0%, #5ea81a 100%);
+          box-shadow: inset 0 -2px rgba(0,0,0,0.12);
+        }
+
+        .header-auth-btn.secondary {
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+
         .top-nav .right-nav > div:not(:first-child):not(:nth-child(2)) {
           display: none;
         }
@@ -880,21 +905,9 @@
           </div>
 
           <div class="right-nav flex">
-            <!-- MY BETS BUTTON -->
-            <div class="flex" onclick="window.openMyBets()" style="cursor: pointer; color: #aab734;">
-              <i class="fa fa-ticket fa-2x"></i> MY BETS
-            </div>
-            <div class="flex" title="Qr code login">
-              <i class="fa fa-qrcode fa-2x"></i>
-            </div>
-            <div class="flex" onclick="window.location.href='account.html'" style="cursor: pointer;">
-              <i class="fa fa-caret-square-o-right fa-2x"></i> LOG IN
-            </div>
-            <div class="flex" onclick="window.location.href='account.html'" style="cursor: pointer;">
-              <i class="fa fa-edit fa-2x"></i> REGISTRATION
-            </div>
-            <div class="flex" title="Settings">
-              <i class="fa fa-gear"></i><i class="fa fa-chevron-down"></i>
+            <div class="header-auth-actions">
+              <button class="header-auth-btn secondary" onclick="window.location.href='account.html'">Sign in</button>
+              <button class="header-auth-btn" onclick="window.location.href='account.html'">Sign up</button>
             </div>
             <div class="flex" title="Select time zone">
               01:10 <i class="fa fa-chevron-down"></i>
@@ -929,10 +942,10 @@
             <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" title="1xBet Betting Company" />
           </div>
           <ul class="flex">
-            <li class="sports" onclick="window.location.href='index.html'">CRICKET <i class="fa fa-chevron-down"></i></li>
-            <li class="live" onclick="window.location.href='index.html'">SOCCER <i class="fa fa-chevron-down"></i></li>
-            <li class="promo" onclick="window.location.href='index.html'">TENNIS <i class="fa fa-chevron-down"></i></li>
-            <li class="xgames" onclick="document.getElementById('casinoSection').scrollIntoView({behavior:'smooth'})">1XGAMES <i class="fa fa-chevron-down"></i></li>
+            <li class="sports dropdown-live" onclick="window.location.href='index.html'">CRICKET <i class="fa fa-chevron-down"></i></li>
+            <li class="live dropdown-live" onclick="window.location.href='index.html'">SOCCER <i class="fa fa-chevron-down"></i></li>
+            <li class="promo dropdown-live" onclick="window.location.href='index.html'">TENNIS <i class="fa fa-chevron-down"></i></li>
+            <li class="xgames dropdown-live" onclick="document.getElementById('casinoSection').scrollIntoView({behavior:'smooth'})">1XGAMES <i class="fa fa-chevron-down"></i></li>
           </ul>
         </div>
       </div>
@@ -942,50 +955,6 @@
       <!-- landing structure -->
       <section class="landing">
         <div class="container flex">
-          <div class="registration">
-            <div class="title flex">
-              <p><span>200%</span> bonus on the 1st deposit</p>
-            </div>
-            <div class="form">
-              <h3>Fast Registration</h3>
-              <form action="account.html">
-                
-                <!-- COUNTRY SELECTION -->
-                <select name="country">
-                  <option value="india" selected>India</option>
-                  <option value="russia">Russia</option>
-                  <option value="ukraine">Ukraine</option>
-                  <option value="belarus">Belarus</option>
-                  <option value="kazakhstan">Kazakhstan</option>
-                </select>
-
-                <!-- CURRENCY SELECTION -->
-                <select name="coin">
-                  <option value="inr" selected>INR (Indian Rupee)</option>
-                  <option value="eur">EUR (Euro)</option>
-                  <option value="usd">USD (US dollar)</option>
-                  <option value="rub">RUB (Russian rouble)</option>
-                  <option value="ada">ADA (Cardano)</option>
-                </select>
-
-                <input type="text" placeholder="Promo code (optional)" />
-                <button type="submit">JOIN NOW</button>
-              </form>
-            </div>
-            <div class="policy">
-              <p>
-                This site is protected by reCAPTCHA and the Google
-                <a href="https://policies.google.com/privacy">Privacy Policy</a>
-                and
-                <a href="https://policies.google.com/terms">Terms of Service</a>
-                apply.
-              </p>
-              <p>
-                By clicking this button you confirm that you have read and agree
-                to the Terms and Conditions and confirm that you are of legal age
-              </p>
-            </div>
-          </div>
           <div class="gallery">
             <div class="slider">
               <div class="view1">
