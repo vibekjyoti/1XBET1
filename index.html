@@ -1053,16 +1053,38 @@
     <!-- ============================================== -->
     <!-- DYNAMIC BET SLIP UI                            -->
     <!-- ============================================== -->
-    <div id="bet-slip" style="position: fixed; bottom: 0; right: 20px; width: 320px; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); border-radius: 8px 8px 0 0; display: none; z-index: 1500;">
+    <div id="bet-slip" style="position: fixed; bottom: 0; right: 20px; width: 340px; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); border-radius: 8px 8px 0 0; display: none; z-index: 1500;">
       <div style="background: #103856; color: #fff; padding: 12px 15px; border-radius: 8px 8px 0 0; font-size: 1.4rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
         <span><i class="fa fa-ticket"></i> Bet Slip</span>
         <span style="cursor:pointer; font-size: 2rem;" onclick="window.closeBetSlip()">&times;</span>
       </div>
-      <div style="padding: 15px;">
-        <p id="bet-match-title" style="margin: 0 0 5px; font-weight: bold; font-size: 1.3rem; color: #333;"></p>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.3rem;">
+      <div style="padding: 15px; max-height: 72vh; overflow-y: auto;">
+        <p id="bet-match-title" style="margin: 0 0 8px; font-weight: bold; font-size: 1.3rem; color: #333;"></p>
+
+        <div style="margin-bottom: 10px;">
+          <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Bet market</label>
+          <select id="bet-market" onchange="window.updateBetMarket()" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.3rem; background: #fff; box-sizing: border-box;">
+            <option value="Match Winner">Match Winner</option>
+            <option value="1st Innings Runs">1st Innings Runs</option>
+            <option value="2nd Innings Runs">2nd Innings Runs</option>
+            <option value="Runs in Over">Runs in Over</option>
+            <option value="Wicket in Over">Wicket in Over</option>
+            <option value="Player to Get Wicket">Player to Get Wicket</option>
+            <option value="Player to Score Most Runs">Player to Score Most Runs</option>
+            <option value="Top Batter">Top Batter</option>
+            <option value="Top Bowler">Top Bowler</option>
+            <option value="Most Sixes">Most Sixes</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.3rem;">
           <span id="bet-selection" style="color: #1f72ad; font-weight: bold;"></span>
           <span id="bet-odds" style="background: #eaf0f6; padding: 2px 6px; border-radius: 4px; font-weight: bold;"></span>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Selection / player / runs / over</label>
+          <input type="text" id="bet-custom-option" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box;" placeholder="e.g. Team A, 150-170, Over 5, Player X" oninput="window.updateBetSelectionFromInput()">
         </div>
         
         <label style="display:block; margin-bottom:5px; font-size: 1.2rem; color:#555; font-weight: bold;">Stake (Virtual INR):</label>
@@ -1365,14 +1387,48 @@
       let currentOdds = 0;
       let currentMatch = "";
       let currentSelection = "";
+      let currentMarket = "Match Winner";
 
-      window.openBetSlip = function(matchTitle, selection, odds) {
+      const defaultMarketOptions = {
+        "Match Winner": (selection) => selection || "Team A",
+        "1st Innings Runs": () => "150-170",
+        "2nd Innings Runs": () => "150-170",
+        "Runs in Over": () => "Over 5",
+        "Wicket in Over": () => "Over 5",
+        "Player to Get Wicket": () => "Player X",
+        "Player to Score Most Runs": () => "Player X",
+        "Top Batter": () => "Player X",
+        "Top Bowler": () => "Player X",
+        "Most Sixes": () => "Player X"
+      };
+
+      window.updateBetSelectionFromInput = function() {
+        const inputValue = document.getElementById('bet-custom-option').value.trim();
+        const nextSelection = inputValue || currentSelection || 'Selection';
+        document.getElementById('bet-selection').innerText = nextSelection;
+      };
+
+      window.updateBetMarket = function() {
+        const marketSelect = document.getElementById('bet-market');
+        const customInput = document.getElementById('bet-custom-option');
+        const selectedMarket = marketSelect.value;
+        currentMarket = selectedMarket;
+
+        const defaultValue = defaultMarketOptions[selectedMarket] ? defaultMarketOptions[selectedMarket](currentSelection) : currentSelection;
+        customInput.value = defaultValue;
+        document.getElementById('bet-selection').innerText = defaultValue;
+      };
+
+      window.openBetSlip = function(matchTitle, selection, odds, market = "Match Winner", customOption = "") {
         currentMatch = matchTitle;
         currentSelection = selection;
         currentOdds = parseFloat(odds);
+        currentMarket = market;
 
         document.getElementById('bet-match-title').innerText = matchTitle;
+        document.getElementById('bet-market').value = market;
         document.getElementById('bet-selection').innerText = selection;
+        document.getElementById('bet-custom-option').value = customOption || selection;
         document.getElementById('bet-odds').innerText = currentOdds.toFixed(2);
         document.getElementById('bet-stake').value = '';
         document.getElementById('bet-return').innerText = '0.00';
@@ -1397,6 +1453,8 @@
       document.getElementById('btn-place-bet').addEventListener('click', async () => {
         const user = auth.currentUser;
         const stake = parseFloat(document.getElementById('bet-stake').value);
+        const market = document.getElementById('bet-market').value;
+        const customOption = document.getElementById('bet-custom-option').value.trim() || currentSelection || 'Selection';
 
         if (!user) {
           alert("Please log in to your account to place a bet. Redirecting to login page...");
@@ -1441,7 +1499,9 @@
             userId: user.uid,
             userEmail: user.email,
             match: currentMatch,
-            selection: currentSelection,
+            market: market,
+            betOption: customOption,
+            selection: `${market}: ${customOption}`,
             oddsLocked: currentOdds,
             stakeAmount: stake,
             potentialPayout: stake * currentOdds,
@@ -1559,6 +1619,18 @@
       // LIVE FEED WEBSOCKET CONNECTION
       // ---------------------------------------------------------
       document.addEventListener('DOMContentLoaded', () => {
+        const burgerButtons = document.querySelectorAll('.burger');
+        const leftNav = document.querySelector('.top-nav .left-nav');
+        const rightNav = document.querySelector('.top-nav .right-nav');
+
+        burgerButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            if (window.innerWidth > 767) return;
+            leftNav.classList.toggle('mobile-open');
+            rightNav.classList.toggle('mobile-open');
+          });
+        });
+
         const cricketList = document.getElementById('cricket-matches-list');
         const soccerList = document.getElementById('soccer-matches-list');
 
@@ -1593,19 +1665,46 @@
           if (soccerList) soccerList.innerHTML = errorText;
         });
 
+        const isLiveCricketMatch = (match) => {
+          if (!match) return false;
+
+          const status = String(match.status || '').toLowerCase();
+          const score = String(match.score || '').toLowerCase();
+          const title = String(`${match.team_a || ''} ${match.team_b || ''}`).toLowerCase();
+
+          const hiddenStatuses = [
+            'completed', 'finished', 'ended', 'result', 'abandoned',
+            'postponed', 'not started', 'scheduled', 'starts in',
+            'start in', 'yet to start', 'upcoming', 'delay', 'cancelled'
+          ];
+
+          if (hiddenStatuses.some(keyword => status.includes(keyword) || title.includes(keyword) || score.includes(keyword))) {
+            return false;
+          }
+
+          const liveKeywords = ['live', 'in progress', 'inning', 'overs', 'over', 'current', 'run rate', 'ball'];
+          const hasLiveKeyword = liveKeywords.some(keyword => status.includes(keyword) || score.includes(keyword));
+          const hasScore = /\d+\/\d+|\d+\s*\(\d+\.?\d*\)|\d+\-\d+/.test(score);
+
+          return hasLiveKeyword || hasScore || status.includes('live');
+        };
+
         // Helper function to build match rows
         const buildMatchRows = (matches, listElement, emptyMessage) => {
           if (!listElement) return;
-          if (!matches || matches.length === 0) {
+
+          const liveMatches = (matches || []).filter(isLiveCricketMatch);
+
+          if (!liveMatches.length) {
              listElement.innerHTML = `<p style="padding: 15px; color: #333; margin: 0; font-size: 1.3rem;">${emptyMessage}</p>`;
              return;
           }
 
           let htmlString = ''; 
-          matches.forEach(match => {
-            const safeMatchName = `${match.team_a.replace(/'/g, "\\'")} vs ${match.team_b.replace(/'/g, "\\'")}`;
-            const safeTeamA = match.team_a.replace(/'/g, "\\'");
-            const safeTeamB = match.team_b.replace(/'/g, "\\'");
+          liveMatches.forEach(match => {
+            const safeMatchName = `${String(match.team_a || '').replace(/'/g, "\\'")} vs ${String(match.team_b || '').replace(/'/g, "\\'")}`;
+            const safeTeamA = String(match.team_a || '').replace(/'/g, "\\'");
+            const safeTeamB = String(match.team_b || '').replace(/'/g, "\\'");
 
             htmlString += `
               <div class="static-row" style="border-bottom: 2px solid #eef4f8; margin-bottom: 5px;">
@@ -1618,12 +1717,24 @@
                     <div style="font-size: 1.1rem; color: #777; font-weight: bold;">⏱️ ${match.status}</div>
                   </div>
                 </div>
-                <div class="first-numbers flex" style="width: 50%; justify-content: flex-start; gap: 10px;">
-                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamA}', ${match.odds.team_a})" style="padding: 10px 20px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
+                <div class="first-numbers flex" style="width: 50%; justify-content: flex-start; gap: 10px; flex-wrap: wrap;">
+                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamA}', ${match.odds.team_a}, 'Match Winner', '${safeTeamA}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
                     1: ${match.odds.team_a.toFixed(2)}
                   </span>
-                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamB}', ${match.odds.team_b})" style="padding: 10px 20px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
+                  <span onclick="window.openBetSlip('${safeMatchName}', '${safeTeamB}', ${match.odds.team_b}, 'Match Winner', '${safeTeamB}')" style="padding: 10px 16px; background-color: #eaf0f6; font-weight: bold; border-radius: 4px; color: #333; cursor: pointer;">
                     2: ${match.odds.team_b.toFixed(2)}
+                  </span>
+                  <span onclick="window.openBetSlip('${safeMatchName}', '1st Innings Runs: 150-170', ${(match.odds.team_a || 1.8) * 1.1}, '1st Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
+                    1st Innings 150-170
+                  </span>
+                  <span onclick="window.openBetSlip('${safeMatchName}', '2nd Innings Runs: 150-170', ${(match.odds.team_b || 1.9) * 1.12}, '2nd Innings Runs', '150-170')" style="padding: 10px 16px; background-color: #edf7e8; font-weight: bold; border-radius: 4px; color: #2f5f1d; cursor: pointer;">
+                    2nd Innings 150-170
+                  </span>
+                  <span onclick="window.openBetSlip('${safeMatchName}', 'Runs in Over 5', 1.9, 'Runs in Over', 'Over 5')" style="padding: 10px 16px; background-color: #f4f0ff; font-weight: bold; border-radius: 4px; color: #4d3ea3; cursor: pointer;">
+                    Over 5 Runs
+                  </span>
+                  <span onclick="window.openBetSlip('${safeMatchName}', 'Player to Get Wicket', 2.4, 'Player to Get Wicket', 'Player X')" style="padding: 10px 16px; background-color: #fff1ef; font-weight: bold; border-radius: 4px; color: #9b3c2a; cursor: pointer;">
+                    Wicket Pick
                   </span>
                 </div>
               </div>
