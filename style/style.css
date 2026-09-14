@@ -1390,13 +1390,69 @@ ins:target ~ main .prevent > * {
   align-items: center;
   width: 13%;
 }
+
+.sports-pill {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  color: #eaf0f6;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+}
+
+.sports-pill.active,
+.sports-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+
+.sports-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  font-size: 1.6rem;
+}
+
+.sports-pill span {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 @media (max-width: 575px) {
   .live-bets nav > .features {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
+    overflow-x: auto;
+    padding: 8px 10px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+
+  .live-bets nav > .features::-webkit-scrollbar {
+    display: none;
+  }
+
   .live-bets nav > .features > li {
     width: auto;
-    padding: 2rem 0;
+    min-width: 108px;
+    padding: 8px 10px;
+  }
+
+  .sports-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1.3rem;
   }
 }
 .live-bets nav ul li img {
