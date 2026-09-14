@@ -585,752 +585,236 @@
 
       @media (max-width: 767px) {
         body {
-          background: #111;
-          padding: 0;
-          min-height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
+          background: #ebf1f7;
         }
 
-        header,
-        main,
-        footer,
-        #bet-slip,
-        #match-detail-modal,
-        .desktop-site,
-        .landing,
-        .live-bets,
-        .sports-book,
-        .live-bets-static,
-        .casino-games,
-        .main-head,
         .top-nav {
-          display: none !important;
+          background: linear-gradient(180deg, #0a2b4f 0%, #0d426d 100%);
+          box-shadow: inset 0 -1px rgba(255,255,255,0.08);
         }
 
-        #mobile-app-shell {
-          display: block !important;
-          width: 100%;
-          max-width: 430px;
-          min-height: 100vh;
-          background: linear-gradient(180deg, #0a2d55 0%, #0d4e7f 100%);
-          box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
-          border-radius: 0;
-          overflow: hidden;
-          position: relative;
-        }
-
-        .phone-frame {
-          width: 100%;
-          min-height: 100vh;
-          background: linear-gradient(180deg, #0d2d52 0%, #0d4c7d 100%);
-          color: #fff;
-          font-family: "Roboto", sans-serif;
-          padding-bottom: 72px;
-        }
-
-        .status-bar {
-          height: 46px;
-          padding: 0 18px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 1.4rem;
-          font-weight: 700;
-          background: rgba(0,0,0,0.18);
-        }
-
-        .status-bar .right {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .status-bar .signal {
-          width: 18px;
-          height: 12px;
-          border-radius: 3px;
-          background: linear-gradient(90deg, #d9d9d9 0 25%, #b3b3b3 25% 50%, #7d7d7d 50% 100%);
-        }
-
-        .status-bar .battery {
-          width: 28px;
-          height: 14px;
-          border: 1.5px solid rgba(255,255,255,0.7);
-          border-radius: 4px;
-          position: relative;
-        }
-
-        .status-bar .battery::after {
-          content: "";
-          position: absolute;
-          right: -4px;
-          top: 3px;
-          width: 3px;
-          height: 6px;
-          background: rgba(255,255,255,0.7);
-          border-radius: 2px;
-        }
-
-        .status-bar .battery::before {
-          content: "";
-          position: absolute;
-          inset: 2px 2px 2px 2px;
-          background: linear-gradient(90deg, #b8d66d 0%, #81c550 100%);
-          border-radius: 2px;
-        }
-
-        .app-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+        .top-nav .container {
+          padding: 8px 12px;
           gap: 10px;
-          padding: 10px 14px 12px;
-          background: linear-gradient(180deg, #0c2d52 0%, #0b3f69 100%);
         }
 
-        .brand {
-          font-size: 4rem;
-          font-weight: 900;
-          letter-spacing: -0.1em;
-          color: #fff;
-          line-height: 1;
-          display: flex;
-          align-items: center;
-        }
-
-        .brand .x {
-          color: #fff;
-        }
-
-        .brand .bet {
-          color: #e8f4ff;
-          letter-spacing: -0.08em;
-        }
-
-        .brand-mark {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 26px;
-          height: 26px;
-          border-radius: 8px;
-          background: linear-gradient(180deg, #2fd0ff 0%, #0c5aa4 100%);
-          color: #fff;
-          font-size: 1.2rem;
-          margin-left: 4px;
-          box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45);
-        }
-
-        .top-actions {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .action-btn {
-          border: 0;
-          height: 36px;
-          padding: 0 18px;
-          border-radius: 10px;
-          font-size: 1.4rem;
-          font-weight: 800;
-          text-transform: uppercase;
-          background: linear-gradient(180deg, #8dcf36 0%, #5ca525 100%);
-          color: #fff;
-          box-shadow: inset 0 -2px rgba(0,0,0,0.15);
-        }
-
-        .action-btn.outline {
-          background: rgba(255,255,255,0.12);
-          border: 1px solid rgba(255,255,255,0.22);
-        }
-
-        .hamburger {
-          width: 32px;
-          height: 32px;
-          position: relative;
-          margin-left: 4px;
-        }
-
-        .hamburger span {
-          position: absolute;
-          left: 6px;
-          right: 6px;
-          height: 3px;
-          border-radius: 3px;
-          background: #fff;
-        }
-
-        .hamburger span:nth-child(1) { top: 8px; }
-        .hamburger span:nth-child(2) { top: 15px; }
-        .hamburger span:nth-child(3) { top: 22px; }
-
-        .sport-nav {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 12px 6px;
-          background: rgba(12, 39, 61, 0.9);
-          border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .sport-pill {
-          flex: 1;
-          min-height: 42px;
-          border-radius: 10px;
-          background: rgba(255,255,255,0.04);
-          color: #dfeeff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          font-weight: 700;
-          font-size: 1.3rem;
-          text-transform: uppercase;
-          border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .sport-pill.active {
-          background: rgba(255,255,255,0.1);
-          box-shadow: inset 0 -2px rgba(91, 153, 255, 0.3);
-        }
-
-        .sport-pill .dot {
-          width: 16px;
-          height: 16px;
-          background: #b8d66d;
-          border-radius: 50%;
-          box-shadow: 0 0 0 2px rgba(255,255,255,0.14);
-        }
-
-        .hero-card {
-          margin: 12px 12px 8px;
-          height: 220px;
-          border-radius: 18px;
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(120deg, rgba(9,42,81,0.5), rgba(15,98,160,0.3)), radial-gradient(circle at 42% 22%, rgba(69,184,255,0.4), transparent 30%), linear-gradient(180deg, #2d87d9 0%, #0d518a 100%);
-          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
-        }
-
-        .hero-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(90deg, rgba(255,255,255,0.08) 0 15%, transparent 15% 100%);
-          opacity: 0.8;
-        }
-
-        .hero-content {
-          position: absolute;
-          inset: 0;
-          padding: 18px 20px 0 20px;
-          z-index: 1;
-        }
-
-        .hero-title {
-          font-size: 3rem;
-          font-weight: 900;
-          line-height: 0.98;
-          letter-spacing: -0.06em;
-          text-transform: uppercase;
-          max-width: 60%;
-          margin-bottom: 8px;
-        }
-
-        .hero-sub {
-          font-size: 1.45rem;
-          color: rgba(255,255,255,0.9);
-          line-height: 1.4;
-          max-width: 72%;
-        }
-
-        .hero-cta {
-          margin-top: 18px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 170px;
-          height: 42px;
-          border-radius: 10px;
-          background: linear-gradient(180deg, #99d93e 0%, #78b92b 100%);
-          color: #fff;
-          font-size: 1.5rem;
-          font-weight: 900;
-          text-transform: uppercase;
-          box-shadow: inset 0 -2px rgba(0,0,0,0.12);
-        }
-
-        .hero-figure {
-          position: absolute;
-          right: 0;
-          bottom: 0;
-          width: 56%;
-          height: 100%;
-          background: radial-gradient(circle at 50% 25%, rgba(85,208,255,0.7), rgba(15,105,170,0)) 35%, linear-gradient(180deg, rgba(255,255,255,0.12), transparent 30%);
-        }
-
-        .hero-figure::before {
-          content: "";
-          position: absolute;
-          width: 160px;
-          height: 160px;
-          right: 48px;
-          bottom: 12px;
-          border-radius: 50%;
-          background: radial-gradient(circle at center, rgba(90,220,255,0.78), rgba(12,89,139,0.1) 65%, transparent 66%);
-        }
-
-        .hero-figure::after {
-          content: "";
-          position: absolute;
-          width: 150px;
-          height: 150px;
-          right: 36px;
-          bottom: 40px;
-          border-radius: 50%;
-          background: radial-gradient(circle at 30% 35%, #97ee6f 0%, #4edd36 25%, #2d9b32 70%, rgba(10,74,25,0.82) 100%);
-          box-shadow: inset 0 0 18px rgba(255,255,255,0.4), 0 0 30px rgba(125, 230, 110, 0.7);
-        }
-
-        .hero-dots {
-          position: absolute;
-          left: 25px;
-          bottom: 12px;
-          display: flex;
-          gap: 8px;
-          z-index: 2;
-        }
-
-        .hero-dots span {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.35);
-        }
-
-        .hero-dots span.active {
-          background: #8ddf36;
-          box-shadow: 0 0 0 3px rgba(141,223,54,0.25);
-        }
-
-        .mini-games {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 8px;
-          margin: 0 12px;
-        }
-
-        .mini-game {
-          background: linear-gradient(180deg, #1f6fb5 0%, #0c3d65 100%);
-          border-radius: 12px;
-          padding: 10px 6px 8px;
-          text-align: center;
-          min-height: 74px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 8px;
-          text-transform: capitalize;
-          color: #dfeeff;
-          font-size: 1.1rem;
-          font-weight: 700;
-        }
-
-        .mini-game .icon {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
-          background: linear-gradient(180deg, #95d83d 0%, #5cb425 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.6rem;
-          color: #fff;
-          box-shadow: inset 0 -2px rgba(0,0,0,0.15);
-        }
-
-        .tabs-row {
-          margin: 12px 12px 0;
-          background: rgba(33,84,123,0.9);
-          border-radius: 12px;
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0,1fr));
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .tab-chip {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          min-height: 52px;
-          font-size: 1.2rem;
-          color: #dfeeff;
-          background: rgba(255,255,255,0.02);
-          border-right: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .tab-chip:last-child { border-right: none; }
-
-        .tab-chip.active {
-          background: rgba(109, 173, 255, 0.18);
-          color: #fff;
-        }
-
-        .tab-chip .tab-icon {
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.75);
-        }
-
-        .match-card {
-          margin: 12px 12px 0;
-          background: #edf2f7;
-          border-radius: 16px 16px 0 0;
-          overflow: hidden;
-          color: #1a2d39;
-          box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-        }
-
-        .match-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 14px 8px;
-          background: #d9eaf5;
-        }
-
-        .match-head .league {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 1.5rem;
-          font-weight: 900;
-        }
-
-        .match-head .live-badge {
-          background: #ff5a5a;
-          color: #fff;
-          border-radius: 6px;
-          font-size: 1.1rem;
-          font-weight: 700;
-          padding: 4px 8px;
-        }
-
-        .match-body {
-          padding: 8px 10px 10px;
-        }
-
-        .match-team {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          padding: 8px 4px;
-          border-bottom: 1px solid rgba(63, 93, 116, 0.2);
-        }
-
-        .team-left {
-          display: flex;
-          align-items: center;
+        .top-nav .left-nav {
+          width: auto;
           gap: 8px;
           min-width: 0;
         }
 
-        .team-crest {
-          width: 26px;
-          height: 26px;
-          border-radius: 50%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-size: 1.2rem;
-          font-weight: 800;
-          background: linear-gradient(180deg, #ffcf4a 0%, #f39d32 100%);
+        .top-nav .left-nav .desk-top,
+        .top-nav .left-nav .telg,
+        .top-nav .left-nav > div:nth-child(4),
+        .top-nav .left-nav > div:nth-child(5) {
+          display: none;
         }
 
-        .team-name {
-          font-size: 1.6rem;
-          font-weight: 700;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .score {
-          font-size: 1.6rem;
-          font-weight: 800;
-          color: #0d2f52;
-        }
-
-        .match-score-row {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0,1fr));
-          gap: 8px;
-          padding: 10px 0 0;
-        }
-
-        .score-box {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: rgba(192,216,233,0.5);
-          border-radius: 8px;
-          min-height: 52px;
-          color: #1f3f59;
-          font-weight: 700;
-          font-size: 1.3rem;
-        }
-
-        .score-box strong {
-          font-size: 1.8rem;
-          color: #0f3558;
-        }
-
-        .bonus-box {
-          margin: 12px 12px 0;
-          background: linear-gradient(90deg, #0b3b69 0%, #0f5a92 100%);
-          border-radius: 14px;
-          padding: 16px 16px;
+        .top-nav .left-nav .mobile {
           display: flex;
           align-items: center;
-          justify-content: space-between;
           gap: 8px;
-          color: #fff;
-        }
-
-        .bonus-text {
-          font-size: 1.6rem;
-          line-height: 1.2;
-          font-weight: 900;
-          text-transform: uppercase;
-        }
-
-        .bonus-text small {
-          display: block;
-          margin-top: 8px;
-          font-size: 1.15rem;
-          text-transform: none;
-          font-weight: 500;
-          opacity: 0.9;
-        }
-
-        .bonus-register {
-          background: linear-gradient(180deg, #8ddf36 0%, #61b62f 100%);
-          color: #fff;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.08);
           border-radius: 10px;
-          padding: 12px 18px;
-          font-weight: 900;
-          font-size: 1.4rem;
-          text-transform: uppercase;
-          box-shadow: inset 0 -2px rgba(0,0,0,0.12);
+          padding: 6px 10px;
         }
 
-        .bet-area {
-          margin: 12px 12px 0;
-          background: #edf2f7;
-          border-radius: 12px 12px 0 0;
-          overflow: hidden;
-          color: #1c2e42;
-          box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        .top-nav .left-nav .mobile h3,
+        .top-nav .left-nav .mobile p {
+          color: #eff7ff;
         }
 
-        .bet-switch {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          border-bottom: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .bet-switch button {
-          border: none;
-          background: #dfeaf6;
-          color: #1f4a76;
-          font-size: 1.6rem;
-          font-weight: 800;
-          min-height: 48px;
-        }
-
-        .bet-switch button.active {
-          background: #fff;
-          color: #1a2d39;
-        }
-
-        .empty-bet {
-          min-height: 150px;
+        .top-nav .right-nav {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          color: #4f6b84;
-          padding: 18px 18px 22px;
-          font-size: 1.5rem;
-          line-height: 1.5;
-        }
-
-        .bottom-nav {
-          position: fixed;
-          left: 50%;
-          transform: translateX(-50%);
-          bottom: 0;
-          width: 100%;
-          max-width: 430px;
-          background: #0f2c51;
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0,1fr));
-          padding: 8px 8px 10px;
+          flex-wrap: wrap;
+          justify-content: flex-end;
           gap: 6px;
-          border-top: 1px solid rgba(255,255,255,0.08);
+          width: auto;
         }
 
-        .nav-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-          min-height: 54px;
-          color: #dcecfb;
+        .top-nav .right-nav > div {
+          padding: 6px 8px;
           font-size: 1.1rem;
-          font-weight: 700;
-          text-transform: capitalize;
-          position: relative;
-        }
-
-        .nav-item.active::before {
-          content: "";
-          position: absolute;
-          left: 20%;
-          right: 20%;
-          top: 0;
-          height: 3px;
-          background: #7bcf2c;
-          border-radius: 999px;
-        }
-
-        .nav-item .nav-icon {
-          width: 22px;
-          height: 22px;
           border-radius: 8px;
-          background: rgba(255,255,255,0.18);
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .top-nav .right-nav > div:not(:first-child):not(:nth-child(2)) {
+          display: none;
+        }
+
+        .main-head .container {
+          padding: 8px 12px 12px;
+          flex-wrap: wrap;
+        }
+
+        .main-head .logo {
+          width: 100%;
           display: flex;
-          align-items: center;
           justify-content: center;
+        }
+
+        .main-head .logo img {
+          max-width: 120px;
+        }
+
+        .main-head ul.flex {
+          width: 100%;
+          overflow-x: auto;
+          white-space: nowrap;
+          justify-content: flex-start;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .main-head ul.flex::-webkit-scrollbar {
+          display: none;
+        }
+
+        .main-head ul.flex li {
+          flex-shrink: 0;
+          padding: 10px 12px;
+          font-size: 1.2rem;
+          background: rgba(15, 65, 108, 0.15);
+          border-radius: 10px;
+        }
+
+        .landing {
+          padding: 12px 0 0;
+        }
+
+        .landing .container {
+          flex-direction: column;
+          padding: 0 12px;
+          gap: 12px;
+        }
+
+        .landing .registration,
+        .landing .gallery {
+          width: 100%;
+          max-width: none;
+        }
+
+        .landing .registration {
+          margin-bottom: 0;
+        }
+
+        .landing .registration .title {
+          min-height: 42px;
+          border-radius: 12px 12px 0 0;
+        }
+
+        .landing .registration .title p {
           font-size: 1.3rem;
+        }
+
+        .landing .form {
+          padding: 14px;
+          border-radius: 0 0 12px 12px;
+        }
+
+        .landing .form h3 {
+          font-size: 1.9rem;
+        }
+
+        .landing .form select,
+        .landing .form input,
+        .landing .form button {
+          min-height: 42px;
+          font-size: 1.4rem;
+        }
+
+        .landing .gallery {
+          height: 260px;
+          overflow: hidden;
+          border-radius: 14px;
+        }
+
+        .landing .gallery .slider > div {
+          padding: 20px 16px;
+        }
+
+        .landing .gallery .slider h3 {
+          font-size: 2.1rem;
+          line-height: 1.1;
+        }
+
+        .landing .gallery .slider p {
+          font-size: 1.2rem;
+        }
+
+        .landing .gallery .slider button {
+          min-height: 38px;
+          padding: 0 18px;
+          font-size: 1.2rem;
+        }
+
+        .casino-games {
+          padding: 18px 0 12px;
+        }
+
+        .casino-games .title {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          padding: 0 12px;
+        }
+
+        .casino-games .title h2 {
+          font-size: 1.7rem;
+        }
+
+        .games-grid {
+          gap: 12px;
+          padding: 8px 12px 18px;
+        }
+
+        .game-card {
+          flex-basis: 160px;
+          border-radius: 12px;
+        }
+
+        .game-thumb {
+          height: 100px;
+        }
+
+        .game-info {
+          padding: 10px 8px 12px;
+        }
+
+        .game-info h3 {
+          font-size: 1.2rem;
+          letter-spacing: 0.04em;
+        }
+
+        .game-info p {
+          font-size: 1rem;
+        }
+
+        .play-overlay span {
+          padding: 7px 12px;
+          font-size: 1rem;
+        }
+
+        .sports-book .container,
+        .live-bets .container,
+        .live-bets-static .container,
+        footer .container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .container {
+          padding-left: 12px;
+          padding-right: 12px;
         }
       }
     </style>
   </head>
   <body>
-    <div id="mobile-app-shell" style="display:none;">
-      <div class="phone-frame">
-        <div class="status-bar">
-          <span>11:40</span>
-          <div class="right">
-            <span class="signal"></span>
-            <span>100</span>
-            <span class="battery"></span>
-          </div>
-        </div>
-
-        <div class="app-header">
-          <div class="brand">
-            <span class="x">1</span><span class="bet">X</span><span class="bet">BET</span>
-            <span class="brand-mark">🇮🇳</span>
-          </div>
-
-          <div class="top-actions">
-            <button class="action-btn">Registration</button>
-            <button class="action-btn outline">Log In</button>
-            <div class="hamburger"><span></span><span></span><span></span></div>
-          </div>
-        </div>
-
-        <div class="sport-nav">
-          <div class="sport-pill active"><span class="dot"></span>Sports</div>
-          <div class="sport-pill"><span class="dot"></span>Live</div>
-          <div class="sport-pill"><span class="dot"></span>Slots</div>
-          <div class="sport-pill"><span class="dot"></span>More</div>
-        </div>
-
-        <div class="hero-card">
-          <div class="hero-content">
-            <div class="hero-title">Grand Slam Tournaments</div>
-            <div class="hero-sub">Bet on Grand Slam Tournaments and win cool prizes</div>
-            <div class="hero-cta">Take part</div>
-          </div>
-          <div class="hero-figure"></div>
-          <div class="hero-dots"><span class="active"></span><span></span><span></span><span></span><span></span><span></span></div>
-        </div>
-
-        <div class="mini-games">
-          <div class="mini-game"><div class="icon">X</div><div>1xGames</div></div>
-          <div class="mini-game"><div class="icon">C</div><div>Crash</div></div>
-          <div class="mini-game"><div class="icon">★</div><div>Crystal</div></div>
-          <div class="mini-game"><div class="icon">🔥</div><div>Burning Hot</div></div>
-          <div class="mini-game"><div class="icon">Z</div><div>Midgard</div></div>
-        </div>
-
-        <div class="tabs-row">
-          <div class="tab-chip active"><div class="tab-icon"></div><div>Matches</div></div>
-          <div class="tab-chip"><div class="tab-icon"></div><div>Featured</div></div>
-          <div class="tab-chip"><div class="tab-icon"></div><div>Upcoming</div></div>
-          <div class="tab-chip"><div class="tab-icon"></div><div>Cricket</div></div>
-          <div class="tab-chip"><div class="tab-icon"></div><div>More</div></div>
-        </div>
-
-        <div class="match-card">
-          <div class="match-head">
-            <div class="league">Sri Lanka. Major Clubs</div>
-            <div class="live-badge">LIVE</div>
-          </div>
-          <div class="match-body">
-            <div class="match-team">
-              <div class="team-left"><div class="team-crest">K</div><div class="team-name">Kurunegala Youth</div></div>
-              <div class="score">91/10</div>
-            </div>
-            <div class="match-team">
-              <div class="team-left"><div class="team-crest" style="background:linear-gradient(180deg,#ff7b7b,#d63d3d);">C</div><div class="team-name">Colombo CC</div></div>
-              <div class="score">27/0 (2.1)</div>
-            </div>
-            <div class="match-score-row">
-              <div class="score-box"><span>1</span><strong>1.85</strong></div>
-              <div class="score-box"><span>X</span><strong>2.00</strong></div>
-              <div class="score-box"><span>2</span><strong>+8</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bonus-box">
-          <div class="bonus-text">Bonus on your 1st deposit<small>Get a 100% bonus and start winning!</small></div>
-          <button class="bonus-register">Register</button>
-        </div>
-
-        <div class="bet-area">
-          <div class="bet-switch">
-            <button class="active">Bet slip</button>
-            <button>My bets</button>
-          </div>
-          <div class="empty-bet">Your bet slip is empty.<br>Find an event you're interested in and press the odds to add it to your bet slip.</div>
-        </div>
-
-        <div class="bottom-nav">
-          <div class="nav-item"><div class="nav-icon">⚽</div><div>Sports</div></div>
-          <div class="nav-item"><div class="nav-icon">🎲</div><div>Casino</div></div>
-          <div class="nav-item active"><div class="nav-icon">⚡</div><div>Quick Play</div></div>
-          <div class="nav-item"><div class="nav-icon">🧾</div><div>Bet slip</div></div>
-          <div class="nav-item"><div class="nav-icon">👤</div><div>Profile</div></div>
-        </div>
-      </div>
-    </div>
     <!-- targets for slider anchors -->
     <ins id="slide1"></ins>
     <ins id="slide2"></ins>
