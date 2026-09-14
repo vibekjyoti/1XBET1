@@ -66,6 +66,252 @@ a {
     width: 1320px;
   }
 }
+
+@media (max-width: 767px) {
+  html {
+    font-size: 56%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .top-nav .container {
+    position: relative;
+    height: auto;
+    padding: 8px 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .top-nav .burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    min-width: 44px;
+  }
+
+  .top-nav .left-nav,
+  .top-nav .right-nav {
+    display: none;
+    width: 100%;
+  }
+
+  .top-nav .left-nav.mobile-open,
+  .top-nav .right-nav.mobile-open {
+    display: flex;
+    flex-direction: column;
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .top-nav .left-nav > div,
+  .top-nav .right-nav > div {
+    width: 100%;
+    height: 44px;
+    border-left: none;
+    border-right: none;
+  }
+
+  .top-nav .left-nav .bet-app,
+  .top-nav .left-nav .smart-phone,
+  .top-nav .left-nav .telg-box,
+  .top-nav .right-nav .flag-list {
+    position: static;
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+    height: auto;
+  }
+
+  .top-nav .left-nav .desk-top::before,
+  .top-nav .left-nav .mobile::before,
+  .top-nav .left-nav .telg::before,
+  .top-nav .right-nav .menu input,
+  .top-nav .right-nav .menu .flag-list {
+    display: none !important;
+  }
+
+  .main-head .container {
+    flex-direction: column;
+    padding-top: 10px;
+  }
+
+  .main-head .logo {
+    width: 100%;
+    text-align: center;
+  }
+
+  .main-head .logo img {
+    max-width: 180px;
+  }
+
+  .main-head ul {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .main-head ul li {
+    width: 100%;
+    height: auto;
+    line-height: 1.5;
+    padding: 10px 12px;
+  }
+
+  .landing .container {
+    flex-direction: column-reverse;
+    gap: 15px;
+  }
+
+  .landing .registration,
+  .landing .gallery {
+    width: 100%;
+  }
+
+  .landing .gallery {
+    height: 300px;
+  }
+
+  .landing .gallery .slider h3,
+  .landing .gallery .slider p,
+  .landing .gallery .slider button {
+    margin-left: 20px;
+    padding-left: 0;
+    max-width: 80%;
+  }
+
+  .live-bets .container {
+    flex-direction: column;
+  }
+
+  .live-bets .title,
+  .live-bets .live-icon,
+  .live-bets nav {
+    width: 100%;
+  }
+
+  .live-bets nav > .features {
+    overflow-x: auto;
+    justify-content: flex-start;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .live-bets nav > .features > li {
+    min-width: 110px;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .live-bets nav ul .sports-menu .sports-menu-list,
+  .live-bets nav ul .play-menu .play-menu-list {
+    right: 0;
+    width: 200px;
+  }
+
+  .live-bets-static {
+    display: block;
+  }
+
+  .live-bets-static .container {
+    overflow-x: auto;
+  }
+
+  .live-bets-static .static-row,
+  .live-bets-static .arg-static {
+    min-width: 600px;
+  }
+
+  .live-bets-static .static-row .title-unit,
+  .live-bets-static .arg-static .title-unit {
+    width: 45%;
+  }
+
+  .live-bets-static .static-row > div:not(.title-unit),
+  .live-bets-static .arg-static > div:not(.title-unit) {
+    width: 11%;
+  }
+
+  .main-head ul .sports .sports-list,
+  .main-head ul .live .live-list,
+  .main-head ul .promo .promo-list,
+  .main-head ul .casino .casino-list,
+  .main-head ul .live-casino .live-casino-list,
+  .main-head ul .xgames .xgames-list,
+  .main-head ul .more .more-list {
+    position: static;
+    width: 100%;
+    left: auto;
+    right: auto;
+  }
+
+  .casino-games .title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .games-grid {
+    gap: 12px;
+  }
+
+  .game-card {
+    flex-basis: 170px;
+  }
+
+  .game-thumb {
+    height: 110px;
+    font-size: 4rem;
+  }
+
+  .game-info h3 {
+    font-size: 1.4rem;
+  }
+
+  .my-bets-content {
+    width: 96%;
+  }
+
+  #bet-slip {
+    width: 100%;
+    right: 0;
+    border-radius: 15px 15px 0 0;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 52%;
+  }
+
+  .main-head ul li {
+    padding: 8px 10px;
+  }
+
+  .landing .gallery .slider h3 {
+    font-size: 1.6rem;
+  }
+
+  .landing .gallery .slider p {
+    font-size: 1.1rem;
+  }
+
+  .live-bets nav > .features > li {
+    min-width: 96px;
+    padding: 10px 8px;
+  }
+}
 /* header style */
 .top-nav .container {
   justify-content: space-between;
