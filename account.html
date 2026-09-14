@@ -40,6 +40,10 @@
       .stat-card { background: #fff; border: 1px solid #eef4f8; padding: 20px; border-radius: 6px; text-align: center; }
       .stat-value { font-size: 2.5rem; font-weight: bold; color: #668a28; margin: 10px 0; }
       .stat-label { font-size: 1.3rem; color: #777; text-transform: uppercase; }
+      .referral-table { color: #183b56; }
+      .referral-table th { color: #183b56; font-weight: 700; }
+      .referral-table td { color: #334e68; background: #fff; }
+      .referral-table .bet-details { min-width: 220px; line-height: 1.5; }
       
       .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 1.3rem; display: none; }
       .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -52,20 +56,102 @@
       .status-pending { background: #fff3cd; color: #856404; }
       .status-approved { background: #d4edda; color: #155724; }
       .status-rejected { background: #f8d7da; color: #721c24; }
+
+      .account-header { background: #103856; padding: 15px 0; }
+      .account-header-inner { justify-content: space-between; }
+      .account-header-links { color: white; font-size: 1.6rem; font-weight: bold; }
+      .account-header-links a { color: white; text-decoration: none; margin-right: 20px; }
+      .auth-forms { display: flex; gap: 30px; }
+      .auth-register { flex: 1; border-left: 1px solid #eee; padding-left: 30px; }
+
+      @media (max-width: 767px) {
+        .account-header { padding: 10px 0; }
+        .account-header-inner { padding: 0 12px; gap: 10px; }
+        .account-header .logo { width: 112px !important; flex-shrink: 0; }
+        .account-header-links {
+          display: flex;
+          justify-content: flex-end;
+          gap: 6px;
+          min-width: 0;
+          font-size: 1.15rem;
+        }
+        .account-header-links a {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin-right: 0;
+          padding: 8px 9px;
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 8px;
+          white-space: nowrap;
+        }
+        .account-header-links a i { font-size: 1.2rem; }
+
+        main.container { padding: 0 8px; }
+        .account-container {
+          margin: 12px 0;
+          padding: 12px;
+          border-radius: 8px;
+          min-height: 0;
+        }
+        .account-layout { display: block; }
+        .account-sidebar {
+          width: 100%;
+          display: flex;
+          gap: 6px;
+          padding: 6px;
+          margin-bottom: 14px;
+          overflow-x: auto;
+          border-radius: 8px;
+        }
+        .account-nav-item {
+          flex: 0 0 auto;
+          padding: 10px 12px;
+          border-left: 0;
+          border-bottom: 3px solid transparent;
+          border-radius: 6px;
+          font-size: 1.15rem;
+          white-space: nowrap;
+        }
+        .account-nav-item.active { border-left: 0; border-bottom-color: #668a28; }
+        .account-nav-item i { width: auto; margin-right: 4px; }
+        .section-title { font-size: 1.7rem; margin-bottom: 16px; }
+        .auth-forms { display: block !important; }
+        .auth-forms > div { width: 100%; box-sizing: border-box; }
+        .auth-register {
+          margin-top: 24px;
+          padding: 24px 0 0;
+          border-left: 0;
+          border-top: 1px solid #eee;
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { font-size: 1.15rem; }
+        .form-control { padding: 11px; font-size: 1.25rem; }
+        .btn-primary { width: 100%; padding: 11px 16px; font-size: 1.2rem; }
+        .wallet-balance-box { padding: 22px 14px; }
+        .wallet-balance-amount { font-size: 3rem; }
+        .account-content { min-width: 0; overflow: hidden; }
+        .account-content table { display: block; overflow-x: auto; white-space: nowrap; }
+        .ref-link-box { align-items: stretch; flex-direction: column; gap: 12px; }
+        .btn-copy { margin-left: 0; }
+        .stats-grid { gap: 8px; }
+        .stat-card { padding: 14px 8px; }
+        .stat-value { font-size: 2rem; }
+      }
     </style>
   </head>
   <body>
     
-    <header style="background: #103856; padding: 15px 0;">
-      <div class="container flex" style="justify-content: space-between;">
+    <header class="account-header">
+      <div class="container flex account-header-inner">
         <div class="logo" style="width: 150px;">
           <a href="index.html">
             <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" style="width: 100%;" />
           </a>
         </div>
-        <div style="color: white; font-size: 1.6rem; font-weight: bold;">
-          <a href="index.html" style="color: white; text-decoration: none; margin-right: 20px;"><i class="fa fa-home"></i> Home</a>
-          <a href="payments.html" style="color: white; text-decoration: none; margin-right: 20px;"><i class="fa fa-money"></i> Payments</a>
+        <div class="account-header-links">
+          <a href="index.html"><i class="fa fa-home"></i> Home</a>
+          <a href="payments.html"><i class="fa fa-money"></i> Payments</a>
         </div>
       </div>
     </header>
@@ -100,7 +186,7 @@
             <!-- Auth Section -->
             <div id="sec-auth" class="content-section active">
               <h2 class="section-title">Account Access</h2>
-              <div style="display: flex; gap: 30px;">
+              <div class="auth-forms">
                 <div style="flex: 1;">
                   <h3 style="color: #1f72ad; margin-top: 0;">Log In</h3>
                   <div class="form-group">
@@ -113,7 +199,7 @@
                   </div>
                   <button class="btn-primary" id="btn-login">Log In</button>
                 </div>
-                <div style="flex: 1; border-left: 1px solid #eee; padding-left: 30px;">
+                <div class="auth-register">
                   <h3 style="color: #668a28; margin-top: 0;">Register</h3>
                   <div class="form-group">
                     <label>Email Address</label>
@@ -198,10 +284,13 @@
               </div>
 
               <h3 style="color: #103856; margin-bottom: 15px;">Your Network</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 1.3rem;">
+              <table class="referral-table" style="width: 100%; border-collapse: collapse; font-size: 1.3rem;">
                 <tr style="background: #eaf0f6; text-align: left;">
                   <th style="padding: 12px; border: 1px solid #d6dbdd;">User Email</th>
                   <th style="padding: 12px; border: 1px solid #d6dbdd;">Joined</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Deposited</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Bets Placed</th>
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Bet Details</th>
                 </tr>
                 <tbody id="ref-table-body">
                   <!-- Dynamic rows injected here -->
@@ -426,6 +515,37 @@
         }
       });
 
+      // --- COPY REFERRAL LINK ---
+      document.getElementById('btn-copy-ref').addEventListener('click', async () => {
+        const referralLink = document.getElementById('referral-link').innerText.trim();
+        const copyButton = document.getElementById('btn-copy-ref');
+        if (!referralLink || referralLink === 'Generating...') return;
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(referralLink);
+          } else {
+            const copyInput = document.createElement('textarea');
+            copyInput.value = referralLink;
+            copyInput.setAttribute('readonly', '');
+            copyInput.style.position = 'fixed';
+            copyInput.style.opacity = '0';
+            document.body.appendChild(copyInput);
+            copyInput.select();
+            document.execCommand('copy');
+            copyInput.remove();
+          }
+
+          const originalButtonText = copyButton.innerHTML;
+          copyButton.innerHTML = '<i class="fa fa-check"></i> Copied';
+          setTimeout(() => {
+            copyButton.innerHTML = originalButtonText;
+          }, 1800);
+        } catch (error) {
+          showAlert('Unable to copy referral link. Please copy it manually.', 'error');
+        }
+      });
+
       // --- LOAD REFERRALS ---
       async function loadReferrals(myRefCode) {
         const q = query(collection(db, "users"), where("referredByCode", "==", myRefCode));
@@ -436,20 +556,42 @@
         document.getElementById('ref-count').innerText = querySnapshot.size;
 
         if(querySnapshot.empty) {
-          tableBody.innerHTML = '<tr><td colspan="2" style="padding: 12px; text-align: center; color: #777;">No referrals yet. Share your link!</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="5" style="padding: 12px; text-align: center; color: #777;">No referrals yet. Share your link!</td></tr>';
           return;
         }
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
+        const referralRows = await Promise.all(Array.from(querySnapshot.docs).map(async (referralDoc) => {
+          const data = referralDoc.data();
+          const [transactionsSnapshot, betsSnapshot] = await Promise.all([
+            getDocs(query(collection(db, "transactions"), where("userId", "==", referralDoc.id))),
+            getDocs(query(collection(db, "bets"), where("userId", "==", referralDoc.id)))
+          ]);
+
+          const approvedDeposits = transactionsSnapshot.docs
+            .map(transactionDoc => transactionDoc.data())
+            .filter(transaction => transaction.type === "Deposit" && transaction.status === "Approved")
+            .reduce((total, transaction) => total + (parseFloat(transaction.amount) || 0), 0);
+
+          const betDetails = betsSnapshot.docs.map(betDoc => {
+            const bet = betDoc.data();
+            return `${bet.match || "Match"}: ${bet.selection || bet.betOption || "Selection"}`;
+          });
+
           const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "Just now";
-          tableBody.innerHTML += `
+          const details = betDetails.length ? betDetails.join("<br>") : "No bets yet";
+
+          return `
             <tr>
-              <td style="padding: 12px; border: 1px solid #d6dbdd;">${data.email}</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${data.email || "Unknown user"}</td>
               <td style="padding: 12px; border: 1px solid #d6dbdd;">${date}</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${approvedDeposits.toFixed(2)} INR</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${betsSnapshot.size}</td>
+              <td class="bet-details" style="padding: 12px; border: 1px solid #d6dbdd;">${details}</td>
             </tr>
           `;
-        });
+        }));
+
+        tableBody.innerHTML = referralRows.join('');
       }
 
       // Tab Event Listeners
