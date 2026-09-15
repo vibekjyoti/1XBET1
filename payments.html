@@ -33,6 +33,7 @@
       .upi-qr-fallback { width: 200px; height: 200px; background: #f4f4f4; border: 2px dashed #ccc; border-radius: 8px; margin: 20px auto; display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.3rem; text-align: center; }
       .upi-payment-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin: 20px 0; }
       .upi-payment-option { min-width: 0; }
+      .upi-payment-option.is-hidden { display: none; }
       .upi-payment-option .upi-qr { width: 100%; max-width: 180px; height: 180px; margin: 0 auto 10px; }
       .upi-payment-id { margin: 0; color: #1f72ad; font-size: 1.3rem; font-weight: bold; overflow-wrap: anywhere; }
       @media (max-width: 480px) { .upi-payment-options { grid-template-columns: 1fr; } }
@@ -145,11 +146,11 @@
         <p style="font-size: 1.3rem; color: #555; margin-bottom: 0;">Use any UPI App (GPay, PhonePe, Paytm)</p>
         
         <div class="upi-payment-options">
-          <div class="upi-payment-option">
+          <div id="upi-option-1" class="upi-payment-option">
             <img src="images/deepakqr1.jpeg" alt="UPI payment QR code 1" class="upi-qr" />
             <p class="upi-payment-id">9604173749@mairtel</p>
           </div>
-          <div class="upi-payment-option">
+          <div id="upi-option-2" class="upi-payment-option">
             <img src="images/deepakqr2.jpeg" alt="UPI payment QR code 2" class="upi-qr" />
             <p class="upi-payment-id">8432401323@mairtel</p>
           </div>
@@ -236,6 +237,23 @@
           window.closeModal(modalId);
         }
       };
+
+      // Alternate the visible payment QR on every page load.
+      const upiOptions = [
+        document.getElementById('upi-option-1'),
+        document.getElementById('upi-option-2')
+      ];
+      let visibleUpiIndex = 0;
+      try {
+        const previousUpiIndex = Number(localStorage.getItem('lastVisibleUpiIndex'));
+        visibleUpiIndex = previousUpiIndex === 0 ? 1 : 0;
+        localStorage.setItem('lastVisibleUpiIndex', String(visibleUpiIndex));
+      } catch (error) {
+        visibleUpiIndex = 0;
+      }
+      upiOptions.forEach((option, index) => {
+        option.classList.toggle('is-hidden', index !== visibleUpiIndex);
+      });
 
       // --- Firebase Transaction Functions ---
       
