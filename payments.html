@@ -75,7 +75,7 @@
             <div class="payment-method" onclick="window.openModal('upiDepositModal')">
               <i class="fa fa-qrcode" style="color: #ff7900;"></i>
               <span>UPI / QR</span>
-              <small>Min: 500 INR</small>
+              <small>Min: 10 INR</small>
             </div>
             <div class="payment-method" onclick="alert('Proceeding to Visa/Mastercard gateway...')">
               <i class="fa fa-cc-visa" style="color: #142787;"></i>
@@ -158,7 +158,7 @@
         
         <div style="text-align: left; margin-top: 25px;">
           <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Deposit Amount (INR):</label>
-          <input type="number" id="deposit-amount" class="input-field" placeholder="Min. 500" min="500" />
+          <input type="number" id="deposit-amount" class="input-field" placeholder="Min. 10" min="10" />
 
           <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Enter 12-Digit UTR / Ref Number:</label>
           <input type="text" id="deposit-utr" class="input-field" placeholder="e.g. 123456789012" maxlength="12" />
@@ -269,8 +269,8 @@
         const amount = parseFloat(document.getElementById('deposit-amount').value);
         const utr = document.getElementById('deposit-utr').value.trim();
 
-        if (isNaN(amount) || amount < 500) {
-          alert("Minimum deposit amount is 500 INR.");
+        if (isNaN(amount) || amount < 10) {
+          alert("Minimum deposit amount is 10 INR.");
           return;
         }
         if (utr.length < 12) {
