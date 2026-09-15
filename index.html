@@ -417,12 +417,12 @@
       .casino-games .title h2 { font-size: 2.4rem; color: #103856; text-transform: uppercase; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 10px; }
       .casino-games .title span { font-size: 1.3rem; color: #1f72ad; font-weight: bold; }
       
-      .games-grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+      .games-grid { display: grid; grid-template-rows: repeat(2, minmax(0, auto)); grid-auto-flow: column; grid-auto-columns: minmax(160px, 240px); gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
       .games-grid::-webkit-scrollbar { height: 8px; }
       .games-grid::-webkit-scrollbar-thumb { background: #1f72ad; border-radius: 4px; }
       .games-grid::-webkit-scrollbar-track { background: #d6dbdd; border-radius: 4px; }
       
-      .game-card { flex: 0 0 240px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; display: block; scroll-snap-align: start; }
+      .game-card { width: 100%; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; display: block; scroll-snap-align: start; }
       .game-card:hover { transform: translateY(-6px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
       
       .game-thumb { height: 150px; display: flex; justify-content: center; align-items: center; font-size: 6rem; color: white; position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; border-bottom: 1px solid #1a3148; }
@@ -471,6 +471,7 @@
       .game-thumb.reddog { background: radial-gradient(circle at center, #c0392b, #e74c3c); }
       .game-thumb.baccarat1 { background: radial-gradient(circle at center, #8e44ad, #9b59b6); }
       .game-thumb.colorprediction { background: linear-gradient(135deg, #ff0000, #00ff00, #0000ff); }
+      .game-thumb.additional-game { background: linear-gradient(135deg, #1f72ad, #103856); }
 
       .game-info { padding: 15px; text-align: center; border-top: 1px solid #eee; }
       .game-info h3 { margin: 0; font-size: 1.8rem; color: #103856; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
@@ -515,8 +516,8 @@
 
         /* Mobile Mini-Games Adjustments */
         .casino-games .title h2 { font-size: 1.8rem; }
-        .games-grid { gap: 15px; }
-        .game-card { flex: 0 0 170px; }
+        .games-grid { grid-auto-columns: minmax(170px, 1fr); gap: 15px; }
+        .game-card { width: 100%; }
         .game-thumb { height: 110px; font-size: 4rem; }
         .game-info h3 { font-size: 1.4rem; }
         .game-info p { font-size: 1.1rem; }
@@ -669,6 +670,11 @@
           border: 1px solid rgba(255,255,255,0.1);
         }
 
+        .header-user-btn {
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.15);
+        }
+
         .top-nav .right-nav > div:not(:first-child):not(:nth-child(2)) {
           display: none;
         }
@@ -715,6 +721,12 @@
         .main-head-auth .header-auth-btn {
           padding: 8px 10px;
           font-size: 0.95rem;
+        }
+
+        .main-head-auth .header-user-btn {
+          padding: 7px 8px;
+          font-size: 0.82rem;
+          letter-spacing: 0;
         }
 
         .main-head ul.flex {
@@ -836,7 +848,7 @@
         }
 
         .game-card {
-          flex-basis: 160px;
+          width: 100%;
           border-radius: 12px;
         }
 
@@ -943,10 +955,7 @@
           </div>
 
           <div class="right-nav flex">
-            <div class="header-auth-actions">
-              <button class="header-auth-btn secondary" onclick="window.location.href='account.html'">Sign in</button>
-              <button class="header-auth-btn" onclick="window.location.href='account.html'">Sign up</button>
-            </div>
+            <div class="header-auth-actions" id="header-auth-top"></div>
             <div class="flex" title="Select time zone">
               01:10 <i class="fa fa-chevron-down"></i>
             </div>
@@ -979,10 +988,7 @@
           <div class="logo">
             <img src="https://v2l.cdnafric.com/genfiles/cms/pg/70/images/09ef1ad2e0b8613684c2d1cd91f4d3a6.svg" alt="logo" title="1xBet Betting Company" />
           </div>
-          <div class="main-head-auth">
-            <button class="header-auth-btn secondary" onclick="window.location.href='account.html'">Sign in</button>
-            <button class="header-auth-btn" onclick="window.location.href='account.html'">Sign up</button>
-          </div>
+          <div class="main-head-auth" id="header-auth-main"></div>
           <ul class="flex">
             <li class="sports dropdown-live" onclick="window.location.href='index.html'">CRICKET <i class="fa fa-chevron-down"></i></li>
             <li class="live dropdown-live" onclick="window.location.href='index.html'">SOCCER <i class="fa fa-chevron-down"></i></li>
@@ -1066,7 +1072,7 @@
         <div class="container">
           <div class="title">
             <h2><i class="fa fa-gamepad" style="color: #238cf5;"></i> POPULAR MINI-GAMES</h2>
-            <span>60 GAMES ACTIVE ⚡</span>
+            <span>100 GAMES ACTIVE ⚡</span>
           </div>
           <div class="games-grid">
             
@@ -1511,6 +1517,46 @@
               </div>
             </a>
 
+            <!-- ADDITIONAL GAME PAGES -->
+            <a href="anubis-tower.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-building"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Anubis Tower</h3><p>Climb and Win</p></div></a>
+            <a href="baccarat-dragon.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-diamond"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Baccarat Dragon</h3><p>Dragon Baccarat</p></div></a>
+            <a href="baccarat-squeeze.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-diamond"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Baccarat Squeeze</h3><p>Player vs Banker</p></div></a>
+            <a href="balloon.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-circle-o"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Balloon</h3><p>Rise and Cash Out</p></div></a>
+            <a href="bomb-squad.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bomb"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Bomb Squad</h3><p>Find the Safe Path</p></div></a>
+            <a href="bulls-bears.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-line-chart"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Bulls &amp; Bears</h3><p>Market Prediction</p></div></a>
+            <a href="card-match.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-clone"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Card Match</h3><p>Match the Cards</p></div></a>
+            <a href="casino-holdem.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-heart"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Casino Hold'em</h3><p>Poker Against the House</p></div></a>
+            <a href="chicken-road.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-road"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Chicken Road</h3><p>Cross for Rewards</p></div></a>
+            <a href="clover-scratch.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-leaf"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Clover Scratch</h3><p>Scratch to Win</p></div></a>
+            <a href="coin-pusher.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-money"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Coin Pusher</h3><p>Push for Prizes</p></div></a>
+            <a href="coin-strike.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bullseye"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Coin Strike</h3><p>Hit the Target</p></div></a>
+            <a href="color-wheel.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-adjust"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Color Wheel</h3><p>Predict the Color</p></div></a>
+            <a href="cricket-x.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-soccer-ball-o"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Cricket X</h3><p>Cricket Predictions</p></div></a>
+            <a href="crypto-moon.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-moon-o"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Crypto Moon</h3><p>Trade Prediction</p></div></a>
+            <a href="cupid-arrow.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bullseye"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Cupid Arrow</h3><p>Hit the Target</p></div></a>
+            <a href="darts.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bullseye"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Darts</h3><p>Target Challenge</p></div></a>
+            <a href="double-roll.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-repeat"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Double Roll</h3><p>Roll for Doubles</p></div></a>
+            <a href="fireball-keno.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-fire"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Fireball Keno</h3><p>Number Draw</p></div></a>
+            <a href="goal-field.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-futbol-o"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Goal Field</h3><p>Score Prediction</p></div></a>
+            <a href="greyhounds.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-trophy"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Greyhounds</h3><p>Race Betting</p></div></a>
+            <a href="jetx.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-rocket"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>JetX</h3><p>Cash Out Before Crash</p></div></a>
+            <a href="lucky-7-cards.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-star"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Lucky 7 Cards</h3><p>Card Prediction</p></div></a>
+            <a href="lucky-boxes.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-gift"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Lucky Boxes</h3><p>Pick a Prize</p></div></a>
+            <a href="matka-jodi.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-th-large"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Matka Jodi</h3><p>Jodi Prediction</p></div></a>
+            <a href="ninja-slash.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bolt"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Ninja Slash</h3><p>Quick Reflex Challenge</p></div></a>
+            <a href="pachinko.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-circle"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Pachinko</h3><p>Drop and Win</p></div></a>
+            <a href="pirate-plank.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-anchor"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Pirate Plank</h3><p>Choose Your Plank</p></div></a>
+            <a href="plinko-xtreme.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-random"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Plinko Xtreme</h3><p>Extreme Drop Game</p></div></a>
+            <a href="pyramid-rush.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-sort-amount-up"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Pyramid Rush</h3><p>Climb for Rewards</p></div></a>
+            <a href="quantum-crash.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-bolt"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Quantum Crash</h3><p>Cash Out Game</p></div></a>
+            <a href="sabong.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-trophy"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Sabong</h3><p>Fight Prediction</p></div></a>
+            <a href="safe-cracker.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-lock"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Safe Cracker</h3><p>Crack the Code</p></div></a>
+            <a href="space-taxi.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-space-shuttle"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Space Taxi</h3><p>Space Adventure</p></div></a>
+            <a href="street-futsal.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-futbol-o"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Street Futsal</h3><p>Football Challenge</p></div></a>
+            <a href="super-keno.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-star"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Super Keno</h3><p>Number Draw</p></div></a>
+            <a href="video-slot.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-film"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Video Slot</h3><p>Spin to Win</p></div></a>
+            <a href="zeppelin.html" class="game-card"><div class="game-thumb additional-game"><i class="fa fa-plane"></i><div class="play-overlay"><span>Play</span></div></div><div class="game-info"><h3>Zeppelin</h3><p>Cash Out Flight</p></div></a>
+
           </div>
         </div>
       </section>
@@ -1937,7 +1983,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
       import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-      import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
@@ -1953,6 +1999,25 @@
       const db = getFirestore(app);
       const auth = getAuth(app);
       const socketIo = window.io;
+
+      function renderHeaderActions(user) {
+        const actions = user ? `
+          <button class="header-auth-btn header-user-btn" onclick="window.openMyBets()">My Bets</button>
+          <button class="header-auth-btn header-user-btn" onclick="window.location.href='account.html'">Account</button>
+          <button class="header-auth-btn header-user-btn" onclick="window.location.href='payments.html'">Payments</button>
+        ` : `
+          <button class="header-auth-btn secondary" onclick="window.location.href='account.html'">Sign in</button>
+          <button class="header-auth-btn" onclick="window.location.href='account.html'">Sign up</button>
+        `;
+
+        document.querySelectorAll('#header-auth-top, #header-auth-main').forEach((container) => {
+          container.innerHTML = actions;
+        });
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        renderHeaderActions(user);
+      });
 
       // ---------------------------------------------------------
       // BET SLIP LOGIC
