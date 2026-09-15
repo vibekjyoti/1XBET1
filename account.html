@@ -387,10 +387,14 @@
               phone: user.phoneNumber || "",
               balance: 0.00,
               myReferralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
-              referredByCode: null,
+              referredByCode: referralCodeFromUrl ? referralCodeFromUrl.trim().toUpperCase() : null,
               isAnonymous: user.isAnonymous,
               createdAt: serverTimestamp()
             });
+          } else if (user.isAnonymous && referralCodeFromUrl && !userSnapshot.data().referredByCode) {
+            await setDoc(userRef, {
+              referredByCode: referralCodeFromUrl.trim().toUpperCase()
+            }, { merge: true });
           }
 
           // 1. LISTEN TO PROFILE/BALANCE IN REAL-TIME
