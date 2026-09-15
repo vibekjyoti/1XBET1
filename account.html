@@ -290,6 +290,7 @@
               <h3 style="color: #103856; margin-bottom: 15px;">Your Network</h3>
               <table class="referral-table" style="width: 100%; border-collapse: collapse; font-size: 1.3rem;">
                 <tr style="background: #eaf0f6; text-align: left;">
+                  <th style="padding: 12px; border: 1px solid #d6dbdd;">Name</th>
                   <th style="padding: 12px; border: 1px solid #d6dbdd;">User Email</th>
                   <th style="padding: 12px; border: 1px solid #d6dbdd;">Joined</th>
                   <th style="padding: 12px; border: 1px solid #d6dbdd;">Deposited</th>
@@ -613,7 +614,7 @@
         document.getElementById('ref-count').innerText = querySnapshot.size;
 
         if(querySnapshot.empty) {
-          tableBody.innerHTML = '<tr><td colspan="5" style="padding: 12px; text-align: center; color: #777;">No referrals yet. Share your link!</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="6" style="padding: 12px; text-align: center; color: #777;">No referrals yet. Share your link!</td></tr>';
           return;
         }
 
@@ -639,7 +640,8 @@
 
           return `
             <tr>
-              <td style="padding: 12px; border: 1px solid #d6dbdd;">${data.email || "Unknown user"}</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd; font-weight: 600;">${data.fullName || "Guest User"}</td>
+              <td style="padding: 12px; border: 1px solid #d6dbdd;">${data.email || "Guest account"}</td>
               <td style="padding: 12px; border: 1px solid #d6dbdd;">${date}</td>
               <td style="padding: 12px; border: 1px solid #d6dbdd;">${approvedDeposits.toFixed(2)} INR</td>
               <td style="padding: 12px; border: 1px solid #d6dbdd;">${betsSnapshot.size}</td>
