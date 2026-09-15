@@ -339,6 +339,14 @@
       const secProfile = document.getElementById('sec-profile');
       const secReferral = document.getElementById('sec-referral');
       const alertBox = document.getElementById('global-alert');
+      const referralCodeFromUrl = new URLSearchParams(window.location.search).get('ref');
+      const referralCodeInput = document.getElementById('reg-ref-code');
+
+      if (referralCodeFromUrl && referralCodeInput) {
+        referralCodeInput.value = referralCodeFromUrl.trim().toUpperCase();
+        referralCodeInput.readOnly = true;
+        referralCodeInput.title = 'Referral code applied from your invitation link';
+      }
 
       // Utility: Show Alert
       function showAlert(message, type) {
