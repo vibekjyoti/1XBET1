@@ -186,6 +186,10 @@
             <!-- Auth Section -->
             <div id="sec-auth" class="content-section active">
               <h2 class="section-title">Account Access</h2>
+              <div style="max-width: 420px; margin: 0 auto 24px; text-align: center;">
+                <button class="btn-primary" id="btn-anonymous-login" style="background: #103856;">Continue as Guest</button>
+                <p style="margin: 8px 0 0; color: #777; font-size: 1.2rem;">Guest accounts can be upgraded later with email or phone verification.</p>
+              </div>
               <div class="auth-forms">
                 <div style="flex: 1;">
                   <h3 style="color: #1f72ad; margin-top: 0;">Log In</h3>
@@ -251,7 +255,7 @@
               </div>
               <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" id="profile-name" class="form-control" />
+                <input type="text" id="profile-name" class="form-control" required />
               </div>
               <div class="form-group">
                 <label>Email Address <i class="fa fa-lock"></i></label>
@@ -259,7 +263,7 @@
               </div>
               <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" id="profile-phone" class="form-control" />
+                <input type="tel" id="profile-phone" class="form-control" required />
               </div>
               <button class="btn-primary" id="btn-save-profile">Save Changes</button>
             </div>
@@ -306,8 +310,8 @@
     <!-- Firebase SDK & Logic (Modular v10) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-      import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCYB1hIe_h81iVVx_c6_cRl2R4-oXLsaqs",
@@ -355,6 +359,7 @@
 
       // --- AUTHENTICATION STATE OBSERVER ---
       let unsubscribeProfile = null;
+      let guestNeedsProfile = false;
 
       onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -363,10 +368,25 @@
           navProfile.classList.remove('hidden');
           navReferral.classList.remove('hidden');
           navLogout.classList.remove('hidden');
-          window.switchTab('wallet');
+          window.switchTab(user.isAnonymous && guestNeedsProfile ? 'profile' : 'wallet');
+
+          const userRef = doc(db, "users", user.uid);
+          const userSnapshot = await getDoc(userRef);
+          if (!userSnapshot.exists()) {
+            await setDoc(userRef, {
+              email: user.email || null,
+              fullName: "",
+              phone: user.phoneNumber || "",
+              balance: 0.00,
+              myReferralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+              referredByCode: null,
+              isAnonymous: user.isAnonymous,
+              createdAt: serverTimestamp()
+            });
+          }
 
           // 1. LISTEN TO PROFILE/BALANCE IN REAL-TIME
-          unsubscribeProfile = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+          unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
               const data = docSnap.data();
               
@@ -492,6 +512,24 @@
         }
       });
 
+      // --- ANONYMOUS LOGIN ---
+      document.getElementById('btn-anonymous-login').addEventListener('click', async () => {
+        const button = document.getElementById('btn-anonymous-login');
+        button.disabled = true;
+        button.innerText = 'Signing in...';
+        try {
+          guestNeedsProfile = true;
+          await signInAnonymously(auth);
+          window.switchTab('profile');
+          showAlert('Enter your name and mobile number to finish guest setup.', 'success');
+        } catch (error) {
+          guestNeedsProfile = false;
+          showAlert(error.message || 'Guest login is unavailable.', 'error');
+          button.disabled = false;
+          button.innerText = 'Continue as Guest';
+        }
+      });
+
       // --- LOGOUT ---
       navLogout.addEventListener('click', async () => {
         await signOut(auth);
@@ -504,12 +542,19 @@
         const fullName = document.getElementById('profile-name').value;
         const phone = document.getElementById('profile-phone').value;
 
+        if (user.isAnonymous && (!fullName.trim() || !phone.trim())) {
+          showAlert('Guest accounts must enter a name and mobile number.', 'error');
+          return;
+        }
+
         try {
           await setDoc(doc(db, "users", user.uid), {
             fullName: fullName,
             phone: phone
           }, { merge: true });
+          guestNeedsProfile = false;
           showAlert("Profile updated!", "success");
+          if (user.isAnonymous) window.switchTab('wallet');
         } catch (error) {
           showAlert("Error updating profile", "error");
         }
