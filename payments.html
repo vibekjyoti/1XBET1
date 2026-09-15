@@ -29,7 +29,13 @@
       .modal-content { background-color: #fff; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
       .close-btn { position: absolute; right: 15px; top: 10px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; }
       .close-btn:hover { color: #333; }
-      .qr-placeholder { width: 200px; height: 200px; background: #f4f4f4; border: 2px dashed #ccc; border-radius: 8px; margin: 20px auto; display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.4rem; }
+      .upi-qr { width: 200px; height: 200px; object-fit: contain; background: #fff; border: 2px solid #d6dbdd; border-radius: 8px; margin: 20px auto; display: block; padding: 8px; box-sizing: border-box; }
+      .upi-qr-fallback { width: 200px; height: 200px; background: #f4f4f4; border: 2px dashed #ccc; border-radius: 8px; margin: 20px auto; display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.3rem; text-align: center; }
+      .upi-payment-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin: 20px 0; }
+      .upi-payment-option { min-width: 0; }
+      .upi-payment-option .upi-qr { width: 100%; max-width: 180px; height: 180px; margin: 0 auto 10px; }
+      .upi-payment-id { margin: 0; color: #1f72ad; font-size: 1.3rem; font-weight: bold; overflow-wrap: anywhere; }
+      @media (max-width: 480px) { .upi-payment-options { grid-template-columns: 1fr; } }
       .input-field { width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.4rem; box-sizing: border-box; }
       .submit-btn { margin-top: 10px; padding: 12px 20px; background: #668a28; color: white; border: none; border-radius: 4px; font-size: 1.4rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.3s; }
       .submit-btn:hover { background: #557321; }
@@ -138,11 +144,16 @@
         <h3 style="color: #103856; font-size: 1.8rem; margin-top: 0;">Scan to Pay</h3>
         <p style="font-size: 1.3rem; color: #555; margin-bottom: 0;">Use any UPI App (GPay, PhonePe, Paytm)</p>
         
-        <div class="qr-placeholder">
-          [ Insert QR Image Here ]
+        <div class="upi-payment-options">
+          <div class="upi-payment-option">
+            <img src="images/deepakqr1.jpeg" alt="UPI payment QR code 1" class="upi-qr" />
+            <p class="upi-payment-id">9604173749@mairtel</p>
+          </div>
+          <div class="upi-payment-option">
+            <img src="images/deepakqr2.jpeg" alt="UPI payment QR code 2" class="upi-qr" />
+            <p class="upi-payment-id">8432401323@mairtel</p>
+          </div>
         </div>
-        
-        <p style="font-size: 1.4rem; font-weight: bold; color: #333;">UPI ID: <span style="color: #1f72ad;">client-payment@upi</span></p>
         
         <div style="text-align: left; margin-top: 25px;">
           <label style="font-size: 1.2rem; color: #555; font-weight: bold;">Deposit Amount (INR):</label>
