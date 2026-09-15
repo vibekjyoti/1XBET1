@@ -1,0 +1,257 @@
+<!-- Save this as color-wheel.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Color Wheel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-red: #e74c3c; --c-blue: #3498db; --c-green: #2ecc71; --c-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; }
+
+        /* Wheel Area */
+        .wheel-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.8); background: #111; }
+        
+        /* The Flapper */
+        .flapper { position: absolute; top: -15px; width: 30px; height: 45px; background: #fff; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); transform-origin: top center; transition: transform 0.1s; }
+        .flapper.tick { transform: rotate(15deg); }
+
+        .wheel-center { position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, #222, #000); border: 4px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 5; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .center-logo { font-weight: 900; font-style: italic; font-size: 18px; color: #fff; }
+
+        .status-msg { font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff; background: var(--bg-panel); padding: 10px 25px; border-radius: 30px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Betting Board */
+        .betting-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 600px; }
+        .bet-btn { padding: 15px 10px; border-radius: 10px; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; border: 2px solid transparent; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #fff; }
+        .bet-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .bet-btn.selected { border-color: #fff; transform: scale(1.05); z-index: 2; }
+        
+        .payout-info { font-size: 11px; opacity: 0.9; margin-top: 4px; font-weight: bold; }
+
+        .c-red { background: var(--c-red); } .bet-btn.selected.c-red { box-shadow: 0 0 20px rgba(231,76,60,0.6); }
+        .c-blue { background: var(--c-blue); } .bet-btn.selected.c-blue { box-shadow: 0 0 20px rgba(52,152,219,0.6); }
+        .c-green { background: var(--c-green); } .bet-btn.selected.c-green { box-shadow: 0 0 20px rgba(46,204,113,0.6); }
+        .c-gold { background: var(--c-gold); color: #111; } .bet-btn.selected.c-gold { box-shadow: 0 0 20px rgba(241,196,15,0.6); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 600px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-spin { flex: 1; background: #238cf5; color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1868b8; transition: 0.1s; }
+        .btn-spin:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #1868b8; }
+        .btn-spin:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .betting-board { grid-template-columns: 1fr 1fr; }
+            .controls { flex-direction: column; }
+            .btn-spin { padding: 15px; width: 100%; }
+            .wheel-container { width: 300px; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="status-msg" id="statusMsg">PLACE YOUR BET</div>
+
+        <div class="wheel-container">
+            <div class="flapper" id="flapper"></div>
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="wheel-center">
+                <div class="center-logo">SPIN</div>
+            </div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn c-red" onclick="selectColor('RED', 2, this)">RED <div class="payout-info">2x Payout</div></div>
+            <div class="bet-btn c-blue" onclick="selectColor('BLUE', 3, this)">BLUE <div class="payout-info">3x Payout</div></div>
+            <div class="bet-btn c-green" onclick="selectColor('GREEN', 5, this)">GREEN <div class="payout-info">5x Payout</div></div>
+            <div class="bet-btn c-gold" onclick="selectColor('GOLD', 50, this)">GOLD <div class="payout-info">50x Payout</div></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-spin" id="btnSpin" onclick="spinWheel()">SPIN WHEEL</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const flapper = document.getElementById('flapper');
+        const balanceEl = document.getElementById('balance');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnSpin = document.getElementById('btnSpin');
+
+        let balance = 10000.00;
+        let selectedColor = null;
+        let currentMultiplier = 0;
+        let isSpinning = false;
+        
+        // 54 Segments: 26 Red, 17 Blue, 10 Green, 1 Gold
+        const segments = [];
+        const layout = [
+            'RED','BLUE','RED','GREEN','RED','BLUE','RED','BLUE','RED','GREEN',
+            'RED','BLUE','RED','BLUE','RED','GREEN','RED','BLUE','RED','BLUE',
+            'RED','GREEN','RED','BLUE','RED','BLUE','RED','GREEN','RED','BLUE',
+            'RED','BLUE','RED','GREEN','RED','BLUE','RED','BLUE','RED','GREEN',
+            'RED','BLUE','RED','BLUE','RED','GREEN','RED','BLUE','RED','GREEN',
+            'RED','BLUE','RED','GOLD'
+        ];
+        
+        const colors = {
+            'RED': '#e74c3c',
+            'BLUE': '#3498db',
+            'GREEN': '#2ecc71',
+            'GOLD': '#f1c40f'
+        };
+
+        layout.forEach(c => segments.push({ id: c, color: colors[c] }));
+
+        const sliceAngle = (2 * Math.PI) / segments.length;
+        let currentRotation = 0;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = cx;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(currentRotation);
+
+            for (let i = 0; i < segments.length; i++) {
+                const angle = i * sliceAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, angle, angle + sliceAngle);
+                ctx.fillStyle = segments[i].color;
+                ctx.fill();
+                ctx.strokeStyle = '#111';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Add peg
+                ctx.beginPath();
+                ctx.arc(radius - 8, 0, 3, 0, 2*Math.PI);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        drawWheel();
+
+        function selectColor(color, multi, el) {
+            if (isSpinning) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedColor = color;
+            currentMultiplier = multi;
+            statusMsg.innerText = `BET: ${color}`;
+            statusMsg.style.borderColor = colors[color];
+        }
+
+        function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+        function spinWheel() {
+            if (!selectedColor) return alert("Select a color on the board first!");
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert("Invalid Bet");
+            if (betAmt > balance) return alert("Insufficient Balance");
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+            isSpinning = true;
+            btnSpin.disabled = true;
+            statusMsg.innerText = 'SPINNING...';
+            statusMsg.style.borderColor = 'var(--border-color)';
+
+            const spinTime = 6000; 
+            const startTime = performance.now();
+            
+            // Random target
+            const winningIndex = Math.floor(Math.random() * segments.length);
+            const targetRot = (Math.PI * 2 * 8) - (winningIndex * sliceAngle) - (sliceAngle / 2) - (Math.PI / 2); // 8 extra rotations
+
+            let lastPeg = 0;
+
+            function animate(now) {
+                const elapsed = now - startTime;
+                if (elapsed < spinTime) {
+                    const progress = elapsed / spinTime;
+                    currentRotation = targetRot * easeOut(progress);
+                    drawWheel();
+
+                    const currentPeg = Math.floor((currentRotation + Math.PI/2) / sliceAngle);
+                    if (currentPeg !== lastPeg) {
+                        flapper.classList.add('tick');
+                        setTimeout(() => flapper.classList.remove('tick'), 50);
+                        lastPeg = currentPeg;
+                    }
+
+                    requestAnimationFrame(animate);
+                } else {
+                    currentRotation = targetRot;
+                    drawWheel();
+                    resolveWin(winningIndex, betAmt);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function resolveWin(winIdx, betAmt) {
+            const landedColor = segments[winIdx].id;
+            
+            if (landedColor === selectedColor) {
+                const win = betAmt * currentMultiplier; 
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = `LANDED ON ${landedColor}! WON ₹${win.toFixed(2)}`;
+                statusMsg.style.color = '#2ecc71';
+                statusMsg.style.borderColor = '#2ecc71';
+            } else {
+                statusMsg.innerText = `LANDED ON ${landedColor}. BET LOST.`;
+                statusMsg.style.color = '#e74c3c';
+                statusMsg.style.borderColor = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                isSpinning = false;
+                btnSpin.disabled = false;
+                statusMsg.innerText = 'PLACE YOUR BET';
+                statusMsg.style.color = '#fff';
+                statusMsg.style.borderColor = 'var(--border-color)';
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedColor = null;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

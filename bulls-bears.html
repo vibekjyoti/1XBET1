@@ -1,0 +1,198 @@
+<!-- Save this as bulls-bears.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Bulls & Bears</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-bull: #2ecc71; --c-bear: #e74c3c; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 800px; margin: auto; width: 100%; }
+
+        .arena { width: 100%; height: 260px; background: radial-gradient(ellipse at center, #162436 0%, #080d14 100%); border-radius: 16px; border: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 25px; box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        
+        .timer { position: absolute; top: 15px; font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; border: 1px solid #333; }
+
+        .tug-container { width: 90%; height: 40px; background: #111; border-radius: 20px; overflow: hidden; display: flex; position: relative; border: 3px solid #333; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .bull-bar { height: 100%; background: linear-gradient(90deg, #1e824c, var(--c-bull)); width: 50%; transition: width 0.2s cubic-bezier(0.25, 1, 0.5, 1); display: flex; align-items: center; padding-left: 15px; font-weight: 900; }
+        .bear-bar { height: 100%; background: linear-gradient(270deg, #96281b, var(--c-bear)); width: 50%; transition: width 0.2s cubic-bezier(0.25, 1, 0.5, 1); display: flex; justify-content: flex-end; align-items: center; padding-right: 15px; font-weight: 900; }
+        
+        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #fff; transform: translateX(-50%); box-shadow: 0 0 10px #fff; z-index: 10; }
+
+        .status-msg { font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+
+        /* Betting Board */
+        .betting-board { display: flex; gap: 15px; width: 100%; }
+        .bet-btn { flex: 1; padding: 25px 10px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn-bull { background: #123524; color: var(--c-bull); border-color: var(--c-bull); }
+        .btn-bear { background: #3d1414; color: var(--c-bear); border-color: var(--c-bear); }
+        
+        .bet-btn:hover { filter: brightness(1.2); transform: translateY(-3px); }
+        .bet-btn.selected { background: var(--bg-panel); border-color: #fff; transform: scale(1.05); z-index: 2; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        
+        .bet-title { font-size: 24px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-play { flex: 1; background: var(--accent-blue); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1868b8; transition: 0.1s; }
+        .btn-play:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-play:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .betting-board { flex-direction: column; }
+            .bet-btn { flex-direction: row; justify-content: space-between; padding: 15px 20px; }
+            .bet-title { margin: 0; font-size: 18px; }
+            .controls { flex-direction: column; }
+            .btn-play { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="arena">
+            <div class="timer" id="timer">10.0s</div>
+            
+            <div class="tug-container">
+                <div class="bull-bar" id="bullBar">BULLS</div>
+                <div class="center-line"></div>
+                <div class="bear-bar" id="bearBar">BEARS</div>
+            </div>
+
+            <div class="status-msg" id="statusMsg">MARKET CLOSED</div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn btn-bull" onclick="selectBet('BULLS', this)">
+                <div class="bet-title">📈 BULLS</div>
+                <div style="font-weight:bold; font-size: 13px;">PAYS 1.95x</div>
+            </div>
+            <div class="bet-btn btn-bear" onclick="selectBet('BEARS', this)">
+                <div class="bet-title">📉 BEARS</div>
+                <div style="font-weight:bold; font-size: 13px;">PAYS 1.95x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-play" id="btnPlay" onclick="startTrade()">PLACE TRADE</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const bullBar = document.getElementById('bullBar');
+        const bearBar = document.getElementById('bearBar');
+        const timerEl = document.getElementById('timer');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnPlay = document.getElementById('btnPlay');
+
+        let balance = 10000.00;
+        let selectedSide = null;
+        let isTrading = false;
+
+        function selectBet(side, el) {
+            if (isTrading) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSide = side;
+        }
+
+        function startTrade() {
+            if (!selectedSide) return alert('Select Bulls or Bears!');
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            isTrading = true;
+            btnPlay.disabled = true;
+
+            let time = 10.0;
+            let bullPower = 50;
+
+            statusMsg.innerText = 'MARKET VOLATILE...';
+            statusMsg.style.color = '#f1c40f';
+
+            const tradeInterval = setInterval(() => {
+                time -= 0.1;
+                timerEl.innerText = `${Math.max(0, time).toFixed(1)}s`;
+
+                // Shift power
+                const shift = (Math.random() - 0.5) * 8;
+                bullPower = Math.max(10, Math.min(90, bullPower + shift));
+                
+                bullBar.style.width = `${bullPower}%`;
+                bearBar.style.width = `${100 - bullPower}%`;
+
+                if (time <= 0) {
+                    clearInterval(tradeInterval);
+                    resolveTrade(bullPower, amt);
+                }
+            }, 100);
+        }
+
+        function resolveTrade(finalBullPower, betAmt) {
+            let winner = finalBullPower > 50 ? 'BULLS' : 'BEARS';
+            if (finalBullPower === 50) winner = 'TIE';
+
+            if (winner === selectedSide) {
+                const win = betAmt * 1.95;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = `${winner} DOMINATE! WON ₹${win.toFixed(2)}`;
+                statusBadgeColor(winner);
+            } else if (winner === 'TIE') {
+                balance += betAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = 'MARKET STAGNANT. PUSH.';
+                statusMsg.style.color = '#fff';
+            } else {
+                statusMsg.innerText = `${winner} CRUSH THE MARKET. LOST.`;
+                statusBadgeColor(winner);
+            }
+
+            setTimeout(() => {
+                isTrading = false;
+                btnPlay.disabled = false;
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                selectedSide = null;
+                bullBar.style.width = '50%';
+                bearBar.style.width = '50%';
+                timerEl.innerText = '10.0s';
+                statusMsg.innerText = 'MARKET CLOSED';
+                statusMsg.style.color = '#fff';
+            }, 3500);
+        }
+
+        function statusBadgeColor(winner) {
+            statusMsg.style.color = winner === 'BULLS' ? 'var(--c-bull)' : 'var(--c-bear)';
+        }
+    </script>
+</body>
+</html>

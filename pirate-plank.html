@@ -1,0 +1,205 @@
+<!-- Save this as pirate-plank.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Walk the Plank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-blue: #0984e3; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 800px; margin: auto; width: 100%; }
+
+        .ocean-stage { width: 100%; height: 300px; background: linear-gradient(180deg, #1e3c72 0%, #0a192f 100%); border-radius: 16px; border: 4px solid #3e2723; display: flex; align-items: center; padding: 0 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
+        
+        /* Ocean waves */
+        .waves { position: absolute; bottom: 0; left: 0; width: 200%; height: 80px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%230984e3" fill-opacity="0.5" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,128C672,107,768,117,864,138.7C960,160,1056,192,1152,197.3C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x; animation: waveMove 5s linear infinite; z-index: 1; }
+        @keyframes waveMove { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* The Plank */
+        .plank { display: flex; width: 85%; height: 60px; background: #8d6e63; border: 2px solid #3e2723; border-radius: 0 10px 10px 0; z-index: 5; box-shadow: 0 15px 20px rgba(0,0,0,0.5); position: relative; }
+        .ship-deck { width: 15%; height: 100%; background: #5d4037; border-right: 4px solid #3e2723; z-index: 6; display: flex; justify-content: center; align-items: center; font-size: 30px; }
+
+        .step-zone { flex: 1; border-right: 2px dashed rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; position: relative; }
+        .step-zone:last-child { border-right: none; }
+        .multi-tag { position: absolute; bottom: -30px; font-size: 13px; font-weight: 900; color: #fff; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 4px; }
+        
+        .step-zone.broken { background: transparent; border: none; }
+        .step-zone.broken::after { content: '🦈'; position: absolute; bottom: -60px; font-size: 40px; animation: sharkBite 0.5s forwards; }
+        @keyframes sharkBite { 0% { bottom: -60px; } 50% { bottom: 0; } 100% { bottom: -20px; } }
+
+        .pirate { position: absolute; left: 5%; top: 50%; transform: translateY(-50%); font-size: 40px; z-index: 10; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.5s ease-in; }
+        .pirate.falling { top: 150%; transform: translateY(0) rotate(180deg); }
+
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 25px; border-radius: 20px; font-weight: 900; font-size: 15px; letter-spacing: 2px; color: var(--accent-gold); border: 1px solid var(--accent-gold); text-transform: uppercase; z-index: 10; }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 20px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; box-shadow: 0 4px 0 rgba(0,0,0,0.3); flex: 1; }
+        .btn-start { background: var(--accent-blue); color: white; }
+        .btn-step { background: #2ecc71; color: #111; display: none; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .ocean-stage { padding: 0; }
+            .ship-deck { font-size: 20px; }
+            .pirate { font-size: 30px; }
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="ocean-stage">
+            <div class="waves"></div>
+            <div class="status-badge" id="statusBadge">PLACE BET</div>
+            
+            <div class="ship-deck">🚢</div>
+            <div class="plank" id="plank">
+                <div class="step-zone" id="s0"><div class="multi-tag">1.4x</div></div>
+                <div class="step-zone" id="s1"><div class="multi-tag">2.0x</div></div>
+                <div class="step-zone" id="s2"><div class="multi-tag">3.5x</div></div>
+                <div class="step-zone" id="s3"><div class="multi-tag">6.0x</div></div>
+                <div class="step-zone" id="s4"><div class="multi-tag">15x</div></div>
+            </div>
+            
+            <div class="pirate" id="pirate">🏴‍☠️</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action btn-start" id="btnStart" onclick="startGame()">START WALK</button>
+            <button class="btn-action btn-step" id="btnStep" onclick="takeStep()">TAKE STEP</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const pirate = document.getElementById('pirate');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnStart = document.getElementById('btnStart');
+        const btnStep = document.getElementById('btnStep');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentStep = -1;
+        let currentBet = 0;
+        
+        const multipliers = [1.4, 2.0, 3.5, 6.0, 15.0];
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentStep = -1;
+            pirate.classList.remove('falling');
+            pirate.style.left = '5%';
+
+            document.querySelectorAll('.step-zone').forEach(z => z.classList.remove('broken'));
+
+            btnStart.style.display = 'none';
+            btnStep.style.display = 'block';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'WALK THE PLANK';
+            statusBadge.style.color = '#fff';
+        }
+
+        function takeStep() {
+            if (!isPlaying) return;
+            btnStep.disabled = true;
+            currentStep++;
+
+            // Move pirate
+            const targetLeft = 25 + (currentStep * 15);
+            pirate.style.left = `${targetLeft}%`;
+
+            // Risk math: 70% safe, drops to 50% at edge
+            const risk = 0.30 + (currentStep * 0.05); 
+            const isBroken = Math.random() < risk;
+
+            setTimeout(() => {
+                if (isBroken) {
+                    document.getElementById(`s${currentStep}`).classList.add('broken');
+                    pirate.classList.add('falling');
+                    endGame(false, 'PLANK BROKE! EATEN BY SHARKS.');
+                } else {
+                    const win = currentBet * multipliers[currentStep];
+                    btnCashout.disabled = false;
+                    btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+                    if (currentStep === 4) {
+                        endGame(true, 'SURVIVED THE PLANK!');
+                    } else {
+                        btnStep.disabled = false;
+                        statusBadge.innerText = `SAFE! ${multipliers[currentStep]}x`;
+                        statusBadge.style.color = 'var(--accent-green)';
+                    }
+                }
+            }, 300);
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentStep < 0) return;
+            endGame(true, 'COWARDLY ESCAPE!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnStep.style.display = 'none';
+            btnCashout.style.display = 'none';
+            btnStart.style.display = 'block';
+            betInput.disabled = false;
+            btnStep.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentStep];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

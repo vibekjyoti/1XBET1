@@ -1,0 +1,257 @@
+<!-- Save this as pachinko.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Pachinko</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-pink: #fd79a8; --accent-blue: #0984e3; --accent-green: #00b894; --accent-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); transition: background 0.2s; }
+        .wallet.flash-win { background: rgba(46, 204, 113, 0.3); border-color: #2ecc71; }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 20px 15px; flex: 1; }
+        .game-wrapper { display: flex; gap: 20px; width: 100%; max-width: 900px; background: var(--bg-panel); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+
+        .settings-panel { width: 280px; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
+        
+        .status-box { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .status-header { font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .status-val { font-size: 28px; font-weight: 900; color: var(--accent-pink); font-variant-numeric: tabular-nums; }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-base); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-drop { padding: 20px; background: var(--accent-pink); color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #b33970; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn-drop:active { transform: translateY(4px); box-shadow: 0 1px 0 #b33970; }
+        .btn-sub { font-size: 11px; font-weight: bold; opacity: 0.8; }
+
+        .canvas-container { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #1a0b1c 0%, #05050a 100%); border-radius: 12px; border: 2px solid #fd79a8; position: relative; overflow: hidden; padding: 5px; box-shadow: inset 0 0 40px rgba(253, 121, 168, 0.2); }
+        canvas { max-width: 100%; }
+
+        @media (max-width: 768px) {
+            .game-wrapper { flex-direction: column-reverse; padding: 15px; }
+            .settings-panel { width: 100%; }
+            .canvas-container { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet" id="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="settings-panel">
+                <div class="status-box">
+                    <div class="status-header">LAST WIN</div>
+                    <div class="status-val" id="lastWin">₹0.00</div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="input-group">
+                        <label>BET PER BALL (₹)</label>
+                        <input type="number" id="betAmount" value="50" min="10">
+                    </div>
+                    <button class="btn-drop" onclick="dropBall()">
+                        DROP BALL
+                        <span class="btn-sub">RAPID FIRE ENABLED</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="pachinkoCanvas" width="500" height="600"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pachinkoCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const walletEl = document.getElementById('wallet');
+        const lastWinEl = document.getElementById('lastWin');
+        
+        let balance = 10000.00;
+        let balls = [];
+        let binHits = []; // Visual flashes for bins
+        
+        // Physics Setup
+        const rows = 14;
+        const pegRadius = 4;
+        const ballRadius = 6;
+        const startY = 40;
+        const rowSpacing = 35;
+        const colSpacing = 32;
+        
+        // Pachinko Multipliers (Edges are highest)
+        const multipliers = [50, 10, 3, 1.5, 0.5, 0.2, 0.2, 0.2, 0.5, 1.5, 3, 10, 50];
+        
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Pegs (Staggered Grid)
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#fff';
+            for (let r = 2; r < rows; r++) {
+                const pegsInRow = r + 1;
+                const rowWidth = (pegsInRow - 1) * colSpacing;
+                const startX = (canvas.width - rowWidth) / 2;
+                
+                for (let c = 0; c < pegsInRow; c++) {
+                    ctx.beginPath();
+                    ctx.arc(startX + (c * colSpacing), startY + (r * rowSpacing), pegRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.shadowBlur = 0;
+
+            // Draw Multiplier Bins
+            const binY = startY + (rows * rowSpacing) + 10;
+            const binsCount = multipliers.length;
+            const totalWidth = (binsCount) * colSpacing;
+            const bStartX = (canvas.width - totalWidth) / 2 + (colSpacing/2);
+
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < binsCount; i++) {
+                const m = multipliers[i];
+                let baseColor = m > 5 ? '#fd79a8' : (m < 1 ? '#636e72' : '#0984e3');
+                
+                // Check if bin is recently hit for flash effect
+                const hitAnim = binHits.find(h => h.index === i);
+                if (hitAnim) {
+                    baseColor = '#f1c40f'; // Flash gold
+                    hitAnim.timer--;
+                    if (hitAnim.timer <= 0) binHits = binHits.filter(h => h !== hitAnim);
+                }
+                
+                ctx.fillStyle = baseColor;
+                ctx.beginPath();
+                ctx.roundRect(bStartX + (i * colSpacing) - 15, binY, 30, 25, 4);
+                ctx.fill();
+                
+                ctx.fillStyle = '#111';
+                ctx.fillText(`${m}x`, bStartX + (i * colSpacing), binY + 12);
+            }
+
+            // Physics loop for Balls
+            balls.forEach((ball, index) => {
+                ball.vy += 0.3; // gravity
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                // Wall bounds
+                if (ball.x < ballRadius) { ball.x = ballRadius; ball.vx *= -0.5; }
+                if (ball.x > canvas.width - ballRadius) { ball.x = canvas.width - ballRadius; ball.vx *= -0.5; }
+
+                // Peg Collisions
+                for (let r = 2; r < rows; r++) {
+                    const pegsInRow = r + 1;
+                    const rowWidth = (pegsInRow - 1) * colSpacing;
+                    const startX = (canvas.width - rowWidth) / 2;
+                    
+                    for (let c = 0; c < pegsInRow; c++) {
+                        const px = startX + (c * colSpacing);
+                        const py = startY + (r * rowSpacing);
+                        
+                        const dx = ball.x - px;
+                        const dy = ball.y - py;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < ballRadius + pegRadius) {
+                            const angle = Math.atan2(dy, dx);
+                            const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+                            // Dampen speed and bounce
+                            ball.vx = Math.cos(angle) * speed * 0.5;
+                            ball.vy = Math.sin(angle) * speed * 0.5;
+                            
+                            // Unstick
+                            ball.x = px + Math.cos(angle) * (ballRadius + pegRadius + 0.5);
+                            ball.y = py + Math.sin(angle) * (ballRadius + pegRadius + 0.5);
+                            
+                            // Random deflection
+                            ball.vx += (Math.random() - 0.5) * 2.5;
+                        }
+                    }
+                }
+
+                // Check Bin Landing
+                if (ball.y > binY + 5) {
+                    const hitIndex = Math.floor((ball.x - (bStartX - 15)) / colSpacing);
+                    let m = 0; 
+                    if (hitIndex >= 0 && hitIndex < multipliers.length) {
+                        m = multipliers[hitIndex];
+                        binHits.push({ index: hitIndex, timer: 15 }); // Visual flash
+                    }
+                    
+                    if (m > 0) {
+                        const win = ball.bet * m;
+                        balance += win;
+                        balanceEl.innerText = balance.toFixed(2);
+                        lastWinEl.innerText = `₹${win.toFixed(2)}`;
+                        if (m >= 1.5) {
+                            lastWinEl.style.color = 'var(--accent-green)';
+                            walletEl.classList.add('flash-win');
+                            setTimeout(() => walletEl.classList.remove('flash-win'), 200);
+                        } else {
+                            lastWinEl.style.color = 'var(--text-muted)';
+                        }
+                    }
+                    
+                    balls.splice(index, 1);
+                } else {
+                    // Draw Ball
+                    ctx.fillStyle = '#f1c40f'; // Golden balls
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#f1c40f';
+                    ctx.beginPath();
+                    ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            requestAnimationFrame(drawBoard);
+        }
+        requestAnimationFrame(drawBoard);
+
+        function dropBall() {
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+
+            // Allow multiple balls (Rapid Fire)
+            balls.push({
+                x: (canvas.width / 2) + (Math.random() * 20 - 10), // Random funnel drop
+                y: 0,
+                vx: (Math.random() - 0.5),
+                vy: 2,
+                bet: betAmt
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!-- Save this as darts.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Virtual Darts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-green: #2ecc71; --accent-red: #e74c3c; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; max-width: 700px; margin: auto; width: 100%; }
+
+        .dartboard-stage { width: 100%; height: 350px; background: radial-gradient(circle at center, #1b2631 0%, #0c1116 100%); border-radius: 16px; border: 2px solid var(--border-color); display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        canvas { max-width: 100%; }
+
+        .status-badge { position: absolute; top: 15px; font-size: 15px; font-weight: 900; letter-spacing: 2px; color: var(--accent-gold); background: rgba(0,0,0,0.7); padding: 8px 25px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); z-index: 10; }
+
+        /* Betting Grid */
+        .betting-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+        .bet-btn { background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 10px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; text-align: center; }
+        .bet-btn:hover { background: #182c40; transform: translateY(-3px); }
+        .bet-btn.selected { border-color: var(--accent-gold); transform: scale(1.05); background: #132435; box-shadow: 0 0 15px rgba(255,193,7,0.4); }
+        
+        .bet-title { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #fff; margin-bottom: 2px; }
+        .bet-payout { font-size: 12px; font-weight: bold; color: var(--accent-gold); }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-throw { flex: 1; background: var(--accent-green); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1e7e34; transition: 0.1s; }
+        .btn-throw:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-throw:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .betting-board { grid-template-columns: 1fr 1fr; }
+            .controls { flex-direction: column; }
+            .btn-throw { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="dartboard-stage">
+            <div class="status-badge" id="statusBadge">PLACE YOUR BET</div>
+            <canvas id="boardCanvas" width="320" height="320"></canvas>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn" onclick="selectBet('SINGLE', 2, this)">
+                <div class="bet-title">SINGLE</div>
+                <div class="bet-payout">2x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet('DOUBLE', 3, this)">
+                <div class="bet-title">DOUBLE</div>
+                <div class="bet-payout">3x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet('TRIPLE', 5, this)">
+                <div class="bet-title">TRIPLE</div>
+                <div class="bet-payout">5x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet('BULL', 50, this)">
+                <div class="bet-title">BULLSEYE</div>
+                <div class="bet-payout">50x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-throw" id="btnThrow" onclick="throwDart()">THROW DART</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('boardCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnThrow = document.getElementById('btnThrow');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let selectedBet = null;
+        let currentMultiplier = 0;
+        let isThrowing = false;
+        let dartPos = null;
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            // Outer Black Ring
+            ctx.beginPath(); ctx.arc(cx, cy, 150, 0, Math.PI*2); ctx.fillStyle = '#111'; ctx.fill();
+
+            // 20 Pie Slices
+            const slices = 20;
+            const arc = (Math.PI * 2) / slices;
+            for (let i = 0; i < slices; i++) {
+                const angle = i * arc;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, 140, angle, angle + arc);
+                ctx.fillStyle = i % 2 === 0 ? '#000' : '#f5f6fa';
+                ctx.fill();
+            }
+
+            // Double Ring
+            for (let i = 0; i < slices; i++) {
+                const angle = i * arc;
+                ctx.beginPath(); ctx.arc(cx, cy, 140, angle, angle + arc); ctx.arc(cx, cy, 125, angle + arc, angle, true);
+                ctx.fillStyle = i % 2 === 0 ? '#e74c3c' : '#2ecc71'; ctx.fill();
+            }
+
+            // Triple Ring
+            for (let i = 0; i < slices; i++) {
+                const angle = i * arc;
+                ctx.beginPath(); ctx.arc(cx, cy, 90, angle, angle + arc); ctx.arc(cx, cy, 75, angle + arc, angle, true);
+                ctx.fillStyle = i % 2 === 0 ? '#e74c3c' : '#2ecc71'; ctx.fill();
+            }
+
+            // Outer Bull
+            ctx.beginPath(); ctx.arc(cx, cy, 25, 0, Math.PI*2); ctx.fillStyle = '#2ecc71'; ctx.fill();
+            // Inner Bull
+            ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI*2); ctx.fillStyle = '#e74c3c'; ctx.fill();
+
+            // Render Dart Strike
+            if (dartPos) {
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath(); ctx.arc(dartPos.x, dartPos.y, 6, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+            }
+        }
+        drawBoard();
+
+        function selectBet(type, multi, el) {
+            if (isThrowing) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedBet = type;
+            currentMultiplier = multi;
+            statusBadge.innerText = `BET: ${type}`;
+        }
+
+        function throwDart() {
+            if (!selectedBet) return alert('Select Single, Double, Triple, or Bullseye!');
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            isThrowing = true;
+            btnThrow.disabled = true;
+
+            statusBadge.innerText = 'AIMING...';
+            dartPos = null;
+            drawBoard();
+
+            setTimeout(() => {
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+
+                // Random target angle and radius
+                const randAngle = Math.random() * Math.PI * 2;
+                let r = Math.random() * 140;
+
+                // Probability model: Single is most likely, Bullseye least
+                dartPos = {
+                    x: cx + Math.cos(randAngle) * r,
+                    y: cy + Math.sin(randAngle) * r
+                };
+
+                drawBoard();
+
+                let outcome = 'SINGLE';
+                if (r <= 25) outcome = 'BULL';
+                else if (r >= 75 && r <= 90) outcome = 'TRIPLE';
+                else if (r >= 125 && r <= 140) outcome = 'DOUBLE';
+
+                if (outcome === selectedBet) {
+                    const win = amt * currentMultiplier;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusBadge.innerText = `${outcome} HIT! WON ₹${win.toFixed(2)}`;
+                    statusBadge.style.color = 'var(--accent-green)';
+                } else {
+                    statusBadge.innerText = `${outcome} HIT. BET LOST.`;
+                    statusBadge.style.color = 'var(--accent-red)';
+                }
+
+                setTimeout(() => {
+                    isThrowing = false;
+                    btnThrow.disabled = false;
+                }, 2000);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

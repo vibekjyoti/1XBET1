@@ -1,0 +1,290 @@
+<!-- Save this as quantum-crash.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Quantum Crash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-red: #e74c3c; --c-cyan: #00d2d3; --c-purple: #9b59b6;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; width: 100%; max-width: 900px; margin: auto; }
+
+        .graph-stage { width: 100%; height: 350px; background: radial-gradient(circle at center, #1a0b2e 0%, #000 100%); border-radius: 16px; border: 2px solid var(--border-color); position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        .multipliers-overlay { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
+        .line-display { display: flex; gap: 30px; margin-top: 10px; }
+        
+        .mult-val { font-size: 60px; font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        .mult-val.cyan { color: var(--c-cyan); }
+        .mult-val.purple { color: var(--c-purple); }
+        .mult-val.crashed { color: var(--c-red); opacity: 0.5; }
+
+        .status { font-size: 16px; font-weight: 900; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
+
+        /* Dual Bet Controls */
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .bet-box { background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .bet-box.cyan { border-top: 4px solid var(--c-cyan); }
+        .bet-box.purple { border-top: 4px solid var(--c-purple); }
+        
+        .box-header { font-size: 14px; font-weight: 900; text-transform: uppercase; }
+        .box-header.cyan { color: var(--c-cyan); }
+        .box-header.purple { color: var(--c-purple); }
+
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 16px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; color: #111; }
+        .btn-action.cyan { background: var(--c-cyan); }
+        .btn-action.purple { background: var(--c-purple); }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); }
+        .btn-disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .controls-grid { grid-template-columns: 1fr; }
+            .graph-stage { height: 260px; }
+            .mult-val { font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="graph-stage" id="screenContainer">
+            <canvas id="crashCanvas"></canvas>
+            <div class="multipliers-overlay">
+                <div class="status" id="gameStatus">WAITING FOR NEXT COLLISION</div>
+                <div class="line-display">
+                    <div class="mult-val cyan" id="multA">1.00x</div>
+                    <div class="mult-val purple" id="multB">1.00x</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-grid">
+            <!-- Line A -->
+            <div class="bet-box cyan">
+                <div class="box-header cyan">PARTICLE A</div>
+                <div class="input-group">
+                    <input type="number" id="betA" value="100" min="10">
+                </div>
+                <button class="btn-action cyan" id="btnA" onclick="handleAction('A')">BET ON A</button>
+            </div>
+
+            <!-- Line B -->
+            <div class="bet-box purple">
+                <div class="box-header purple">PARTICLE B</div>
+                <div class="input-group">
+                    <input type="number" id="betB" value="100" min="10">
+                </div>
+                <button class="btn-action purple" id="btnB" onclick="handleAction('B')">BET ON B</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('crashCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const statusDisplay = document.getElementById('gameStatus');
+        
+        const multDisplayA = document.getElementById('multA');
+        const multDisplayB = document.getElementById('multB');
+        const btnA = document.getElementById('btnA');
+        const btnB = document.getElementById('btnB');
+        const inputA = document.getElementById('betA');
+        const inputB = document.getElementById('betB');
+
+        let balance = 10000.00;
+        let gameState = 'WAITING'; // WAITING, RUNNING, FINISHED
+        
+        let lA = { mult: 1.0, active: true, betState: 'NONE', betAmt: 0, crashPoint: 0, points: [] };
+        let lB = { mult: 1.0, active: true, betState: 'NONE', betAmt: 0, crashPoint: 0, points: [] };
+        let startTime = 0;
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+            for(let i=0; i<canvas.height; i+=50) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+
+            // Draw Line A
+            if (lA.points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(lA.points[0].x, lA.points[0].y);
+                lA.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.strokeStyle = lA.active ? '#00d2d3' : '#e74c3c';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                
+                if (lA.active) {
+                    const head = lA.points[lA.points.length-1];
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(head.x, head.y, 5, 0, Math.PI*2); ctx.fill();
+                }
+            }
+
+            // Draw Line B
+            if (lB.points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(lB.points[0].x, lB.points[0].y);
+                lB.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.strokeStyle = lB.active ? '#9b59b6' : '#e74c3c';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                
+                if (lB.active) {
+                    const head = lB.points[lB.points.length-1];
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(head.x, head.y, 5, 0, Math.PI*2); ctx.fill();
+                }
+            }
+        }
+
+        function handleAction(lineStr) {
+            const l = lineStr === 'A' ? lA : lB;
+            const btn = lineStr === 'A' ? btnA : btnB;
+            const input = lineStr === 'A' ? inputA : inputB;
+
+            if (gameState === 'WAITING' && l.betState === 'NONE') {
+                const amt = parseFloat(input.value);
+                if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+                if (amt > balance) return alert('Insufficient Balance');
+
+                l.betAmt = amt;
+                l.betState = 'QUEUED';
+                balance -= amt;
+                balanceEl.innerText = balance.toFixed(2);
+
+                btn.className = `btn-action btn-disabled`;
+                btn.innerText = 'WAITING...';
+            } 
+            else if (gameState === 'RUNNING' && l.betState === 'ACTIVE' && l.active) {
+                const win = l.betAmt * l.mult;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                
+                l.betState = 'NONE';
+                btn.className = `btn-action btn-disabled`;
+                btn.innerText = 'CASHED OUT';
+            }
+        }
+
+        function getCrashPoint() {
+            const r = Math.random();
+            if (r < 0.02) return 1.00;
+            return Math.min(0.98 / r, 1000);
+        }
+
+        function gameLoop(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+
+            if (gameState === 'RUNNING') {
+                // Line A logic
+                if (lA.active) {
+                    lA.mult += (lA.mult * 0.003) + 0.005;
+                    multDisplayA.innerText = lA.mult.toFixed(2) + 'x';
+                    
+                    const xA = Math.min((elapsed / 1000) * 40, canvas.width - 20); 
+                    const yA = canvas.height - Math.min((Math.log(lA.mult) * 100) + 15, canvas.height - 20);
+                    lA.points.push({x: xA, y: Math.max(yA, 10)});
+
+                    if (lA.betState === 'ACTIVE') btnA.innerText = `CASH (₹${(lA.betAmt * lA.mult).toFixed(2)})`;
+
+                    if (lA.mult >= lA.crashPoint) {
+                        lA.active = false;
+                        multDisplayA.classList.add('crashed');
+                        if (lA.betState === 'ACTIVE') {
+                            lA.betState = 'NONE';
+                            btnA.className = 'btn-action btn-disabled';
+                            btnA.innerText = 'CRASHED';
+                        }
+                    }
+                }
+
+                // Line B logic (diverges slightly visually by calculating different trajectory)
+                if (lB.active) {
+                    lB.mult += (lB.mult * 0.003) + 0.005;
+                    multDisplayB.innerText = lB.mult.toFixed(2) + 'x';
+                    
+                    const xB = Math.min((elapsed / 1000) * 35, canvas.width - 20); // Slower X movement
+                    const yB = canvas.height - Math.min((Math.log(lB.mult) * 110) + 15, canvas.height - 20); // Steeper Y
+                    lB.points.push({x: xB, y: Math.max(yB, 10)});
+
+                    if (lB.betState === 'ACTIVE') btnB.innerText = `CASH (₹${(lB.betAmt * lB.mult).toFixed(2)})`;
+
+                    if (lB.mult >= lB.crashPoint) {
+                        lB.active = false;
+                        multDisplayB.classList.add('crashed');
+                        if (lB.betState === 'ACTIVE') {
+                            lB.betState = 'NONE';
+                            btnB.className = 'btn-action btn-disabled';
+                            btnB.innerText = 'CRASHED';
+                        }
+                    }
+                }
+
+                drawGraph();
+
+                if (!lA.active && !lB.active) {
+                    gameState = 'FINISHED';
+                    statusDisplay.innerText = 'COLLAPSE';
+                    setTimeout(startRound, 3000);
+                } else {
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+        }
+
+        function startRound() {
+            gameState = 'WAITING';
+            lA = { mult: 1.0, active: true, betState: lA.betState === 'QUEUED' ? 'QUEUED' : 'NONE', betAmt: lA.betAmt, crashPoint: getCrashPoint(), points: [{x:0, y:canvas.height-15}] };
+            lB = { mult: 1.0, active: true, betState: lB.betState === 'QUEUED' ? 'QUEUED' : 'NONE', betAmt: lB.betAmt, crashPoint: getCrashPoint(), points: [{x:0, y:canvas.height-15}] };
+            
+            multDisplayA.className = 'mult-val cyan'; multDisplayA.innerText = '1.00x';
+            multDisplayB.className = 'mult-val purple'; multDisplayB.innerText = '1.00x';
+            statusDisplay.innerText = 'PREPARING COLLISION...';
+            drawGraph();
+
+            if (lA.betState !== 'QUEUED') { btnA.className = 'btn-action cyan'; btnA.innerText = 'BET ON A'; btnA.disabled = false; }
+            if (lB.betState !== 'QUEUED') { btnB.className = 'btn-action purple'; btnB.innerText = 'BET ON B'; btnB.disabled = false; }
+
+            setTimeout(() => {
+                gameState = 'RUNNING';
+                statusDisplay.innerText = '';
+                startTime = 0;
+                
+                if (lA.betState === 'QUEUED') { lA.betState = 'ACTIVE'; btnA.className = 'btn-action btn-disabled'; btnA.style.background = '#f1c40f'; btnA.style.color = '#111'; }
+                if (lB.betState === 'QUEUED') { lB.betState = 'ACTIVE'; btnB.className = 'btn-action btn-disabled'; btnB.style.background = '#f1c40f'; btnB.style.color = '#111'; }
+                
+                requestAnimationFrame(gameLoop);
+            }, 3000);
+        }
+        startRound();
+    </script>
+</body>
+</html>

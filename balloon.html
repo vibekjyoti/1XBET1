@@ -1,0 +1,158 @@
+<!-- Save this as balloon.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Balloon Inflator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-yellow: #f1c40f; --accent-red: #e74c3c; --accent-blue: #238cf5; --accent-green: #2ecc71;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; user-select: none; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 650px; margin: auto; width: 100%; }
+
+        .stage { width: 100%; height: 360px; background: radial-gradient(circle at center, #172a3a 0%, #08121c 100%); border-radius: 16px; border: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden; }
+        
+        .balloon { width: 80px; height: 100px; background: radial-gradient(circle at 35% 30%, #ff7675, #d63031); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.4), 0 10px 25px rgba(214, 48, 49, 0.4); display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 900; color: #fff; transition: width 0.05s, height 0.05s; position: relative; }
+        .balloon::after { content: ''; position: absolute; bottom: -8px; width: 12px; height: 8px; background: #d63031; border-radius: 0 0 4px 4px; }
+        .balloon.popped { display: none; }
+
+        .pop-effect { font-size: 80px; display: none; }
+
+        .status-badge { position: absolute; top: 15px; font-size: 15px; font-weight: 900; letter-spacing: 2px; color: var(--accent-yellow); text-transform: uppercase; background: rgba(0,0,0,0.6); padding: 8px 25px; border-radius: 20px; }
+
+        .controls { display: flex; flex-direction: column; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-pump { padding: 22px; font-size: 22px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; background: var(--accent-red); color: white; box-shadow: 0 6px 0 #9f2425; transition: transform 0.05s; }
+        .btn-pump:active { transform: translateY(5px); box-shadow: 0 1px 0 #9f2425; }
+        .btn-pump:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="stage">
+            <div class="status-badge" id="statusBadge">HOLD PUMP TO INFLATE</div>
+            <div class="balloon" id="balloon">1.00x</div>
+            <div class="pop-effect" id="popEffect">💥</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-pump" id="btnPump" onmousedown="startPump()" onmouseup="releasePump()" ontouchstart="startPump(event)" ontouchend="releasePump(event)">HOLD TO PUMP</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const balloon = document.getElementById('balloon');
+        const popEffect = document.getElementById('popEffect');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnPump = document.getElementById('btnPump');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPumping = false;
+        let multiplier = 1.00;
+        let burstPoint = 0;
+        let pumpInterval = null;
+        let baseSize = 80;
+
+        function startPump(e) {
+            if (e) e.preventDefault();
+            if (isPumping) return;
+            
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPumping = true;
+            multiplier = 1.00;
+            baseSize = 80;
+            
+            balloon.classList.remove('popped');
+            popEffect.style.display = 'none';
+            balloon.style.width = '80px';
+            balloon.style.height = '100px';
+            balloon.innerText = '1.00x';
+            
+            statusBadge.innerText = 'INFLATING...';
+            statusBadge.style.color = '#fff';
+
+            // Random burst point formula (1.05x to 30.00x)
+            burstPoint = 1.02 + (Math.random() * Math.random() * 25);
+
+            pumpInterval = setInterval(() => {
+                multiplier += 0.05 + (multiplier * 0.015);
+                baseSize += 1.2;
+
+                balloon.style.width = `${baseSize}px`;
+                balloon.style.height = `${baseSize * 1.25}px`;
+                balloon.innerText = `${multiplier.toFixed(2)}x`;
+
+                if (multiplier >= burstPoint) {
+                    popBalloon();
+                }
+            }, 60);
+        }
+
+        function releasePump(e) {
+            if (e) e.preventDefault();
+            if (!isPumping) return;
+            
+            clearInterval(pumpInterval);
+            isPumping = false;
+
+            const amt = parseFloat(betInput.value);
+            const win = amt * multiplier;
+            balance += win;
+            balanceEl.innerText = balance.toFixed(2);
+
+            statusBadge.innerText = `CASHED OUT! WON ₹${win.toFixed(2)}`;
+            statusBadge.style.color = 'var(--accent-green)';
+            
+            btnPump.disabled = true;
+            setTimeout(() => { btnPump.disabled = false; }, 1000);
+        }
+
+        function popBalloon() {
+            clearInterval(pumpInterval);
+            isPumping = false;
+
+            balloon.classList.add('popped');
+            popEffect.style.display = 'block';
+
+            statusBadge.innerText = `POPPED AT ${burstPoint.toFixed(2)}x! BET LOST`;
+            statusBadge.style.color = 'var(--accent-red)';
+
+            btnPump.disabled = true;
+            setTimeout(() => { btnPump.disabled = false; }, 1500);
+        }
+    </script>
+</body>
+</html>

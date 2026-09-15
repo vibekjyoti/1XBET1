@@ -1,0 +1,247 @@
+<!-- Save this as anubis-tower.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Tower of Anubis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-red: #e74c3c; --accent-blue: #238cf5; --accent-green: #2ecc71;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-gold); }
+
+        .layout { display: flex; gap: 20px; justify-content: center; padding: 25px 15px; flex: 1; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Tower Grid */
+        .game-area { flex: 2; background: linear-gradient(180deg, #5c3a21 0%, #1a0f05 100%); border-radius: 16px; border: 4px solid #b38c4b; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 25px; border-radius: 20px; font-weight: 900; font-size: 15px; color: var(--accent-gold); letter-spacing: 2px; border: 1px solid rgba(255,193,7,0.3); white-space: nowrap; }
+
+        .grid { display: flex; flex-direction: column-reverse; gap: 6px; margin-top: 40px; width: 100%; max-width: 400px; }
+        .grid-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; opacity: 0.4; pointer-events: none; transition: 0.3s; }
+        .grid-row.active { opacity: 1; pointer-events: auto; }
+        .grid-row.passed { opacity: 0.9; pointer-events: none; }
+        
+        .cell { aspect-ratio: 1.5; background: #c28b50; border: 2px solid #e67e22; border-bottom-width: 5px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 26px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
+        .grid-row.active .cell:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .cell.good { background: #f1c40f; border-color: #f39c12; border-bottom-color: #d68910; animation: popIn 0.3s ease-out; }
+        .cell.bad { background: #333; border-color: #555; border-bottom-color: #111; filter: grayscale(1); }
+
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Right Panel */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+        .multipliers-list { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; display: flex; flex-direction: column-reverse; gap: 5px; flex: 1; justify-content: space-between; }
+        .multi-step { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-muted); padding: 5px 10px; border-radius: 4px; }
+        .multi-step.active { background: rgba(241,196,15,0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); box-shadow: inset 0 0 10px rgba(241,196,15,0.2); }
+        
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; }
+        .btn-play { background: var(--accent-gold); color: #111; box-shadow: 0 4px 0 #b9770e; }
+        .btn-cashout { background: var(--accent-green); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .cell { font-size: 22px; }
+            .multipliers-list { flex-direction: row; flex-wrap: wrap; height: auto; }
+            .multi-step { flex: 1 0 20%; justify-content: center; font-size: 11px; padding: 8px 4px; }
+            .multi-step span:first-child { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-area">
+            <div class="status-badge" id="statusBadge">CLIMB THE TOMB</div>
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="side-panel">
+            <div class="multipliers-list" id="multiList"></div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">ENTER TOMB</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">ESCAPE TOMB</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('grid');
+        const multiList = document.getElementById('multiList');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const statusBadge = document.getElementById('statusBadge');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentRow = 0;
+        let currentBet = 0;
+        
+        // 8 Rows, 4 blocks per row. 1 Mummy (trap) per row. Probability of safe = 75%
+        const multipliers = [1.28, 1.71, 2.28, 3.04, 4.05, 5.40, 7.20, 9.60]; 
+        let trapsMap = [];
+
+        function initUI() {
+            grid.innerHTML = '';
+            multiList.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const mStep = document.createElement('div');
+                mStep.className = 'multi-step';
+                mStep.id = `multi-${i}`;
+                mStep.innerHTML = `<span>Floor ${i+1}</span> <span>${multipliers[i]}x</span>`;
+                multiList.appendChild(mStep);
+
+                const rDiv = document.createElement('div');
+                rDiv.className = 'grid-row';
+                rDiv.id = `row-${i}`;
+                
+                for (let j = 0; j < 4; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.onclick = () => selectBlock(i, j, cell);
+                    rDiv.appendChild(cell);
+                }
+                grid.appendChild(rDiv);
+            }
+        }
+        initUI();
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentRow = 0;
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = `ESCAPE`;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'SELECT A STONE BLOCK';
+            statusBadge.style.color = '#fff';
+
+            document.querySelectorAll('.grid-row').forEach(r => r.className = 'grid-row');
+            document.querySelectorAll('.cell').forEach(c => { c.className = 'cell'; c.innerHTML = ''; });
+            document.querySelectorAll('.multi-step').forEach(m => m.classList.remove('active'));
+
+            document.getElementById(`row-0`).classList.add('active');
+
+            // Generate Traps (1 trap per row)
+            trapsMap = [];
+            for (let r = 0; r < 8; r++) {
+                trapsMap.push(Math.floor(Math.random() * 4));
+            }
+        }
+
+        function selectBlock(rowIdx, colIdx, cell) {
+            if (!isPlaying || rowIdx !== currentRow) return;
+
+            const isTrap = trapsMap[rowIdx] === colIdx;
+            
+            if (isTrap) {
+                cell.classList.add('bad');
+                cell.innerHTML = '🧟'; // Mummy Trap
+                revealRow(rowIdx);
+                endGame(false, `MUMMY AWAKENED! LOST.`);
+            } else {
+                cell.classList.add('good');
+                cell.innerHTML = '🪲'; // Golden Scarab
+                
+                document.getElementById(`multi-${rowIdx}`).classList.add('active');
+                if (rowIdx > 0) document.getElementById(`multi-${rowIdx-1}`).classList.remove('active');
+
+                const win = currentBet * multipliers[rowIdx];
+                btnCashout.disabled = false;
+                btnCashout.innerText = `ESCAPE (₹${win.toFixed(2)})`;
+
+                document.getElementById(`row-${currentRow}`).classList.remove('active');
+                document.getElementById(`row-${currentRow}`).classList.add('passed');
+                
+                currentRow++;
+                if (currentRow >= 8) {
+                    endGame(true, `TOMB RAIDED! MAX WIN!`);
+                } else {
+                    document.getElementById(`row-${currentRow}`).classList.add('active');
+                }
+            }
+        }
+
+        function revealRow(rowIdx) {
+            const rDiv = document.getElementById(`row-${rowIdx}`);
+            const trapIdx = trapsMap[rowIdx];
+            for (let j = 0; j < 4; j++) {
+                const c = rDiv.children[j];
+                if (c.innerHTML === '') {
+                    if (trapIdx === j) {
+                        c.innerHTML = '🧟';
+                        c.style.opacity = '0.5';
+                    } else {
+                        c.innerHTML = '🪲';
+                        c.style.opacity = '0.5';
+                    }
+                }
+            }
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentRow === 0) return;
+            endGame(true, `SUCCESSFUL ESCAPE!`);
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentRow - 1];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

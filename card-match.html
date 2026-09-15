@@ -1,0 +1,280 @@
+<!-- Save this as card-match.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Card Match</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-purple: #9b59b6; --accent-gold: #f1c40f; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-purple); }
+
+        .layout { display: flex; gap: 20px; justify-content: center; align-items: flex-start; padding: 30px 15px; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Left Side: 4x4 Grid */
+        .game-board { flex: 2; background: linear-gradient(135deg, #1f1533 0%, #0d0614 100%); border-radius: 16px; border: 3px solid #6c5ce7; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 20; display: flex; justify-content: center; align-items: center; border-radius: 12px; transition: 0.3s; }
+        .status-overlay.hidden { opacity: 0; pointer-events: none; }
+        .status-msg { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: var(--accent-gold); text-transform: uppercase; text-align: center; padding: 0 20px; }
+
+        /* 3D Cards */
+        .card-slot { aspect-ratio: 0.75; perspective: 1000px; cursor: pointer; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        
+        .card-slot.flipped .card-inner { transform: rotateY(180deg); }
+        .card-slot.matched .card-inner { transform: rotateY(180deg) scale(0.9); opacity: 0.8; }
+        
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; font-size: 45px; }
+        
+        .card-front { background: repeating-linear-gradient(45deg, #2c3e50, #2c3e50 10px, #34495e 10px, #34495e 20px); border: 2px solid #555; }
+        .card-front::after { content: "1X"; font-style: italic; font-weight: 900; color: rgba(255,255,255,0.2); font-size: 24px; }
+        
+        .card-back { background: #fff; border: 2px solid #ccc; transform: rotateY(180deg); color: #111; }
+        .card-back.bomb { background: var(--accent-red); border-color: #fff; }
+
+        /* Right Panel */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        
+        .stats-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .stats-label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        .stats-val { font-size: 32px; font-weight: 900; color: var(--accent-green); }
+
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; }
+        .btn-play { background: var(--accent-purple); color: white; box-shadow: 0 4px 0 #732d91; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .card-front, .card-back { font-size: 32px; }
+            .card-front::after { font-size: 18px; }
+            .btn-action { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="game-board" id="board">
+            <div class="status-overlay" id="statusOverlay">
+                <div class="status-msg" id="statusMsg">PLACE A BET TO START</div>
+            </div>
+            <!-- 16 Cards Generated by JS -->
+        </div>
+
+        <div class="side-panel">
+            <div class="stats-box">
+                <div class="stats-label">CURRENT WIN</div>
+                <div class="stats-val" id="winDisplay">0.00x</div>
+            </div>
+
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START GAME</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const board = document.getElementById('board');
+        const statusOverlay = document.getElementById('statusOverlay');
+        const statusMsg = document.getElementById('statusMsg');
+        const winDisplay = document.getElementById('winDisplay');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentBet = 0;
+        let pairsFound = 0;
+        let firstCard = null;
+        let lockBoard = false;
+        
+        // Payout multipliers for 1 to 7 pairs found
+        const multipliers = [0, 1.5, 2.5, 4.0, 7.0, 12.0, 25.0, 50.0];
+        
+        // 16 Cards: 7 Pairs (14 cards) + 2 Bombs
+        const symbols = ['🍒','🍒','🍋','🍋','🍉','🍉','🍇','🍇','⭐','⭐','💎','💎','🔔','🔔','💣','💣'];
+        let deck = [];
+
+        function initEmptyBoard() {
+            board.innerHTML = '';
+            board.appendChild(statusOverlay); // Re-append overlay
+            for (let i = 0; i < 16; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'card-slot';
+                slot.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front"></div>
+                        <div class="card-back">?</div>
+                    </div>
+                `;
+                board.appendChild(slot);
+            }
+        }
+        initEmptyBoard();
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            pairsFound = 0;
+            firstCard = null;
+            lockBoard = false;
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+            winDisplay.innerText = '1.00x';
+            winDisplay.style.color = 'var(--text-muted)';
+
+            statusOverlay.classList.add('hidden');
+
+            // Shuffle Deck
+            deck = [...symbols];
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            // Render Deck
+            board.innerHTML = '';
+            board.appendChild(statusOverlay);
+            deck.forEach((sym, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'card-slot';
+                slot.onclick = () => flipCard(slot, sym);
+                
+                const isBomb = sym === '💣';
+                slot.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front"></div>
+                        <div class="card-back ${isBomb ? 'bomb' : ''}">${sym}</div>
+                    </div>
+                `;
+                board.appendChild(slot);
+            });
+        }
+
+        function flipCard(cardEl, symbol) {
+            if (!isPlaying || lockBoard || cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+
+            cardEl.classList.add('flipped');
+
+            // Hit a Bomb
+            if (symbol === '💣') {
+                lockBoard = true;
+                setTimeout(() => endGame(false, 'BOOM! YOU HIT A BOMB.'), 500);
+                return;
+            }
+
+            if (!firstCard) {
+                // First pick
+                firstCard = { el: cardEl, symbol: symbol };
+            } else {
+                // Second pick
+                lockBoard = true;
+                
+                if (firstCard.symbol === symbol) {
+                    // Match
+                    setTimeout(() => {
+                        firstCard.el.classList.add('matched');
+                        cardEl.classList.add('matched');
+                        pairsFound++;
+                        
+                        const multi = multipliers[pairsFound];
+                        winDisplay.innerText = `${multi.toFixed(2)}x`;
+                        winDisplay.style.color = 'var(--accent-green)';
+                        
+                        btnCashout.disabled = false;
+                        btnCashout.innerText = `CASHOUT (₹${(currentBet * multi).toFixed(2)})`;
+
+                        if (pairsFound === 7) {
+                            endGame(true, 'ALL PAIRS FOUND! PERFECT WIN!');
+                        } else {
+                            resetTurn();
+                        }
+                    }, 500);
+                } else {
+                    // No Match
+                    setTimeout(() => {
+                        firstCard.el.classList.remove('flipped');
+                        cardEl.classList.remove('flipped');
+                        resetTurn();
+                    }, 1000);
+                }
+            }
+        }
+
+        function resetTurn() {
+            firstCard = null;
+            lockBoard = false;
+        }
+
+        function cashOut() {
+            if (!isPlaying || pairsFound === 0) return;
+            endGame(true, 'CASHED OUT!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+
+            // Reveal all cards
+            document.querySelectorAll('.card-slot').forEach(c => c.classList.add('flipped'));
+
+            if (won) {
+                const winAmt = currentBet * multipliers[pairsFound];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = `${msg}\nWON ₹${winAmt.toFixed(2)}`;
+                statusMsg.style.color = 'var(--accent-gold)';
+            } else {
+                statusMsg.innerText = msg;
+                statusMsg.style.color = 'var(--accent-red)';
+            }
+
+            statusOverlay.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!-- Save this as goal-field.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Goal Field</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #2ecc71; --accent-red: #e74c3c; --accent-blue: #3498db; --accent-gold: #f1c40f;
+            --pitch-light: #2d8a4e; --pitch-dark: #247340;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; gap: 20px; justify-content: center; padding: 30px 15px; flex: 1; max-width: 900px; margin: auto; width: 100%; }
+
+        /* Game Grid */
+        .game-area { flex: 2; background: repeating-linear-gradient(0deg, var(--pitch-light), var(--pitch-light) 40px, var(--pitch-dark) 40px, var(--pitch-dark) 80px); border-radius: 12px; border: 4px solid #fff; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 14px; color: #fff; border: 1px solid rgba(255,255,255,0.3); z-index: 10; }
+
+        .grid { display: flex; flex-direction: column-reverse; gap: 8px; margin-top: 40px; }
+        .grid-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; opacity: 0.5; pointer-events: none; transition: 0.3s; }
+        .grid-row.active { opacity: 1; pointer-events: auto; }
+        .grid-row.passed { opacity: 0.9; pointer-events: none; }
+        
+        .cell { aspect-ratio: 1.5; background: rgba(255,255,255,0.15); border-radius: 6px; border: 2px dashed rgba(255,255,255,0.4); display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; transition: 0.2s; }
+        .grid-row.active .cell:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); border-style: solid; }
+        .cell.good { background: rgba(255,255,255,0.9); border: 2px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.6); animation: popIn 0.3s ease-out; }
+        .cell.bad { background: var(--accent-red); border: 2px solid #fff; box-shadow: 0 0 15px var(--accent-red); }
+
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Side Panel */
+        .side-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+        .multipliers-list { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; display: flex; flex-direction: column-reverse; gap: 5px; flex: 1; justify-content: space-between; }
+        .multi-step { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-muted); padding: 6px 10px; border-radius: 4px; }
+        .multi-step.active { background: rgba(46,204,113,0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        
+        .controls { background: var(--bg-panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; }
+        .btn-play { background: var(--accent-blue); color: white; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; padding: 15px 10px; }
+            .cell { font-size: 24px; aspect-ratio: 1.3; }
+            .multipliers-list { flex-direction: row; flex-wrap: wrap; height: auto; }
+            .multi-step { flex: 1 0 20%; justify-content: center; font-size: 11px; padding: 8px 4px; }
+            .multi-step span:first-child { display: none; }
+            .btn-action { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-area">
+            <div class="status-badge" id="statusBadge">PASS THE BALL</div>
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="side-panel">
+            <div class="multipliers-list" id="multiList"></div>
+            <div class="controls">
+                <div class="input-group">
+                    <label>BET AMOUNT (₹)</label>
+                    <input type="number" id="betAmount" value="200" min="10">
+                </div>
+                <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START KICKOFF</button>
+                <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('grid');
+        const multiList = document.getElementById('multiList');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const statusBadge = document.getElementById('statusBadge');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentRow = 0;
+        let currentBet = 0;
+        
+        const multipliers = [1.28, 1.71, 2.28, 3.04, 4.05, 5.40, 7.20]; // 7 Rows (3/4 win chance per row)
+        let defendersMap = [];
+
+        function initUI() {
+            grid.innerHTML = '';
+            multiList.innerHTML = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const mStep = document.createElement('div');
+                mStep.className = 'multi-step';
+                mStep.id = `multi-${i}`;
+                mStep.innerHTML = `<span>Row ${i+1}</span> <span>${multipliers[i]}x</span>`;
+                multiList.appendChild(mStep);
+
+                const rDiv = document.createElement('div');
+                rDiv.className = 'grid-row';
+                rDiv.id = `row-${i}`;
+                
+                for (let j = 0; j < 4; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.onclick = () => selectPass(i, j, cell);
+                    rDiv.appendChild(cell);
+                }
+                grid.appendChild(rDiv);
+            }
+        }
+        initUI();
+
+        function startGame() {
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentRow = 0;
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = `CASHOUT (₹0)`;
+
+            statusBadge.innerText = 'SELECT A PASS';
+            statusBadge.style.color = '#fff';
+
+            document.querySelectorAll('.grid-row').forEach(r => r.className = 'grid-row');
+            document.querySelectorAll('.cell').forEach(c => { c.className = 'cell'; c.innerHTML = ''; });
+            document.querySelectorAll('.multi-step').forEach(m => m.classList.remove('active'));
+
+            document.getElementById(`row-0`).classList.add('active');
+
+            // 1 Defender per row
+            defendersMap = [];
+            for (let r = 0; r < 7; r++) {
+                defendersMap.push(Math.floor(Math.random() * 4));
+            }
+        }
+
+        function selectPass(rowIdx, colIdx, cell) {
+            if (!isPlaying || rowIdx !== currentRow) return;
+
+            const isDefender = defendersMap[rowIdx] === colIdx;
+            
+            if (isDefender) {
+                cell.classList.add('bad');
+                cell.innerHTML = '🛑';
+                revealRow(rowIdx);
+                endGame(false, `INTERCEPTED! BET LOST.`);
+            } else {
+                cell.classList.add('good');
+                cell.innerHTML = '⚽';
+                
+                document.getElementById(`multi-${rowIdx}`).classList.add('active');
+                if (rowIdx > 0) document.getElementById(`multi-${rowIdx-1}`).classList.remove('active');
+
+                const win = currentBet * multipliers[rowIdx];
+                btnCashout.disabled = false;
+                btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+                document.getElementById(`row-${currentRow}`).classList.remove('active');
+                document.getElementById(`row-${currentRow}`).classList.add('passed');
+                
+                currentRow++;
+                if (currentRow > 6) {
+                    endGame(true, `GOAL! MAX WIN REACHED!`);
+                } else {
+                    document.getElementById(`row-${currentRow}`).classList.add('active');
+                }
+            }
+        }
+
+        function revealRow(rowIdx) {
+            const rDiv = document.getElementById(`row-${rowIdx}`);
+            const defenderIdx = defendersMap[rowIdx];
+            for (let j = 0; j < 4; j++) {
+                const c = rDiv.children[j];
+                if (c.innerHTML === '') {
+                    if (defenderIdx === j) {
+                        c.innerHTML = '🛑';
+                        c.style.opacity = '0.5';
+                    } else {
+                        c.innerHTML = '⚽';
+                        c.style.opacity = '0.5';
+                    }
+                }
+            }
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentRow === 0) return;
+            endGame(true, `SUCCESSFUL CASHOUT!`);
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentRow - 1];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

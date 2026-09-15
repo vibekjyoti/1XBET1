@@ -1,0 +1,214 @@
+<!-- Save this as double-roll.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Double Roll</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-red: #e74c3c; --c-black: #2c3e50; --c-green: #2ecc71; --accent-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 800px; margin: auto; width: 100%; }
+
+        /* Roller Strip Stage */
+        .roller-stage { width: 100%; height: 160px; background: #070c12; border-radius: 16px; border: 3px solid var(--border-color); position: relative; overflow: hidden; display: flex; align-items: center; box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .center-marker { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: var(--accent-gold); transform: translateX(-50%); z-index: 10; box-shadow: 0 0 15px var(--accent-gold); }
+        .center-marker::before, .center-marker::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; }
+        .center-marker::before { top: 0; border-top: 10px solid var(--accent-gold); }
+        .center-marker::after { bottom: 0; border-bottom: 10px solid var(--accent-gold); }
+
+        .slider-strip { display: flex; position: absolute; left: 0; height: 100px; transition: transform 5s cubic-bezier(0.1, 0.95, 0.2, 1); will-change: transform; }
+        
+        .tile { width: 90px; height: 90px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 26px; font-weight: 900; margin: 5px; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.4); color: #fff; }
+        .tile.red { background: var(--c-red); }
+        .tile.black { background: var(--c-black); }
+        .tile.green { background: var(--c-green); }
+
+        .status-badge { font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: var(--bg-panel); padding: 10px 25px; border-radius: 20px; border: 1px solid var(--border-color); }
+
+        /* Betting Board */
+        .betting-board { display: flex; gap: 15px; width: 100%; }
+        .bet-btn { flex: 1; padding: 20px 10px; border-radius: 12px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .bet-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .bet-btn.selected { border-color: #fff; transform: scale(1.04); z-index: 2; }
+        
+        .btn-red { background: var(--c-red); color: white; }
+        .btn-green { background: var(--c-green); color: white; }
+        .btn-black { background: var(--c-black); color: white; }
+
+        .bet-title { font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
+        .bet-payout { font-size: 12px; font-weight: bold; opacity: 0.9; }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-roll { flex: 1; background: #238cf5; color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1868b8; transition: 0.1s; }
+        .btn-roll:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-roll:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .betting-board { flex-direction: column; }
+            .bet-btn { flex-direction: row; justify-content: space-between; padding: 15px; }
+            .controls { flex-direction: column; }
+            .btn-roll { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="status-badge" id="statusBadge">PLACE YOUR BET</div>
+
+        <div class="roller-stage">
+            <div class="center-marker"></div>
+            <div class="slider-strip" id="strip"></div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn btn-red" onclick="selectColor('RED', 2, this)">
+                <div class="bet-title">RED</div>
+                <div class="bet-payout">PAYS 2x</div>
+            </div>
+            <div class="bet-btn btn-green" onclick="selectColor('GREEN', 14, this)">
+                <div class="bet-title">GREEN</div>
+                <div class="bet-payout">PAYS 14x</div>
+            </div>
+            <div class="bet-btn btn-black" onclick="selectColor('BLACK', 2, this)">
+                <div class="bet-title">BLACK</div>
+                <div class="bet-payout">PAYS 2x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-roll" id="btnRoll" onclick="rollWheel()">ROLL</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnRoll = document.getElementById('btnRoll');
+        const strip = document.getElementById('strip');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let selectedColor = null;
+        let currentMulti = 0;
+        let isRolling = false;
+
+        // 15 Base Tiles: 1 Green (0), 7 Red (1-7), 7 Black (8-14)
+        const baseTiles = [
+            { num: 0, color: 'green' },
+            { num: 1, color: 'red' }, { num: 14, color: 'black' },
+            { num: 2, color: 'red' }, { num: 13, color: 'black' },
+            { num: 3, color: 'red' }, { num: 12, color: 'black' },
+            { num: 4, color: 'red' }, { num: 11, color: 'black' },
+            { num: 5, color: 'red' }, { num: 10, color: 'black' },
+            { num: 6, color: 'red' }, { num: 9, color: 'black' },
+            { num: 7, color: 'red' }, { num: 8, color: 'black' }
+        ];
+
+        const tileWidth = 100; // 90px tile + 10px margin
+        let totalTilesList = [];
+
+        function buildStrip() {
+            strip.innerHTML = '';
+            totalTilesList = [];
+            // Duplicate strip 10 times to give infinite roll space
+            for (let repeat = 0; repeat < 10; repeat++) {
+                baseTiles.forEach(t => {
+                    totalTilesList.push(t);
+                    const div = document.createElement('div');
+                    div.className = `tile ${t.color}`;
+                    div.innerText = t.num;
+                    strip.appendChild(div);
+                });
+            }
+        }
+        buildStrip();
+
+        function selectColor(c, multi, el) {
+            if (isRolling) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedColor = c;
+            currentMulti = multi;
+            statusBadge.innerText = `BET: ${c}`;
+            statusBadge.style.color = '#fff';
+        }
+
+        function rollWheel() {
+            if (!selectedColor) return alert('Select Red, Green, or Black!');
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            isRolling = true;
+            btnRoll.disabled = true;
+
+            statusBadge.innerText = 'ROLLING...';
+            statusBadge.style.color = 'var(--accent-gold)';
+
+            // Pick a winning index on the 6th repetition batch
+            const targetTileIndex = (15 * 5) + Math.floor(Math.random() * 15);
+            const winner = totalTilesList[targetTileIndex];
+
+            // Calculate exact landing coordinate centered on the marker
+            const stageCenter = strip.parentElement.clientWidth / 2;
+            const targetOffset = (targetTileIndex * tileWidth) + (tileWidth / 2) - stageCenter + (Math.random() * 50 - 25);
+
+            strip.style.transition = 'transform 5s cubic-bezier(0.1, 0.95, 0.2, 1)';
+            strip.style.transform = `translateX(-${targetOffset}px)`;
+
+            setTimeout(() => {
+                if (selectedColor === winner.color.toUpperCase()) {
+                    const win = amt * currentMulti;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusBadge.innerText = `${winner.color.toUpperCase()} (${winner.num}) WON ₹${win.toFixed(2)}!`;
+                    statusBadge.style.color = 'var(--c-green)';
+                } else {
+                    statusBadge.innerText = `${winner.color.toUpperCase()} (${winner.num}) • BET LOST`;
+                    statusBadge.style.color = 'var(--c-red)';
+                }
+
+                setTimeout(() => {
+                    // Reset strip without transition
+                    strip.style.transition = 'none';
+                    strip.style.transform = `translateX(0px)`;
+                    isRolling = false;
+                    btnRoll.disabled = false;
+                    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                    selectedColor = null;
+                }, 2500);
+            }, 5200);
+        }
+    </script>
+</body>
+</html>

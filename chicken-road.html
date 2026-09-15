@@ -1,0 +1,188 @@
+<!-- Save this as chicken-road.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Chicken Road</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #2ecc71; --accent-gold: #f1c40f; --accent-red: #e74c3c; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; width: 100%; max-width: 650px; margin: auto; }
+
+        /* Road Stage */
+        .road-container { width: 100%; height: 400px; background: #2c3e50; border-radius: 16px; border: 3px solid #7f8c8d; display: flex; flex-direction: column-reverse; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        
+        .lane { flex: 1; border-bottom: 2px dashed rgba(255,255,255,0.2); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; position: relative; }
+        .lane:last-child { border-bottom: none; }
+        .lane.sidewalk { background: #95a5a6; border-radius: 6px; }
+        
+        .lane-multiplier { font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+        .lane.reached .lane-multiplier { color: var(--accent-gold); }
+
+        .chicken { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); font-size: 38px; z-index: 10; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .status-badge { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 14px; color: #fff; z-index: 15; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 30px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn-play { background: var(--accent-blue); color: white; flex: 1; }
+        .btn-cross { background: var(--accent-green); color: white; flex: 1; display: none; }
+        .btn-cashout { background: var(--accent-gold); color: #111; flex: 1; display: none; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="road-container" id="road">
+            <div class="status-badge" id="statusBadge">CROSS THE ROAD</div>
+            <div class="chicken" id="chicken">🐔</div>
+
+            <div class="lane sidewalk" id="lane-0"><span class="lane-multiplier">START</span></div>
+            <div class="lane" id="lane-1"><span class="lane-multiplier">1.40x</span><span>🚗</span></div>
+            <div class="lane" id="lane-2"><span class="lane-multiplier">2.10x</span><span>🚙</span></div>
+            <div class="lane" id="lane-3"><span class="lane-multiplier">3.50x</span><span>🏎️</span></div>
+            <div class="lane" id="lane-4"><span class="lane-multiplier">6.00x</span><span>🚚</span></div>
+            <div class="lane sidewalk" id="lane-5"><span class="lane-multiplier">15.00x WIN</span><span>🏁</span></div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START</button>
+            <button class="btn-action btn-cross" id="btnCross" onclick="stepForward()">CROSS LANE</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const chicken = document.getElementById('chicken');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCross = document.getElementById('btnCross');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentLane = 0;
+        let currentBet = 0;
+        const multipliers = [1.0, 1.4, 2.1, 3.5, 6.0, 15.0];
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentLane = 0;
+            chicken.innerText = '🐔';
+            chicken.style.bottom = '12px';
+
+            btnPlay.style.display = 'none';
+            btnCross.style.display = 'block';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = 'CASHOUT';
+            betInput.disabled = true;
+
+            for (let i = 1; i <= 5; i++) document.getElementById(`lane-${i}`).classList.remove('reached');
+            statusBadge.innerText = 'CROSS SAFELY';
+            statusBadge.style.color = '#fff';
+        }
+
+        function stepForward() {
+            if (!isPlaying) return;
+            btnCross.disabled = true;
+            currentLane++;
+
+            // Move chicken up
+            const targetBottom = 12 + (currentLane * 65);
+            chicken.style.bottom = `${targetBottom}px`;
+
+            // Splat probability increases per lane
+            const splatChance = 0.25 + (currentLane * 0.05); // 30% -> 50%
+            const isHit = Math.random() < splatChance;
+
+            setTimeout(() => {
+                if (isHit) {
+                    chicken.innerText = '💥';
+                    endGame(false, 'SPLAT! HIT BY CAR.');
+                } else {
+                    document.getElementById(`lane-${currentLane}`).classList.add('reached');
+                    const win = currentBet * multipliers[currentLane];
+                    btnCashout.disabled = false;
+                    btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+                    if (currentLane === 5) {
+                        endGame(true, 'ACROSS THE HIGHWAY!');
+                    } else {
+                        btnCross.disabled = false;
+                        statusBadge.innerText = `${multipliers[currentLane]}x REACHED!`;
+                        statusBadge.style.color = 'var(--accent-green)';
+                    }
+                }
+            }, 300);
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentLane === 0) return;
+            endGame(true, 'CASHED OUT!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCross.style.display = 'none';
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+            btnCross.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * multipliers[currentLane];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

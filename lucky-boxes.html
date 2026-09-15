@@ -1,0 +1,210 @@
+<!-- Save this as lucky-boxes.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Lucky Boxes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-green: #2ecc71; --accent-red: #e74c3c; --accent-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; }
+
+        /* Stage */
+        .stage { width: 100%; max-width: 700px; height: 320px; background: radial-gradient(circle at center, #2e1c3b 0%, #100617 100%); border-radius: 16px; border: 3px solid #6c5ce7; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 20px; font-size: 16px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 10px 25px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); }
+
+        .boxes-container { display: flex; gap: 30px; }
+        
+        .box { width: 100px; height: 100px; background: linear-gradient(135deg, #d4af37, #aa8000); border-radius: 12px; border: 4px solid #fff; box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6); cursor: pointer; position: relative; transition: transform 0.2s, filter 0.2s; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .box:hover { transform: translateY(-5px); filter: brightness(1.1); }
+        .box.locked { pointer-events: none; filter: brightness(0.7); }
+        
+        /* Box Animation */
+        .box.open-win { background: #111; border-color: var(--accent-green); animation: pop 0.4s ease-out; box-shadow: 0 0 30px rgba(46,204,113,0.6); }
+        .box.open-lose { background: #111; border-color: var(--accent-red); animation: shake 0.4s; box-shadow: 0 0 30px rgba(231,76,60,0.6); }
+
+        @keyframes pop { 50% { transform: scale(1.15); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        .current-multi { font-size: 20px; font-weight: 900; color: #fff; background: #111; padding: 10px 30px; border-radius: 12px; border: 2px solid #555; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 700px; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; flex: 1; }
+        .btn-play { background: #238cf5; color: white; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .boxes-container { gap: 15px; }
+            .box { width: 80px; height: 80px; font-size: 32px; }
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="stage">
+            <div class="status-badge" id="statusBadge">PLACE YOUR BET</div>
+            
+            <div class="boxes-container">
+                <div class="box locked" id="b0" onclick="pickBox(0)">🎁</div>
+                <div class="box locked" id="b1" onclick="pickBox(1)">🎁</div>
+                <div class="box locked" id="b2" onclick="pickBox(2)">🎁</div>
+            </div>
+
+            <div class="current-multi" id="multiDisplay">1.00x</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START GAME</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const multiDisplay = document.getElementById('multiDisplay');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const boxes = [document.getElementById('b0'), document.getElementById('b1'), document.getElementById('b2')];
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentBet = 0;
+        let currentMultiplier = 1.00;
+        let bombIndex = 0;
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentMultiplier = 1.00;
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+
+            resetBoxes();
+        }
+
+        function resetBoxes() {
+            bombIndex = Math.floor(Math.random() * 3);
+            multiDisplay.innerText = `${currentMultiplier.toFixed(2)}x`;
+            statusBadge.innerText = 'PICK A BOX';
+            statusBadge.style.color = '#fff';
+
+            boxes.forEach(b => {
+                b.className = 'box';
+                b.innerText = '🎁';
+            });
+            btnCashout.innerText = `CASHOUT (₹${(currentBet * currentMultiplier).toFixed(2)})`;
+        }
+
+        function pickBox(idx) {
+            if (!isPlaying) return;
+
+            // Lock all boxes temporarily
+            boxes.forEach(b => b.classList.add('locked'));
+
+            if (idx === bombIndex) {
+                // Lose
+                boxes[idx].classList.add('open-lose');
+                boxes[idx].innerText = '💣';
+                revealBoxes(idx);
+                endGame(false, 'YOU FOUND COAL! BET LOST.');
+            } else {
+                // Win Step
+                boxes[idx].classList.add('open-win');
+                boxes[idx].innerText = '💎';
+                
+                currentMultiplier *= 1.45; // Compound by 1.45x per successful pick
+                btnCashout.disabled = false;
+                
+                statusBadge.innerText = 'NICE PICK! SHUFFLING...';
+                statusBadge.style.color = 'var(--accent-green)';
+                
+                setTimeout(() => {
+                    if(isPlaying) resetBoxes();
+                }, 1500);
+            }
+        }
+
+        function revealBoxes(pickedIdx) {
+            boxes.forEach((b, i) => {
+                if (i !== pickedIdx) {
+                    if (i === bombIndex) {
+                        b.innerText = '💣';
+                        b.style.opacity = '0.5';
+                    } else {
+                        b.innerText = '💎';
+                        b.style.opacity = '0.5';
+                    }
+                }
+            });
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentMultiplier === 1.00) return;
+            endGame(true, 'CASHED OUT!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+            boxes.forEach(b => b.classList.add('locked'));
+
+            if (won) {
+                const winAmt = currentBet * currentMultiplier;
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

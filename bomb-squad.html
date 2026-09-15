@@ -1,0 +1,207 @@
+<!-- Save this as bomb-squad.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Bomb Squad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --c-blue: #3498db; --c-red: #e74c3c; --c-yellow: #f1c40f; --c-green: #2ecc71;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 650px; margin: auto; width: 100%; }
+
+        /* C4 Stage */
+        .bomb-stage { width: 100%; height: 350px; background: radial-gradient(circle at center, #2c3e50 0%, #0d1217 100%); border-radius: 20px; border: 4px solid #7f8c8d; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 25px 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .digital-timer { background: #000; color: var(--c-red); font-family: 'Courier New', monospace; font-size: 40px; font-weight: 900; padding: 8px 25px; border-radius: 8px; border: 2px solid #555; box-shadow: inset 0 0 10px var(--c-red); }
+
+        /* Wire Harness */
+        .wires-box { display: flex; justify-content: space-around; width: 100%; margin-top: 10px; }
+        .wire-container { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+        .wire { width: 16px; height: 120px; border-radius: 8px; box-shadow: inset -3px 0 5px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; position: relative; }
+        .wire:hover { transform: scale(1.08); }
+        
+        .w-blue { background: var(--c-blue); }
+        .w-red { background: var(--c-red); }
+        .w-yellow { background: var(--c-yellow); }
+        .w-green { background: var(--c-green); }
+
+        /* Cut wire styling */
+        .wire.cut { height: 50px; border-radius: 8px 8px 0 0; }
+        .wire.cut::after { content: '⚡'; position: absolute; bottom: -25px; left: -5px; font-size: 20px; animation: spark 0.3s infinite; }
+        @keyframes spark { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        .wire-btn { font-size: 12px; font-weight: 900; background: var(--bg-panel); color: #fff; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); text-transform: uppercase; }
+
+        .status-badge { font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff; background: rgba(0,0,0,0.8); padding: 8px 25px; border-radius: 20px; border: 1px solid var(--border-color); }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 30px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; flex: 1; }
+        .btn-play { background: #238cf5; color: white; }
+        .btn-cashout { background: var(--c-yellow); color: #111; display: none; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="status-badge" id="statusBadge">ARM THE EXPLOSIVE</div>
+
+        <div class="bomb-stage">
+            <div class="digital-timer" id="timer">00:45</div>
+
+            <div class="wires-box" id="wiresBox">
+                <div class="wire-container" onclick="cutWire('BLUE', 0)">
+                    <div class="wire w-blue" id="wire-0"></div>
+                    <div class="wire-btn">BLUE</div>
+                </div>
+                <div class="wire-container" onclick="cutWire('RED', 1)">
+                    <div class="wire w-red" id="wire-1"></div>
+                    <div class="wire-btn">RED</div>
+                </div>
+                <div class="wire-container" onclick="cutWire('YELLOW', 2)">
+                    <div class="wire w-yellow" id="wire-2"></div>
+                    <div class="wire-btn">YELLOW</div>
+                </div>
+                <div class="wire-container" onclick="cutWire('GREEN', 3)">
+                    <div class="wire w-green" id="wire-3"></div>
+                    <div class="wire-btn">GREEN</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>STAKE (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-action btn-play" id="btnPlay" onclick="armBomb()">ARM C4</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const timerEl = document.getElementById('timer');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isArmed = false;
+        let currentBet = 0;
+        let detonatorIndex = -1;
+        let wiresCut = 0;
+        let currentMulti = 1.00;
+
+        const ladder = [1.30, 1.85, 3.20]; // 3 safe cuts max
+
+        function armBomb() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Stake');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+
+            isArmed = true;
+            wiresCut = 0;
+            currentMulti = 1.00;
+
+            // 1 Wire is the detonator
+            detonatorIndex = Math.floor(Math.random() * 4);
+
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`wire-${i}`).className = `wire ${['w-blue','w-red','w-yellow','w-green'][i]}`;
+            }
+
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'CUT A WIRE TO DEFUSE';
+            statusBadge.style.color = '#fff';
+            timerEl.innerText = '00:30';
+        }
+
+        function cutWire(color, idx) {
+            if (!isArmed) return;
+            const wireEl = document.getElementById(`wire-${idx}`);
+            if (wireEl.classList.contains('cut')) return;
+
+            wireEl.classList.add('cut');
+
+            if (idx === detonatorIndex) {
+                // Detonation
+                timerEl.innerText = 'BOOM!';
+                endGame(false, 'DETONATED! STAKE DESTROYED.');
+            } else {
+                wiresCut++;
+                currentMulti = ladder[wiresCut - 1];
+
+                btnCashout.disabled = false;
+                btnCashout.innerText = `CASHOUT (₹${(currentBet * currentMulti).toFixed(2)})`;
+
+                if (wiresCut === 3) {
+                    endGame(true, 'COMPLETELY DEFUSED! MAX PAYOUT!');
+                } else {
+                    statusBadge.innerText = `SAFE CUT! ${currentMulti}x UNLOCKED`;
+                    statusBadge.style.color = 'var(--c-green)';
+                }
+            }
+        }
+
+        function cashOut() {
+            if (!isArmed || wiresCut === 0) return;
+            endGame(true, 'DEFUSAL ABORTED & CASHED OUT!');
+        }
+
+        function endGame(won, msg) {
+            isArmed = false;
+            btnPlay.style.display = 'block';
+            btnCashout.style.display = 'none';
+            betInput.disabled = false;
+
+            if (won) {
+                const win = currentBet * currentMulti;
+                balance += win;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${win.toFixed(2)}`;
+                statusBadge.style.color = 'var(--c-yellow)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--c-red)';
+            }
+        }
+    </script>
+</body>
+</html>

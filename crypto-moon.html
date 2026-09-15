@@ -1,0 +1,172 @@
+<!-- Save this as crypto-moon.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Crypto Moon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-cyan: #00d2d3; --accent-gold: #f1c40f; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; user-select: none; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-cyan); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 650px; margin: auto; width: 100%; }
+
+        .space-stage { width: 100%; height: 380px; background: radial-gradient(circle at top, #0f1c2e 0%, #000 100%); border-radius: 16px; border: 2px solid var(--accent-cyan); display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); overflow: hidden; }
+        
+        /* Thrust visuals */
+        .stars { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="10" cy="10" r="1" fill="white"/><circle cx="50" cy="80" r="1.5" fill="white"/><circle cx="80" cy="30" r="1" fill="white"/></svg>') repeat; opacity: 0.5; transition: 0.1s; }
+        .space-stage.flying .stars { animation: starfield 0.5s infinite linear; opacity: 1; }
+        @keyframes starfield { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+
+        .rocket { font-size: 80px; z-index: 5; transition: 0.1s; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8)); }
+        .space-stage.flying .rocket { animation: shake 0.2s infinite; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+        .exhaust { font-size: 40px; position: absolute; bottom: 80px; opacity: 0; transition: 0.1s; }
+        .space-stage.flying .exhaust { opacity: 1; animation: flicker 0.1s infinite alternate; }
+        @keyframes flicker { from { transform: scaleY(1); opacity: 0.8; } to { transform: scaleY(1.3); opacity: 1; } }
+
+        .moon { position: absolute; top: 20px; right: 20px; font-size: 60px; opacity: 0.8; }
+
+        .multiplier-val { font-size: 60px; font-weight: 900; color: #fff; position: absolute; z-index: 10; text-shadow: 0 5px 15px rgba(0,0,0,0.9); }
+
+        .status-badge { position: absolute; top: 20px; left: 20px; font-size: 14px; font-weight: 900; letter-spacing: 2px; color: var(--accent-cyan); background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(0,210,211,0.3); z-index: 10; }
+
+        .controls { display: flex; flex-direction: column; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-thrust { padding: 22px; font-size: 22px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; background: var(--accent-cyan); color: #111; box-shadow: 0 6px 0 #009999; transition: transform 0.05s; }
+        .btn-thrust:active { transform: translateY(5px); box-shadow: 0 1px 0 #009999; }
+        .btn-thrust:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="space-stage" id="stage">
+            <div class="stars"></div>
+            <div class="moon">🌕</div>
+            <div class="status-badge" id="statusBadge">HOLD TO LAUNCH</div>
+            
+            <div class="multiplier-val" id="multiplierDisplay">1.00x</div>
+            <div class="rocket" id="rocket">🚀</div>
+            <div class="exhaust" id="exhaust">🔥</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>FUEL BET (₹)</label>
+                <input type="number" id="betAmount" value="500" min="10">
+            </div>
+            <button class="btn-thrust" id="btnThrust" onmousedown="startThrust()" onmouseup="releaseThrust()" ontouchstart="startThrust(event)" ontouchend="releaseThrust(event)">HOLD & THRUST</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const stage = document.getElementById('stage');
+        const multDisplay = document.getElementById('multiplierDisplay');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnThrust = document.getElementById('btnThrust');
+        const betInput = document.getElementById('betAmount');
+        const rocket = document.getElementById('rocket');
+
+        let balance = 10000.00;
+        let isPumping = false;
+        let multiplier = 1.00;
+        let crashPoint = 0;
+        let pumpInterval = null;
+
+        function startThrust(e) {
+            if (e) e.preventDefault();
+            if (isPumping) return;
+            
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPumping = true;
+            multiplier = 1.00;
+            
+            stage.classList.add('flying');
+            rocket.innerText = '🚀';
+            multDisplay.innerText = '1.00x';
+            multDisplay.style.color = '#fff';
+            statusBadge.innerText = 'ASCENDING...';
+            statusBadge.style.color = '#fff';
+
+            // Crash math
+            const r = Math.random();
+            crashPoint = r < 0.05 ? 1.00 : Math.min(0.95 / r, 1000);
+
+            pumpInterval = setInterval(() => {
+                multiplier += (multiplier * 0.005) + 0.01; // Curve acceleration
+                multDisplay.innerText = `${multiplier.toFixed(2)}x`;
+
+                if (multiplier >= crashPoint) {
+                    crashRocket();
+                }
+            }, 50);
+        }
+
+        function releaseThrust(e) {
+            if (e) e.preventDefault();
+            if (!isPumping) return;
+            
+            clearInterval(pumpInterval);
+            isPumping = false;
+            stage.classList.remove('flying');
+
+            const amt = parseFloat(betInput.value);
+            const win = amt * multiplier;
+            balance += win;
+            balanceEl.innerText = balance.toFixed(2);
+
+            statusBadge.innerText = `CASHED OUT! WON ₹${win.toFixed(2)}`;
+            statusBadge.style.color = 'var(--accent-gold)';
+            multDisplay.style.color = 'var(--accent-cyan)';
+            
+            btnThrust.disabled = true;
+            setTimeout(() => { btnThrust.disabled = false; }, 1000);
+        }
+
+        function crashRocket() {
+            clearInterval(pumpInterval);
+            isPumping = false;
+            stage.classList.remove('flying');
+
+            rocket.innerText = '💥';
+            statusBadge.innerText = `CRASHED AT ${crashPoint.toFixed(2)}x! LOST.`;
+            statusBadge.style.color = 'var(--accent-red)';
+            multDisplay.style.color = 'var(--accent-red)';
+
+            btnThrust.disabled = true;
+            setTimeout(() => { 
+                rocket.innerText = '🚀'; 
+                btnThrust.disabled = false; 
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

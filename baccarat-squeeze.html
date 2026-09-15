@@ -1,0 +1,315 @@
+<!-- Save this as baccarat-squeeze.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Baccarat Squeeze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-blue: #238cf5; --accent-red: #e6003d; --accent-gold: #ffc107; --table-dark: #121212;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; max-width: 900px; margin: auto; width: 100%; }
+
+        /* VIP Squeeze Table */
+        .table { width: 100%; height: 400px; background: radial-gradient(ellipse at center, #2c3e50 0%, var(--table-dark) 100%); border-radius: 20px; border: 4px solid #b38c4b; display: flex; flex-direction: column; justify-content: space-between; padding: 25px; box-shadow: inset 0 0 60px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 12px 25px; border-radius: 30px; font-weight: 900; letter-spacing: 2px; font-size: 15px; color: var(--accent-gold); border: 1px solid rgba(255,193,7,0.3); z-index: 10; text-align: center; }
+
+        .cards-area { display: flex; justify-content: space-around; width: 100%; align-items: center; flex: 1; margin-top: 40px; }
+        
+        .side { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 45%; }
+        .side-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
+        .player-title { color: #5bc0be; }
+        .banker-title { color: #ff6b6b; }
+        
+        .card-container { display: flex; justify-content: center; align-items: center; height: 160px; position: relative; min-width: 260px; }
+        
+        /* Slow Squeeze Card CSS */
+        .playing-card { width: 100px; height: 145px; perspective: 1000px; position: absolute; opacity: 0; transform: translateY(-100px) scale(0.5) rotateY(180deg); transition: transform 0.5s ease-out, opacity 0.4s ease-out; z-index: var(--card-idx); }
+        .playing-card.dealt { opacity: 1; transform: translateY(0) scale(1) rotateY(180deg) rotateZ(var(--target-rot)); }
+        
+        .playing-card:nth-child(1) { margin-left: -75px; --target-rot: -5deg; }
+        .playing-card:nth-child(2) { margin-left: 0px; --target-rot: 5deg; }
+        .playing-card:nth-child(3) { margin-left: 80px; --target-rot: 90deg; top: 10px; } /* Squeeze horizontal 3rd card */
+
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 2.5s cubic-bezier(0.4, 0.0, 0.2, 1); transform-style: preserve-3d; } /* 2.5s SLOW SQUEEZE */
+        .playing-card.flipped .card-inner { transform: rotateY(0deg); }
+
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+        .card-back { background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px); border: 2px solid #555; display: flex; justify-content: center; align-items: center; transform: rotateY(180deg); }
+        .card-front { background: white; display: flex; flex-direction: column; justify-content: space-between; padding: 10px; border: 1px solid #ccc; color: #111; }
+        
+        .card-val-top, .card-val-bottom { font-weight: 900; font-size: 26px; line-height: 1; }
+        .card-val-bottom { text-align: right; transform: rotate(180deg); }
+        .card-suit-center { font-size: 50px; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .card-red { color: #e6003d; }
+
+        .hand-score { background: rgba(0,0,0,0.9); padding: 8px 30px; border-radius: 20px; font-weight: 900; font-size: 24px; border: 2px solid rgba(255,255,255,0.2); color: #fff; opacity: 0; transition: 0.3s; transform: translateY(10px); }
+        .hand-score.show { opacity: 1; transform: translateY(0); }
+        .winner .hand-score { border-color: var(--accent-gold); color: var(--accent-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+
+        /* Board & Controls */
+        .betting-board { display: flex; gap: 15px; width: 100%; }
+        .bet-btn { flex: 1; background: var(--bg-panel); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+        .bet-btn.selected { border-color: var(--accent-gold); transform: scale(1.05); background: #132435; }
+        
+        .bet-title { font-size: 20px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .btn-player .bet-title { color: #5bc0be; }
+        .btn-banker .bet-title { color: #ff6b6b; }
+        .bet-payout { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-deal { flex: 1; background: var(--accent-blue); color: white; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #1868b8; transition: 0.1s; }
+        .btn-deal:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .table { height: auto; padding: 40px 10px 20px 10px; min-height: 500px; }
+            .cards-area { flex-direction: column; gap: 30px; }
+            .side { width: 100%; }
+            .betting-board { flex-direction: column; gap: 10px; }
+            .bet-btn { flex-direction: row; justify-content: space-between; padding: 15px; }
+            .controls { flex-direction: column; }
+            .btn-deal { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="table">
+            <div class="status-badge" id="statusBadge">PLACE YOUR BETS</div>
+            
+            <div class="cards-area">
+                <div class="side" id="sidePlayer">
+                    <div class="side-title player-title">PLAYER</div>
+                    <div class="card-container" id="playerCards"></div>
+                    <div class="hand-score" id="playerScore">0</div>
+                </div>
+                
+                <div class="side" id="sideBanker">
+                    <div class="side-title banker-title">BANKER</div>
+                    <div class="card-container" id="bankerCards"></div>
+                    <div class="hand-score" id="bankerScore">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="betting-board">
+            <div class="bet-btn btn-player" onclick="selectBet('PLAYER', 2, this)">
+                <div class="bet-title">PLAYER</div><div class="bet-payout">PAYS 2x</div>
+            </div>
+            <div class="bet-btn" onclick="selectBet('TIE', 9, this)">
+                <div class="bet-title" style="color:var(--accent-gold)">TIE</div><div class="bet-payout">PAYS 9x</div>
+            </div>
+            <div class="bet-btn btn-banker" onclick="selectBet('BANKER', 1.95, this)">
+                <div class="bet-title">BANKER</div><div class="bet-payout">PAYS 1.95x</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="500" min="50">
+            </div>
+            <button class="btn-deal" id="dealBtn" onclick="dealCards()">DEAL & SQUEEZE</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceDisplay = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const dealBtn = document.getElementById('dealBtn');
+        const pCardsContainer = document.getElementById('playerCards');
+        const bCardsContainer = document.getElementById('bankerCards');
+        const pScoreDisplay = document.getElementById('playerScore');
+        const bScoreDisplay = document.getElementById('bankerScore');
+        const sidePlayer = document.getElementById('sidePlayer');
+        const sideBanker = document.getElementById('sideBanker');
+
+        let balance = 10000.00;
+        let selectedBet = null;
+        let isDealing = false;
+
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        function getBaccaratValue(v) {
+            if (v === 'A') return 1;
+            if (['10','J','Q','K'].includes(v)) return 0;
+            return parseInt(v);
+        }
+
+        function createCardDOM(idx) {
+            const suit = suits[Math.floor(Math.random() * suits.length)];
+            const val = values[Math.floor(Math.random() * values.length)];
+            const isRed = suit === '♥' || suit === '♦';
+            
+            const el = document.createElement('div');
+            el.className = 'playing-card';
+            el.style.setProperty('--card-idx', idx); 
+
+            el.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-back"></div>
+                    <div class="card-front ${isRed ? 'card-red' : 'card-black'}">
+                        <div class="card-val-top">${val}</div>
+                        <div class="card-suit-center">${suit}</div>
+                        <div class="card-val-bottom">${val}</div>
+                    </div>
+                </div>
+            `;
+            return { el, numVal: getBaccaratValue(val) };
+        }
+
+        function selectBet(type, multiplier, el) {
+            if (isDealing) return;
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedBet = { type, multi: multiplier };
+            statusBadge.innerText = `BET: ${type}`;
+        }
+
+        function dealCards() {
+            if (!selectedBet) return alert('Select Player, Banker, or Tie');
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet');
+            if (amt > balance) return alert('Insufficient Funds');
+
+            balance -= amt;
+            balanceDisplay.innerText = balance.toFixed(2);
+            isDealing = true;
+            dealBtn.disabled = true;
+            statusBadge.innerText = 'SQUEEZING CARDS...';
+            
+            pCardsContainer.innerHTML = ''; bCardsContainer.innerHTML = '';
+            pScoreDisplay.classList.remove('show'); bScoreDisplay.classList.remove('show');
+            sidePlayer.classList.remove('winner'); sideBanker.classList.remove('winner');
+
+            let pCards = [createCardDOM(1), createCardDOM(2)];
+            let bCards = [createCardDOM(1), createCardDOM(2)];
+
+            // Deal facedown fast
+            pCardsContainer.appendChild(pCards[0].el); bCardsContainer.appendChild(bCards[0].el);
+            pCardsContainer.appendChild(pCards[1].el); bCardsContainer.appendChild(bCards[1].el);
+            
+            setTimeout(() => {
+                pCards.forEach(c => c.el.classList.add('dealt'));
+                bCards.forEach(c => c.el.classList.add('dealt'));
+
+                // Slow Squeeze Flip (2.5s CSS transition)
+                setTimeout(() => {
+                    pCards.forEach(c => c.el.classList.add('flipped'));
+                    bCards.forEach(c => c.el.classList.add('flipped'));
+
+                    setTimeout(() => {
+                        let pScore = (pCards[0].numVal + pCards[1].numVal) % 10;
+                        let bScore = (bCards[0].numVal + bCards[1].numVal) % 10;
+                        pScoreDisplay.innerText = pScore; pScoreDisplay.classList.add('show');
+                        bScoreDisplay.innerText = bScore; bScoreDisplay.classList.add('show');
+
+                        if (pScore >= 8 || bScore >= 8) resolve(pScore, bScore, amt);
+                        else handleThirdCard(pScore, bScore, pCards, bCards, amt);
+                    }, 2500); // Wait for slow flip to finish
+                }, 800);
+            }, 100);
+        }
+
+        function handleThirdCard(pScore, bScore, pCards, bCards, amt) {
+            let pDrew = false, p3 = 0;
+            if (pScore <= 5) {
+                pDrew = true;
+                const c3 = createCardDOM(3);
+                pCardsContainer.appendChild(c3.el);
+                setTimeout(() => {
+                    c3.el.classList.add('dealt');
+                    setTimeout(() => { c3.el.classList.add('flipped'); }, 500);
+                }, 100);
+                p3 = c3.numVal;
+                pScore = (pScore + p3) % 10;
+            }
+
+            const waitTime = pDrew ? 3200 : 500; // Wait for squeeze if drawn
+            
+            setTimeout(() => {
+                if (pDrew) pScoreDisplay.innerText = pScore;
+                
+                let bDraws = false;
+                if (!pDrew && bScore <= 5) bDraws = true;
+                else if (pDrew) {
+                    if (bScore <= 2) bDraws = true;
+                    else if (bScore === 3 && p3 !== 8) bDraws = true;
+                    else if (bScore === 4 && [2,3,4,5,6].includes(p3)) bDraws = true;
+                    else if (bScore === 5 && [4,5,6,7].includes(p3)) bDraws = true;
+                    else if (bScore === 6 && [6,7].includes(p3)) bDraws = true;
+                }
+
+                if (bDraws) {
+                    const c3 = createCardDOM(3);
+                    bCardsContainer.appendChild(c3.el);
+                    setTimeout(() => {
+                        c3.el.classList.add('dealt');
+                        setTimeout(() => { c3.el.classList.add('flipped'); }, 500);
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        bScore = (bScore + c3.numVal) % 10;
+                        bScoreDisplay.innerText = bScore;
+                        resolve(pScore, bScore, amt);
+                    }, 3200);
+                } else {
+                    resolve(pScore, bScore, amt);
+                }
+            }, waitTime);
+        }
+
+        function resolve(pScore, bScore, amt) {
+            let winner = 'TIE';
+            if (pScore > bScore) { winner = 'PLAYER'; sidePlayer.classList.add('winner'); }
+            if (bScore > pScore) { winner = 'BANKER'; sideBanker.classList.add('winner'); }
+
+            if (winner === selectedBet.type) {
+                const win = amt * selectedBet.multi;
+                balance += win;
+                statusBadge.innerText = `${winner} WINS! PAYS ₹${win.toFixed(2)}`;
+                statusBadge.style.color = '#2ecc71';
+            } else if (winner === 'TIE') {
+                balance += amt; // Push
+                statusBadge.innerText = 'TIE! BET RETURNED.';
+                statusBadge.style.color = '#fff';
+            } else {
+                statusBadge.innerText = `${winner} WINS. BET LOST.`;
+                statusBadge.style.color = '#e74c3c';
+            }
+
+            balanceDisplay.innerText = balance.toFixed(2);
+            setTimeout(() => {
+                isDealing = false;
+                dealBtn.disabled = false;
+                statusBadge.style.color = 'var(--accent-gold)';
+                statusBadge.innerText = 'PLACE YOUR BETS';
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

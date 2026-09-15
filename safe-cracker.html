@@ -1,0 +1,198 @@
+<!-- Save this as safe-cracker.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Safe Cracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-green: #2ecc71; --accent-red: #e74c3c; --accent-blue: #238cf5;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 650px; margin: auto; width: 100%; }
+
+        .vault-stage { width: 100%; height: 350px; background: radial-gradient(circle at center, #34495e 0%, #1a252f 100%); border-radius: 20px; border: 4px solid #7f8c8d; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 25px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-badge { position: absolute; top: 15px; font-size: 15px; font-weight: 900; letter-spacing: 2px; color: var(--accent-gold); background: rgba(0,0,0,0.7); padding: 8px 25px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); }
+
+        /* Vault Dial */
+        .vault-dial { width: 150px; height: 150px; background: radial-gradient(circle at 35% 35%, #bdc3c7, #7f8c8d); border-radius: 50%; border: 8px solid #2c3e50; box-shadow: 0 10px 25px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; position: relative; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .vault-dial::after { content: ''; width: 20px; height: 20px; background: #2c3e50; border-radius: 50%; }
+        .dial-notch { position: absolute; top: 8px; width: 6px; height: 15px; background: #c0392b; border-radius: 2px; }
+
+        /* Pin Display */
+        .pins-row { display: flex; gap: 12px; }
+        .pin { width: 45px; height: 45px; background: #111; border-radius: 8px; border: 2px solid #555; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 900; color: #fff; }
+        .pin.cracked { border-color: var(--accent-green); background: #0e331c; color: var(--accent-green); box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 30px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn-start { background: var(--accent-blue); color: white; flex: 1; }
+        .btn-crack { background: var(--accent-green); color: white; flex: 1; display: none; }
+        .btn-cashout { background: var(--accent-gold); color: #111; flex: 1; display: none; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="vault-stage">
+            <div class="status-badge" id="statusBadge">CRACK 4 PINS</div>
+            
+            <div class="vault-dial" id="dial">
+                <div class="dial-notch"></div>
+            </div>
+
+            <div class="pins-row">
+                <div class="pin" id="p-0">🔒</div>
+                <div class="pin" id="p-1">🔒</div>
+                <div class="pin" id="p-2">🔒</div>
+                <div class="pin" id="p-3">🔒</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>HEIST STAKE (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-action btn-start" id="btnStart" onclick="startHeist()">START HEIST</button>
+            <button class="btn-action btn-crack" id="btnCrack" onclick="tryPin()">CRACK PIN</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const dial = document.getElementById('dial');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnStart = document.getElementById('btnStart');
+        const btnCrack = document.getElementById('btnCrack');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentPin = 0;
+        let currentBet = 0;
+        let dialRot = 0;
+        
+        const pinMultipliers = [1.5, 3.2, 7.5, 20.0];
+
+        function startHeist() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Stake');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentPin = 0;
+            dialRot = 0;
+            dial.style.transform = `rotate(0deg)`;
+
+            for (let i = 0; i < 4; i++) {
+                const el = document.getElementById(`p-${i}`);
+                el.className = 'pin';
+                el.innerText = '🔒';
+            }
+
+            btnStart.style.display = 'none';
+            btnCrack.style.display = 'block';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            btnCashout.innerText = 'CASHOUT';
+            betInput.disabled = true;
+
+            statusBadge.innerText = 'TURN DIAL TO CRACK';
+            statusBadge.style.color = '#fff';
+        }
+
+        function tryPin() {
+            if (!isPlaying) return;
+            btnCrack.disabled = true;
+
+            // Spin Dial Animation
+            dialRot += Math.floor(Math.random() * 200) + 120;
+            dial.style.transform = `rotate(${dialRot}deg)`;
+
+            // 70% win chance per pin
+            const success = Math.random() < 0.70;
+
+            setTimeout(() => {
+                if (success) {
+                    const pinEl = document.getElementById(`p-${currentPin}`);
+                    pinEl.classList.add('cracked');
+                    pinEl.innerText = '🔓';
+
+                    const win = currentBet * pinMultipliers[currentPin];
+                    btnCashout.disabled = false;
+                    btnCashout.innerText = `CASHOUT (₹${win.toFixed(2)})`;
+
+                    currentPin++;
+                    if (currentPin === 4) {
+                        endHeist(true, 'VAULT OPENED! 20x LOOT!');
+                    } else {
+                        btnCrack.disabled = false;
+                        statusBadge.innerText = `PIN ${currentPin} CRACKED!`;
+                        statusBadge.style.color = 'var(--accent-green)';
+                    }
+                } else {
+                    endHeist(false, 'ALARM TRIGGERED! HEIST FAILED.');
+                }
+            }, 600);
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentPin === 0) return;
+            endHeist(true, 'HEIST SECURED!');
+        }
+
+        function endHeist(won, msg) {
+            isPlaying = false;
+            btnCrack.style.display = 'none';
+            btnCashout.style.display = 'none';
+            btnStart.style.display = 'block';
+            btnCrack.disabled = false;
+            betInput.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * pinMultipliers[currentPin - 1];
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!-- Save this as space-taxi.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Space Taxi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-cyan: #00d2d3; --accent-gold: #f1c40f; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid #238cf5; }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 800px; margin: auto; width: 100%; }
+
+        .space-stage { width: 100%; height: 300px; background: radial-gradient(circle at top, #111 0%, #050a0f 100%); border-radius: 20px; border: 2px solid var(--border-color); position: relative; overflow: hidden; display: flex; align-items: flex-end; padding-bottom: 20px; box-shadow: inset 0 0 40px rgba(0,0,0,0.8); }
+        
+        /* Moon Surface */
+        .moon-surface { position: absolute; bottom: -20px; width: 200%; height: 60px; background: #555; border-radius: 50% 50% 0 0; border-top: 4px dashed #777; transition: transform 0.5s ease-out; }
+        
+        .status-badge { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: 900; letter-spacing: 2px; color: var(--accent-gold); background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 20px; border: 1px solid rgba(255,193,7,0.3); z-index: 10; }
+
+        .taxi { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); font-size: 50px; z-index: 5; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .taxi.hop { bottom: 150px; }
+        .taxi.crashed { font-size: 60px; filter: grayscale(1); }
+
+        .multi-display { font-size: 40px; font-weight: 900; color: #fff; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 5; text-shadow: 0 4px 10px rgba(0,0,0,0.8); transition: 0.2s; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 30px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; flex: 1; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        .btn-start { background: var(--accent-cyan); color: #111; box-shadow: 0 4px 0 #009999; }
+        .btn-hop { background: #2ecc71; color: #111; display: none; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="space-stage">
+            <div class="status-badge" id="statusBadge">READY FOR LIFTOFF</div>
+            <div class="multi-display" id="multiDisplay">1.00x</div>
+            <div class="moon-surface" id="moonSurface"></div>
+            <div class="taxi" id="taxi">🚀</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>FUEL STAKE (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-action btn-start" id="btnStart" onclick="startGame()">START RUN</button>
+            <button class="btn-action btn-hop" id="btnHop" onclick="takeHop()">HOP TO CRATER</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const multiDisplay = document.getElementById('multiDisplay');
+        const taxi = document.getElementById('taxi');
+        const moonSurface = document.getElementById('moonSurface');
+        
+        const btnStart = document.getElementById('btnStart');
+        const btnHop = document.getElementById('btnHop');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentBet = 0;
+        let currentMulti = 1.00;
+        let surfaceX = 0;
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentMulti = 1.00;
+            
+            btnStart.style.display = 'none';
+            btnHop.style.display = 'block';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+
+            taxi.innerText = '🚀';
+            multiDisplay.innerText = '1.00x';
+            multiDisplay.style.color = '#fff';
+
+            statusBadge.innerText = 'HOP TO BOOST MULTIPLIER';
+            statusBadge.style.color = '#fff';
+        }
+
+        function takeHop() {
+            if (!isPlaying) return;
+            btnHop.disabled = true;
+
+            // Animate Hop
+            taxi.classList.add('hop');
+            surfaceX -= 10;
+            moonSurface.style.transform = `translateX(${surfaceX}%)`;
+
+            setTimeout(() => {
+                taxi.classList.remove('hop');
+                
+                // Evaluate logic: 20% crash chance per hop. Boosts vary from 1.2x to 3.0x
+                const isCrash = Math.random() < 0.20;
+
+                setTimeout(() => {
+                    if (isCrash) {
+                        taxi.innerText = '💥';
+                        taxi.classList.add('crashed');
+                        endGame(false, 'OUT OF FUEL. CRASHED!');
+                    } else {
+                        const boost = (Math.random() * 1.8) + 1.2; // 1.2 to 3.0
+                        currentMulti *= boost;
+                        multiDisplay.innerText = `${currentMulti.toFixed(2)}x`;
+                        multiDisplay.style.color = 'var(--accent-cyan)';
+                        
+                        btnCashout.disabled = false;
+                        btnCashout.innerText = `CASHOUT (₹${(currentBet * currentMulti).toFixed(2)})`;
+                        btnHop.disabled = false;
+
+                        if (currentMulti > 500) {
+                            endGame(true, 'DEEP SPACE REACHED! MAX WIN!');
+                        }
+                    }
+                }, 200);
+            }, 400);
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentMulti === 1.00) return;
+            endGame(true, 'SAFELY LANDED!');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            btnHop.style.display = 'none';
+            btnCashout.style.display = 'none';
+            btnStart.style.display = 'block';
+            betInput.disabled = false;
+
+            if (won) {
+                const winAmt = currentBet * currentMulti;
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusBadge.innerText = `${msg} WON ₹${winAmt.toFixed(2)}`;
+                statusBadge.style.color = 'var(--accent-gold)';
+            } else {
+                statusBadge.innerText = msg;
+                statusBadge.style.color = 'var(--accent-red)';
+            }
+
+            setTimeout(() => { taxi.classList.remove('crashed'); taxi.innerText = '🚀'; }, 2000);
+        }
+    </script>
+</body>
+</html>

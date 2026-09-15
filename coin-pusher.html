@@ -1,0 +1,181 @@
+<!-- Save this as coin-pusher.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Coin Pusher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-blue: #238cf5; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 25px 15px; flex: 1; gap: 20px; width: 100%; max-width: 700px; margin: auto; }
+
+        /* Pusher Stage */
+        .machine-stage { width: 100%; height: 350px; background: radial-gradient(circle at top, #1e113a 0%, #0d0614 100%); border-radius: 20px; border: 6px solid #444; position: relative; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        
+        .status-badge { position: absolute; top: 15px; z-index: 20; background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 20px; font-weight: 900; font-size: 15px; letter-spacing: 2px; color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+
+        /* The Moving Shelf */
+        .pusher-shelf { position: absolute; top: 80px; width: 80%; height: 140px; background: linear-gradient(180deg, #ccc, #777); border-radius: 10px; border: 2px solid #555; z-index: 5; animation: slideShelf 3s infinite ease-in-out alternate; box-shadow: 0 20px 20px rgba(0,0,0,0.8); display: flex; justify-content: center; align-content: flex-end; flex-wrap: wrap; padding-bottom: 10px; gap: 5px; }
+
+        @keyframes slideShelf { 0% { transform: translateY(-20px); } 100% { transform: translateY(40px); } }
+
+        /* Static Bottom Shelf */
+        .bottom-shelf { position: absolute; bottom: 40px; width: 100%; height: 100px; background: linear-gradient(180deg, #b38c4b, #6b4d1b); border-top: 4px solid #fff; z-index: 2; display: flex; justify-content: center; align-content: flex-end; flex-wrap: wrap; gap: 5px; padding-bottom: 10px; }
+
+        .coin { width: 35px; height: 35px; background: radial-gradient(circle, #ffc107, #d35400); border-radius: 50%; border: 3px dashed #fff; box-shadow: 0 5px 10px rgba(0,0,0,0.5); z-index: 10; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        
+        /* Dropped Coin */
+        .dropped-coin { position: absolute; top: -40px; z-index: 15; animation: dropCoin 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes dropCoin { to { transform: translateY(160px); } }
+
+        /* Falling Coin Effect */
+        .falling-coin { position: absolute; bottom: 40px; animation: fallOff 0.5s ease-in forwards; z-index: 20; }
+        @keyframes fallOff { to { transform: translateY(100px) scale(0.5); opacity: 0; } }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-drop { flex: 1; background: var(--accent-gold); color: #111; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #b9770e; transition: 0.1s; }
+        .btn-drop:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-drop:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .machine-stage { height: 280px; }
+            .pusher-shelf { height: 100px; }
+            .controls { flex-direction: column; }
+            .btn-drop { padding: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="machine-stage" id="stage">
+            <div class="status-badge" id="statusBadge">DROP A COIN</div>
+            
+            <div class="pusher-shelf" id="pusherShelf">
+                <div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div>
+            </div>
+
+            <div class="bottom-shelf" id="bottomShelf">
+                <div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div>
+                <div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="50" min="10">
+            </div>
+            <button class="btn-drop" id="btnDrop" onclick="dropCoin()">DROP COIN</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnDrop = document.getElementById('btnDrop');
+        const stage = document.getElementById('stage');
+        
+        let balance = 10000.00;
+        let isDropping = false;
+
+        function dropCoin() {
+            if (isDropping) return;
+            const amt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            balanceEl.innerText = balance.toFixed(2);
+            isDropping = true;
+            btnDrop.disabled = true;
+
+            statusBadge.innerText = 'COIN DROPPED...';
+            statusBadge.style.color = '#fff';
+
+            // Create falling coin
+            const coin = document.createElement('div');
+            coin.className = 'coin dropped-coin';
+            coin.style.left = `calc(50% + ${(Math.random() * 80) - 40}px)`; // Random drop X
+            stage.appendChild(coin);
+
+            // Simulate Pusher Physics
+            setTimeout(() => {
+                // Determine payout mathematically (RTP ~ 95%)
+                const r = Math.random();
+                let payoutMulti = 0;
+                let coinsToFall = 0;
+
+                if (r < 0.05) { payoutMulti = 10; coinsToFall = 8; }
+                else if (r < 0.15) { payoutMulti = 5; coinsToFall = 5; }
+                else if (r < 0.35) { payoutMulti = 2; coinsToFall = 3; }
+                else if (r < 0.60) { payoutMulti = 1; coinsToFall = 1; }
+                else if (r < 0.70) { payoutMulti = 0.5; coinsToFall = 1; }
+                else { payoutMulti = 0; coinsToFall = 0; }
+
+                // Animate coins falling off the edge
+                for (let i = 0; i < coinsToFall; i++) {
+                    setTimeout(() => {
+                        const fallCoin = document.createElement('div');
+                        fallCoin.className = 'coin falling-coin';
+                        fallCoin.style.left = `calc(50% + ${(Math.random() * 120) - 60}px)`;
+                        stage.appendChild(fallCoin);
+                        
+                        setTimeout(() => fallCoin.remove(), 600);
+                    }, i * 150);
+                }
+
+                // Resolve
+                setTimeout(() => {
+                    const win = amt * payoutMulti;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    
+                    coin.remove(); // cleanup dropped coin
+                    
+                    if (win > 0) {
+                        statusBadge.innerText = `${coinsToFall} COINS FELL! WON ₹${win.toFixed(2)}`;
+                        statusBadge.style.color = 'var(--accent-green)';
+                    } else {
+                        statusBadge.innerText = 'STUCK. BET LOST.';
+                        statusBadge.style.color = 'var(--accent-red)';
+                    }
+
+                    setTimeout(() => {
+                        isDropping = false;
+                        btnDrop.disabled = false;
+                        statusBadge.innerText = 'DROP A COIN';
+                        statusBadge.style.color = 'var(--accent-gold)';
+                    }, 2500);
+
+                }, Math.max(500, coinsToFall * 150));
+
+            }, 600); // Wait for initial drop animation
+        }
+    </script>
+</body>
+</html>

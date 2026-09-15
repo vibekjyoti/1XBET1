@@ -1,0 +1,253 @@
+<!-- Save this as ninja-slash.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Ninja Slash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-red: #e74c3c; --accent-gold: #f1c40f; --accent-blue: #0984e3;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; cursor: crosshair; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-blue); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 20px 15px; flex: 1; gap: 20px; max-width: 700px; margin: auto; width: 100%; }
+
+        .dojo-stage { width: 100%; background: radial-gradient(circle at center, #2c3e50 0%, #1a252f 100%); border-radius: 16px; border: 4px solid #7f8c8d; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        .status-header { display: flex; justify-content: space-between; width: 100%; font-size: 18px; font-weight: 900; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,193,7,0.3); }
+
+        .slash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 400px; aspect-ratio: 1; }
+        .target-box { background: rgba(0,0,0,0.3); border-radius: 12px; border: 2px dashed #444; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        
+        .item { font-size: 60px; position: absolute; bottom: -100px; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none; }
+        .item.active { bottom: 20px; }
+        .item.slashed { display: none; }
+        
+        /* Slash FX */
+        .slash-mark { position: absolute; width: 100%; height: 4px; background: #fff; box-shadow: 0 0 10px #fff; transform: rotate(45deg); opacity: 0; pointer-events: none; }
+        .target-box.cut .slash-mark { animation: slashAnim 0.3s ease-out; }
+        @keyframes slashAnim { 0% { opacity: 1; transform: scaleX(0) rotate(45deg); } 50% { opacity: 1; transform: scaleX(1) rotate(45deg); } 100% { opacity: 0; transform: scaleX(1.5) rotate(45deg); } }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 20px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: 0.1s; flex: 1; }
+        .btn-play { background: var(--accent-blue); color: white; }
+        .btn-cashout { background: var(--accent-gold); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .slash-grid { max-width: 300px; }
+            .item { font-size: 45px; }
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="dojo-stage">
+            <div class="status-header">
+                <span id="multiplierDisplay">1.00x</span>
+                <span id="statusMsg">READY TO SLASH</span>
+            </div>
+
+            <div class="slash-grid" id="grid">
+                <!-- 9 targets generated via JS -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action btn-play" id="btnPlay" onclick="startGame()">START DOJO</button>
+            <button class="btn-action btn-cashout" id="btnCashout" onclick="cashOut()">CASHOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('grid');
+        const statusMsg = document.getElementById('statusMsg');
+        const multDisplay = document.getElementById('multiplierDisplay');
+        const btnPlay = document.getElementById('btnPlay');
+        const btnCashout = document.getElementById('btnCashout');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let currentBet = 0;
+        let currentMulti = 1.00;
+        let gameLoop;
+        let activeItems = [];
+
+        const fruits = ['🍉', '🍊', '🍎', '🍍', '🥥'];
+
+        function initGrid() {
+            grid.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                const box = document.createElement('div');
+                box.className = 'target-box';
+                box.id = `box-${i}`;
+                box.onmousedown = () => slash(i);
+                box.ontouchstart = (e) => { e.preventDefault(); slash(i); };
+
+                const slashMark = document.createElement('div');
+                slashMark.className = 'slash-mark';
+                
+                const item = document.createElement('div');
+                item.className = 'item';
+                item.id = `item-${i}`;
+
+                box.appendChild(item);
+                box.appendChild(slashMark);
+                grid.appendChild(box);
+            }
+        }
+        initGrid();
+
+        function startGame() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            currentMulti = 1.00;
+            activeItems = [];
+            
+            btnPlay.style.display = 'none';
+            btnCashout.style.display = 'block';
+            btnCashout.disabled = true;
+            betInput.disabled = true;
+
+            multDisplay.innerText = '1.00x';
+            statusMsg.innerText = 'SLASH FRUITS!';
+            statusMsg.style.color = '#fff';
+
+            spawnLoop();
+        }
+
+        function spawnLoop() {
+            if (!isPlaying) return;
+            
+            // Randomly select empty boxes
+            const emptyBoxes = [];
+            for(let i=0; i<9; i++) {
+                if(!activeItems.includes(i)) emptyBoxes.push(i);
+            }
+
+            if (emptyBoxes.length > 0) {
+                // Spawn 1 or 2 items
+                const spawnCount = Math.floor(Math.random() * 2) + 1;
+                for(let k=0; k<spawnCount; k++) {
+                    if(emptyBoxes.length === 0) break;
+                    
+                    const randIdx = Math.floor(Math.random() * emptyBoxes.length);
+                    const boxIdx = emptyBoxes.splice(randIdx, 1)[0];
+                    activeItems.push(boxIdx);
+
+                    const isBomb = Math.random() < 0.2; // 20% chance bomb
+                    const el = document.getElementById(`item-${boxIdx}`);
+                    
+                    el.innerText = isBomb ? '💣' : fruits[Math.floor(Math.random() * fruits.length)];
+                    el.dataset.type = isBomb ? 'bomb' : 'fruit';
+                    el.classList.remove('slashed');
+                    el.classList.add('active');
+
+                    // Auto hide after 1.5s if not slashed
+                    setTimeout(() => {
+                        if (isPlaying && el.classList.contains('active')) {
+                            el.classList.remove('active');
+                            activeItems = activeItems.filter(id => id !== boxIdx);
+                        }
+                    }, 1500);
+                }
+            }
+
+            // Speed up slightly as game progresses (min 600ms)
+            const delay = Math.max(600, 1500 - (currentMulti * 100));
+            gameLoop = setTimeout(spawnLoop, delay);
+        }
+
+        function slash(idx) {
+            if (!isPlaying) return;
+            const box = document.getElementById(`box-${idx}`);
+            const item = document.getElementById(`item-${idx}`);
+            
+            if (!item.classList.contains('active')) return;
+
+            // Trigger Visual
+            box.classList.remove('cut');
+            void box.offsetWidth; // Reflow
+            box.classList.add('cut');
+            item.classList.remove('active');
+            item.classList.add('slashed');
+            activeItems = activeItems.filter(id => id !== idx);
+
+            if (item.dataset.type === 'bomb') {
+                endGame(false, 'SLASHED A BOMB!');
+            } else {
+                currentMulti += 0.2; // 0.2x per fruit
+                multDisplay.innerText = `${currentMulti.toFixed(2)}x`;
+                btnCashout.disabled = false;
+                btnCashout.innerText = `CASHOUT (₹${(currentBet * currentMulti).toFixed(2)})`;
+                
+                if (currentMulti >= 10.00) {
+                    endGame(true, 'NINJA MASTER! MAX WIN!');
+                }
+            }
+        }
+
+        function cashOut() {
+            if (!isPlaying || currentMulti === 1.00) return;
+            endGame(true, 'CASHED OUT');
+        }
+
+        function endGame(won, msg) {
+            isPlaying = false;
+            clearTimeout(gameLoop);
+            
+            btnCashout.style.display = 'none';
+            btnPlay.style.display = 'block';
+            betInput.disabled = false;
+
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+
+            if (won) {
+                const winAmt = currentBet * currentMulti;
+                balance += winAmt;
+                balanceEl.innerText = balance.toFixed(2);
+                statusMsg.innerText = `${msg} - ₹${winAmt.toFixed(2)}`;
+                statusMsg.style.color = 'var(--accent-gold)';
+            } else {
+                statusMsg.innerText = msg;
+                statusMsg.style.color = 'var(--accent-red)';
+            }
+        }
+    </script>
+</body>
+</html>

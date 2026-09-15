@@ -1,0 +1,224 @@
+<!-- Save this as coin-strike.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Coin Strike (Hold & Win)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-gold: #f1c40f; --accent-blue: #238cf5; --accent-green: #2ecc71; --accent-red: #e74c3c;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: var(--accent-blue); }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-gold); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; width: 100%; max-width: 600px; margin: auto; }
+
+        .slot-stage { width: 100%; background: radial-gradient(circle at center, #2e1c05 0%, #0d0601 100%); border-radius: 16px; border: 4px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(241,196,15,0.2); position: relative; }
+        
+        .header-ui { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; }
+        .respins-box { background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 8px; border: 2px solid var(--accent-red); font-weight: 900; font-size: 18px; color: var(--accent-red); box-shadow: 0 0 15px rgba(231,76,60,0.3); }
+        .win-box { background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 8px; border: 2px solid var(--accent-green); font-weight: 900; font-size: 18px; color: var(--accent-green); text-align: right; }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 350px; }
+        
+        .cell { aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
+        
+        /* The Gold Coin */
+        .coin { width: 80%; height: 80%; background: radial-gradient(circle at 30% 30%, #fff6a1, #f1c40f, #b38c4b); border-radius: 50%; border: 3px dashed #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.8), inset -5px -5px 15px rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: 900; color: #111; opacity: 0; transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .coin.locked { opacity: 1; transform: scale(1); animation: pop 0.4s ease-out; }
+        .coin.jackpot { background: radial-gradient(circle at 30% 30%, #ff9ff3, #e84393, #b33970); color: #fff; font-size: 16px; border-style: solid; box-shadow: 0 0 30px rgba(232, 67, 147, 0.8); }
+
+        @keyframes pop { 50% { transform: scale(1.15); } }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px; font-size: 20px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 rgba(0,0,0,0.3); transition: 0.1s; flex: 1; }
+        .btn-start { background: var(--accent-gold); color: #111; box-shadow: 0 5px 0 #b9770e; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="slot-stage">
+            <div class="header-ui">
+                <div class="respins-box" id="spinsDisplay">SPINS: 3</div>
+                <div class="win-box" id="winDisplay">TOTAL: 0x</div>
+            </div>
+
+            <div class="grid" id="grid">
+                <!-- 9 Cells -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>STRIKE BET (₹)</label>
+                <input type="number" id="betAmount" value="200" min="10">
+            </div>
+            <button class="btn-action btn-start" id="btnStart" onclick="startBonus()">START FEATURE</button>
+        </div>
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const grid = document.getElementById('grid');
+        const spinsDisplay = document.getElementById('spinsDisplay');
+        const winDisplay = document.getElementById('winDisplay');
+        const btnStart = document.getElementById('btnStart');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isPlaying = false;
+        let respins = 3;
+        let totalMultiplier = 0;
+        let currentBet = 0;
+        let lockedCells = [];
+
+        // Possible Coin Values (RTP logic ~95%)
+        const coinPool = [
+            { v: 1, w: 50 }, { v: 2, w: 30 }, { v: 3, w: 15 }, 
+            { v: 5, w: 10 }, { v: 10, w: 4 }, { v: 25, w: 1 } // Jackpots are rare
+        ];
+
+        function getCoin() {
+            const totalWeight = coinPool.reduce((sum, item) => sum + item.w, 0);
+            let r = Math.random() * totalWeight;
+            for (let item of coinPool) {
+                if (r < item.w) return item.v;
+                r -= item.w;
+            }
+            return 1;
+        }
+
+        function initGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `c-${i}`;
+                
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.id = `coin-${i}`;
+                
+                cell.appendChild(coin);
+                grid.appendChild(cell);
+            }
+        }
+        initGrid();
+
+        function startBonus() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isPlaying = true;
+            respins = 3;
+            totalMultiplier = 0;
+            lockedCells = [];
+            
+            btnStart.disabled = true;
+            betInput.disabled = true;
+            
+            initGrid();
+            updateUI();
+
+            // Initial drop (guarantee 1 coin to start)
+            setTimeout(() => { spinReels(true); }, 500);
+        }
+
+        function spinReels(forceDrop = false) {
+            respins--;
+            let newCoinsLanded = false;
+
+            for (let i = 0; i < 9; i++) {
+                if (lockedCells.includes(i)) continue;
+
+                // 25% chance to land a coin per empty cell (100% on forceDrop for at least 1)
+                const shouldLand = (forceDrop && i===4) || Math.random() < 0.25;
+
+                if (shouldLand) {
+                    newCoinsLanded = true;
+                    lockedCells.push(i);
+                    const val = getCoin();
+                    totalMultiplier += val;
+
+                    const coinEl = document.getElementById(`coin-${i}`);
+                    coinEl.innerText = `${val}x`;
+                    if (val >= 10) coinEl.classList.add('jackpot');
+                    
+                    setTimeout(() => {
+                        coinEl.classList.add('locked');
+                    }, i * 50); // Stagger drop
+                }
+            }
+
+            if (newCoinsLanded) respins = 3; // Reset respins
+
+            updateUI();
+
+            setTimeout(() => {
+                if (respins > 0 && lockedCells.length < 9) {
+                    spinReels(); // Auto-spin
+                } else {
+                    endBonus();
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            spinsDisplay.innerText = `SPINS: ${respins}`;
+            spinsDisplay.style.color = respins === 3 ? 'var(--accent-green)' : (respins === 1 ? 'var(--accent-red)' : 'var(--accent-gold)');
+            winDisplay.innerText = `TOTAL: ${totalMultiplier}x`;
+        }
+
+        function endBonus() {
+            const winAmt = currentBet * totalMultiplier;
+            balance += winAmt;
+            balanceEl.innerText = balance.toFixed(2);
+
+            setTimeout(() => {
+                if (winAmt > 0) {
+                    winDisplay.innerText = `WON ₹${winAmt.toFixed(2)}`;
+                    winDisplay.style.color = 'var(--accent-gold)';
+                } else {
+                    winDisplay.innerText = 'NO WIN';
+                    winDisplay.style.color = 'var(--accent-red)';
+                }
+
+                isPlaying = false;
+                btnStart.disabled = false;
+                betInput.disabled = false;
+            }, 500);
+        }
+    </script>
+</body>
+</html>

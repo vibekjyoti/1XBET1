@@ -1,0 +1,234 @@
+<!-- Save this as plinko-xtreme.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Plinko Xtreme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-pink: #e84393; --accent-blue: #0984e3; --accent-gold: #f1c40f; --accent-green: #00b894;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-gold); }
+
+        .layout { display: flex; justify-content: center; align-items: center; padding: 20px 15px; flex: 1; }
+        .game-wrapper { display: flex; gap: 20px; width: 100%; max-width: 950px; background: var(--bg-panel); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+
+        .settings-panel { width: 280px; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
+        
+        .status-box { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .status-header { font-size: 13px; font-weight: 900; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .status-val { font-size: 28px; font-weight: 900; color: #fff; }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: var(--bg-base); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-drop { padding: 20px; background: var(--accent-pink); color: white; font-size: 22px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 0 #b33970; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn-drop:active { transform: translateY(4px); box-shadow: 0 1px 0 #b33970; }
+        .btn-sub { font-size: 11px; font-weight: bold; opacity: 0.8; }
+
+        .canvas-container { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #1a0b1c 0%, #05050a 100%); border-radius: 12px; border: 2px solid var(--accent-pink); position: relative; overflow: hidden; padding: 10px; }
+        canvas { max-width: 100%; height: auto; }
+
+        @media (max-width: 768px) {
+            .game-wrapper { flex-direction: column-reverse; padding: 15px; }
+            .settings-panel { width: 100%; }
+            .canvas-container { height: 450px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        <div class="game-wrapper">
+            <div class="settings-panel">
+                <div class="status-box">
+                    <div class="status-header">LAST MULTIPLIER</div>
+                    <div class="status-val" id="lastWin">0.00x</div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="input-group">
+                        <label>BET PER BALL (₹)</label>
+                        <input type="number" id="betAmount" value="50" min="10">
+                    </div>
+                    <button class="btn-drop" onclick="dropBall()">
+                        DROP BALL
+                        <span class="btn-sub">16 ROWS • EXTREME VOLATILITY</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="plinkoCanvas" width="600" height="600"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('plinkoCanvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const lastWinEl = document.getElementById('lastWin');
+        
+        let balance = 10000.00;
+        let balls = [];
+        let binHits = [];
+        
+        // 16 Rows Setup
+        const rows = 16;
+        const pegRadius = 3;
+        const ballRadius = 5;
+        const startY = 30;
+        const rowSpacing = 32;
+        const colSpacing = 30;
+        
+        // 17 Bins for 16 rows
+        const multipliers = [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000];
+        
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = '#fff';
+            for (let r = 2; r < rows; r++) {
+                const pegsInRow = r + 1;
+                const rowWidth = (pegsInRow - 1) * colSpacing;
+                const startX = (canvas.width - rowWidth) / 2;
+                
+                for (let c = 0; c < pegsInRow; c++) {
+                    ctx.beginPath();
+                    ctx.arc(startX + (c * colSpacing), startY + (r * rowSpacing), pegRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.shadowBlur = 0;
+
+            // Draw Bins
+            const binY = startY + (rows * rowSpacing) + 10;
+            const binsCount = multipliers.length;
+            const totalWidth = binsCount * colSpacing;
+            const bStartX = (canvas.width - totalWidth) / 2 + (colSpacing/2);
+
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < binsCount; i++) {
+                const m = multipliers[i];
+                let baseColor = m >= 130 ? '#e84393' : (m > 5 ? '#f1c40f' : (m < 1 ? '#636e72' : '#0984e3'));
+                
+                const hitAnim = binHits.find(h => h.index === i);
+                if (hitAnim) {
+                    baseColor = '#fff'; 
+                    hitAnim.timer--;
+                    if (hitAnim.timer <= 0) binHits = binHits.filter(h => h !== hitAnim);
+                }
+                
+                ctx.fillStyle = baseColor;
+                ctx.beginPath();
+                ctx.roundRect(bStartX + (i * colSpacing) - 14, binY, 28, 22, 3);
+                ctx.fill();
+                
+                ctx.fillStyle = '#111';
+                let text = m >= 1000 ? '1K' : m + 'x';
+                ctx.fillText(text, bStartX + (i * colSpacing), binY + 11);
+            }
+
+            // Balls Physics
+            balls.forEach((ball, index) => {
+                ball.vy += 0.35; 
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                for (let r = 2; r < rows; r++) {
+                    const pegsInRow = r + 1;
+                    const rowWidth = (pegsInRow - 1) * colSpacing;
+                    const startX = (canvas.width - rowWidth) / 2;
+                    
+                    for (let c = 0; c < pegsInRow; c++) {
+                        const px = startX + (c * colSpacing);
+                        const py = startY + (r * rowSpacing);
+                        
+                        const dx = ball.x - px;
+                        const dy = ball.y - py;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < ballRadius + pegRadius) {
+                            const angle = Math.atan2(dy, dx);
+                            const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+                            ball.vx = Math.cos(angle) * speed * 0.45;
+                            ball.vy = Math.sin(angle) * speed * 0.45;
+                            
+                            ball.x = px + Math.cos(angle) * (ballRadius + pegRadius + 1);
+                            ball.y = py + Math.sin(angle) * (ballRadius + pegRadius + 1);
+                            ball.vx += (Math.random() - 0.5) * 3.5; // High chaos factor for extreme spread
+                        }
+                    }
+                }
+
+                if (ball.y > binY + 5) {
+                    const hitIndex = Math.floor((ball.x - (bStartX - 14)) / colSpacing);
+                    let m = 0.2; 
+                    if (hitIndex >= 0 && hitIndex < multipliers.length) {
+                        m = multipliers[hitIndex];
+                        binHits.push({ index: hitIndex, timer: 15 });
+                    }
+                    
+                    const win = ball.bet * m;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    lastWinEl.innerText = `${m}x`;
+                    lastWinEl.style.color = m >= 2 ? 'var(--accent-green)' : 'var(--text-muted)';
+                    
+                    balls.splice(index, 1);
+                } else {
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#f1c40f';
+                    ctx.beginPath();
+                    ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            requestAnimationFrame(drawBoard);
+        }
+        requestAnimationFrame(drawBoard);
+
+        function dropBall() {
+            const betAmt = parseFloat(document.getElementById('betAmount').value);
+            if (isNaN(betAmt) || betAmt <= 0) return alert('Invalid Bet Amount');
+            if (betAmt > balance) return alert('Insufficient Balance');
+
+            balance -= betAmt;
+            balanceEl.innerText = balance.toFixed(2);
+
+            balls.push({
+                x: (canvas.width / 2) + (Math.random() * 20 - 10),
+                y: 0,
+                vx: (Math.random() - 0.5) * 2,
+                vy: 2,
+                bet: betAmt
+            });
+        }
+    </script>
+</body>
+</html>

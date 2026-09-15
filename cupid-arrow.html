@@ -1,0 +1,198 @@
+<!-- Save this as cupid-arrow.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1xBet - Cupid's Bow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b1520; --bg-panel: #112030; --bg-card: #172b40;
+            --text-main: #ffffff; --text-muted: #8d9ba8;
+            --accent-pink: #fd79a8; --accent-red: #e84393; --accent-gold: #f1c40f;
+            --border-color: #1a3148;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { background: #081018; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 22px; font-weight: 900; font-style: italic; cursor: pointer; }
+        .logo span { color: #238cf5; }
+        .wallet { background: var(--bg-card); padding: 8px 15px; border-radius: 4px; font-weight: bold; border: 1px solid var(--accent-pink); }
+
+        .layout { display: flex; flex-direction: column; align-items: center; padding: 30px 15px; flex: 1; gap: 20px; max-width: 700px; margin: auto; width: 100%; }
+
+        /* Target Range */
+        .range-stage { width: 100%; height: 350px; background: radial-gradient(circle at bottom, #2d3436 0%, #111 100%); border-radius: 16px; border: 2px solid var(--border-color); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; box-shadow: 0 10px 40px rgba(0,0,0,0.6); overflow: hidden; padding-bottom: 20px; }
+        
+        .status-badge { position: absolute; top: 20px; background: rgba(0,0,0,0.8); padding: 8px 25px; border-radius: 20px; font-weight: 900; font-size: 16px; letter-spacing: 2px; color: #fff; border: 1px solid rgba(255,255,255,0.2); text-transform: uppercase; z-index: 10; }
+
+        /* The Moving Target */
+        .target-rail { position: absolute; top: 80px; width: 80%; height: 6px; background: #333; border-radius: 3px; }
+        .target { position: absolute; top: -35px; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.8); transition: transform 0.1s; }
+        .target::before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 15px solid #fff; background: #e74c3c; box-sizing: border-box; }
+        .target::after { content: ''; position: absolute; width: 30%; height: 30%; border-radius: 50%; background: var(--accent-gold); box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
+
+        .crosshair { position: absolute; top: 83px; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; pointer-events: none; z-index: 5; }
+        .crosshair::before, .crosshair::after { content: ''; position: absolute; background: rgba(255,255,255,0.5); }
+        .crosshair::before { top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); }
+        .crosshair::after { left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%); }
+
+        /* The Bow & Arrow */
+        .bow { font-size: 60px; z-index: 10; transition: transform 0.1s; }
+        .arrow { position: absolute; font-size: 40px; bottom: 40px; left: 50%; transform: translateX(-50%) rotate(-45deg); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 6; }
+        .arrow.shot { opacity: 1; bottom: 250px; transform: translateX(-50%) rotate(-45deg) scale(0.6); }
+
+        .controls { display: flex; gap: 15px; width: 100%; background: var(--bg-panel); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .input-group input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 6px; outline: none; }
+        
+        .btn-action { padding: 15px 30px; font-size: 18px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.1s; flex: 1; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        .btn-start { background: var(--accent-pink); color: white; box-shadow: 0 4px 0 #b33970; }
+        .btn-shoot { background: var(--accent-green); color: #111; display: none; }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .range-stage { height: 280px; }
+            .controls { flex-direction: column; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">1X<span>BET</span></div>
+        <div class="wallet">₹ <span id="balance">10000.00</span></div>
+    </header>
+
+    <div class="layout">
+        
+        <div class="range-stage">
+            <div class="status-badge" id="statusBadge">TIMING IS EVERYTHING</div>
+            
+            <div class="target-rail">
+                <div class="target" id="target" style="left: 0%;"></div>
+            </div>
+            
+            <div class="crosshair"></div>
+            <div class="arrow" id="arrow">🏹</div>
+            <div class="bow" id="bow">🏹</div>
+        </div>
+
+        <div style="font-size: 13px; font-weight: bold; color: var(--text-muted); text-align: center; width: 100%;">
+            BULLSEYE: 10x | WHITE RING: 3x | RED RING: 1.5x | MISS: 0x
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>BET AMOUNT (₹)</label>
+                <input type="number" id="betAmount" value="100" min="10">
+            </div>
+            <button class="btn-action btn-start" id="btnStart" onclick="startAim()">AIM BOW</button>
+            <button class="btn-action btn-shoot" id="btnShoot" onmousedown="shootArrow()" ontouchstart="shootArrow(event)">SHOOT!</button>
+        </div>
+
+    </div>
+
+    <script>
+        const balanceEl = document.getElementById('balance');
+        const target = document.getElementById('target');
+        const arrow = document.getElementById('arrow');
+        const bow = document.getElementById('bow');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnStart = document.getElementById('btnStart');
+        const btnShoot = document.getElementById('btnShoot');
+        const betInput = document.getElementById('betAmount');
+
+        let balance = 10000.00;
+        let isAiming = false;
+        let currentBet = 0;
+        let targetPos = 0; 
+        let targetDir = 1;
+        let animFrame;
+
+        function animateTarget() {
+            targetPos += 2.5 * targetDir; // Speed
+            if (targetPos > 100) { targetPos = 100; targetDir = -1; }
+            if (targetPos < 0) { targetPos = 0; targetDir = 1; }
+            
+            // Adjust offset so target visually aligns with ends
+            target.style.left = `calc(${targetPos}% - 40px)`;
+            
+            animFrame = requestAnimationFrame(animateTarget);
+        }
+
+        function startAim() {
+            const amt = parseFloat(betInput.value);
+            if (isNaN(amt) || amt <= 0) return alert('Invalid Bet Amount');
+            if (amt > balance) return alert('Insufficient Balance');
+
+            balance -= amt;
+            currentBet = amt;
+            balanceEl.innerText = balance.toFixed(2);
+            
+            isAiming = true;
+            btnStart.style.display = 'none';
+            btnShoot.style.display = 'block';
+            betInput.disabled = true;
+
+            arrow.classList.remove('shot');
+            statusBadge.innerText = 'TAP TO SHOOT WHEN CENTERED!';
+            statusBadge.style.color = '#fff';
+
+            animateTarget();
+        }
+
+        function shootArrow(e) {
+            if (e) e.preventDefault();
+            if (!isAiming) return;
+            
+            isAiming = false;
+            btnShoot.disabled = true;
+            cancelAnimationFrame(animFrame);
+
+            // Animate Bow & Arrow
+            bow.style.transform = 'scale(1.2)';
+            setTimeout(() => bow.style.transform = 'scale(1)', 100);
+            
+            arrow.classList.add('shot');
+
+            setTimeout(() => {
+                // Calculate Accuracy (Target is centered at 50%)
+                const distFromCenter = Math.abs(50 - targetPos);
+                let multi = 0;
+                let msg = '';
+
+                if (distFromCenter <= 5) { multi = 10.0; msg = 'BULLSEYE!'; } // Gold
+                else if (distFromCenter <= 15) { multi = 3.0; msg = 'INNER RING!'; } // White
+                else if (distFromCenter <= 25) { multi = 1.5; msg = 'OUTER RING!'; } // Red
+                else { multi = 0; msg = 'MISSED THE TARGET!'; }
+
+                if (multi > 0) {
+                    const win = currentBet * multi;
+                    balance += win;
+                    balanceEl.innerText = balance.toFixed(2);
+                    statusBadge.innerText = `${msg} WON ₹${win.toFixed(2)}`;
+                    statusBadge.style.color = 'var(--accent-gold)';
+                } else {
+                    statusBadge.innerText = msg;
+                    statusBadge.style.color = 'var(--accent-red)';
+                }
+
+                setTimeout(() => {
+                    btnStart.style.display = 'block';
+                    btnShoot.style.display = 'none';
+                    btnShoot.disabled = false;
+                    betInput.disabled = false;
+                    statusBadge.innerText = 'TIMING IS EVERYTHING';
+                    statusBadge.style.color = '#fff';
+                    arrow.classList.remove('shot');
+                }, 2000);
+
+            }, 300);
+        }
+    </script>
+</body>
+</html>
